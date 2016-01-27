@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h1 class="page-header">{{ object.method }} Results</h1>
+  User: {{ object.user.get_full_name }}<br/>
+  Parameters: {{ object.parameters }}<br/>
+  Runtime: {{ object.start_timestamp }} - {{ object.end_timestamp }}<br/>
+  Status: {{ object.get_status_display }}<br/>
+  <br/>
+  <div>
+    <!-- Content tabs -->
+    <ul id="content-tabs" class="nav nav-tabs" role="tablist">
+      {% if object.exception %}
+        <li role="presentation"><a href="#tabs-0" aria-controls="home" role="tab" data-toggle="tab">Error</a></li>
+      {% endif %}
+      {% for filename,file_content in object.content.items %}
+        <li role="presentation"><a href="#tabs-{{ forloop.counter	}}" aria-controls="home" role="tab" data-toggle="tab">{{ filename }}</a></li>
+      {% endfor %}
+    </ul>
+
+    <!-- Tab panes -->
+    <div class="tab-content">
+      {% if object.exception %}
+        <div role="tabpanel" class="tab-pane" id="tabs-0">
+          <pre>{{ object.exception }}</pre>
+        </div>
+      {% endif %}
+      {% for filename,file_context in files.items %}
+        <div role="tabpanel" class="tab-pane" id="tabs-{{ forloop.counter	}}">
+          {% if file_context.extension == 'csv' %}
+            <table class="table table-bordered table-striped table-hover">
+              {% for row in file_context.content %}
+                {% if forloop.first %}
+                  <tr>
+                    {% for col in row %}
+                      <th>{{ col }}</th>
+                    {% endfor %}
+                  </tr>
+                  <tbody>
+                {% else %}
+                  <tr>
+                    {% for col in row %}
+                      <td>{{ col }}</td>
+                    {% endfor %}
+                  </tr>
+                {% endif %}
+                {% if forloop.last %}
+                  </tbody>
+                {% endif %}
+              {% endfor %}
+            </table>
+          {% else %}
+            <pre>{{ file_context.content }}</pre>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+{% endblock content %}

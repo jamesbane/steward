@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h1 class="page-header">Jobs</h1>
+  <table class="table table-bordered table-striped table-hover">
+    <tr>
+      <th>Process</td>
+      <th>User</th>
+      <th>Start</th>
+      <th>End</th>
+      <th>Status</th>
+    </tr>
+    <tbody]>
+      {% for object in object_list %}
+        <tr>
+          <td><a href="{% url 'process-detail' object.id %}">{{ object.method }}</a></td>
+          <td>{{ object.user.get_full_name }}</td>
+          <td>{{ object.start_timestamp }}</td>
+          <td>{{ object.end_timestamp }}</td>
+          <td>{{ object.get_status_display }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock content %}

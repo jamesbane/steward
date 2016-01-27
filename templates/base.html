@@ -1,0 +1,136 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Steward for C Spire Business Solutions">
+    <meta name="author" content="Morgan Humes <mhumes@cspire.com>">
+    <link rel="icon" href="{% static 'images/favicon.ico' %}">
+
+    <title>Steward</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="{% static 'bower/bootstrap/dist/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'bower/font-awesome/css/font-awesome.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+  </head>
+
+  <body>
+
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="{% url 'index' %}">Steward</a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav navbar-right">
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                <i class="fa fa-lg fa-user"></i> {{ user.first_name }} {{ user.last_name }} <span class="caret"></span>
+              </a>
+              <ul class="dropdown-menu">
+                  <li class="dropdown-header">Account</li>
+                  <li><a href="#"><i class="fa fa-fw fa-user"></i> Profile</a></li>
+                  <li><a href="{% url "auth:logout" %}"><i class="fa fa-fw fa-sign-out"></i> Logout</a></li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-sm-3 col-md-2 sidebar">
+          <!-- Dashboards -->
+          <ul class="nav nav-sidebar">
+            <li class="header">Dashboards</li>
+            {% url 'index' as the_url %}
+            <li {% if request.get_full_path == the_url %}class="active"{% endif %}>
+              <a href="{{ the_url }}">
+                VoIP Network
+                {% if request.get_full_path == the_url %}
+                  <span class="sr-only">(current)</span>
+                  {% endif %}
+                </a>
+            </li>
+          </ul>
+          <!-- Tools -->
+          <ul class="nav nav-sidebar">
+            <li class="header">Tools</li>
+            <!-- {% url 'device-specific-migration-tool' as the_url %}
+            <li {% if request.get_full_path == the_url %}class="active"{% endif %}>
+              <a href="{{ the_url }}">
+                Device Specific Migration
+                {% if request.get_full_path == the_url %}
+                  <span class="sr-only">(current)</span>
+                  {% endif %}
+                </a>
+            </li> -->
+            {% url 'fraud-compliance-reset-tool' as the_url %}
+            <li {% if request.get_full_path == the_url %}class="active"{% endif %}>
+              <a href="{{ the_url }}">
+                Fraud Compliance Reset
+                {% if request.get_full_path == the_url %}
+                  <span class="sr-only">(current)</span>
+                {% endif %}
+              </a>
+            </li>
+          </ul>
+          <!-- Reports -->
+          <ul class="nav nav-sidebar">
+            <li class="header">Reports</li>
+            {% url 'firmware-report' as the_url %}
+            <li {% if request.get_full_path == the_url %}class="active"{% endif %}>
+              <a href="{{ the_url }}">
+                Firmware Report
+                {% if request.get_full_path == the_url %}
+                  <span class="sr-only">(current)</span>
+                {% endif %}
+              </a>
+            </li>
+            {% url 'registration-by-type' as the_url %}
+            <li {% if request.get_full_path == the_url %}class="active"{% endif %}>
+              <a href="{{ the_url }}">
+                Registration by Type
+                {% if request.get_full_path == the_url %}
+                  <span class="sr-only">(current)</span>
+                {% endif %}
+              </a>
+            </li>
+          </ul>
+          <!-- Jobs -->
+          <ul class="nav nav-sidebar">
+            <li class="header">Jobs</li>
+            {% url 'process-list' as the_url %}
+            <li {% if request.get_full_path == the_url %}class="active"{% endif %}>
+              <a href="{{ the_url }}">
+                All Jobs
+                {% if request.get_full_path == the_url %}
+                  <span class="sr-only">(current)</span>
+                {% endif %}
+              </a>
+            </li>
+          </ul>
+        </div>
+        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+          {% block content %}{% endblock content %}
+        </div>
+      </div>
+    </div>
+
+    {% block javascript %}
+      <script src="{% static 'bower/jquery/dist/jquery.min.js' %}"></script>
+      <script src="{% static 'bower/bootstrap/dist/js/bootstrap.min.js' %}"></script>
+      <script src="{% static 'js/tabs.js' %}"></script>
+    {% endblock javascript %}
+  </body>
+</html>
