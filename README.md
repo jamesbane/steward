@@ -1,4 +1,4 @@
-## Steward
+# Steward
 A web application to provide automation solutions.
 
 ### stew·ard
@@ -7,36 +7,36 @@ A web application to provide automation solutions.
 *verb:* manage or look after (another's property).
 
 
-### Development Requirements
+## Development Requirements
 A virtual environment for python is **strongly** recommended!
 
-#### Ubuntu Packages
+### Ubuntu Packages
 ```
 apt-get install git python3 python3-dev python3-virtualenv nodejs-legacy npm postgresql-9.4 postgresql-server-dev-9.4 redis-server redis-tools
 ```
 
-#### Virtual Environment
+### Virtual Environment
 ```
 virtualenv -p python3 venv
 source venv/bin/activate
 ```
 
-#### NPM Packages
+### NPM Packages
 ```
 npm install bower
 ```
 
-#### Bower Packages
+### Bower Packages
 ```
 bower install
 ```
 
-#### Python Packages
+### Python Packages
 ```
 pip install -r requirements.txt
 ```
 
-#### PostgreSQL
+### PostgreSQL
 The database user must be a superuser in order for the initial migration to work:
 ```
 -- Create a new user:
