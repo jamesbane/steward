@@ -11,30 +11,37 @@ https://docs.djangoproject.com/en/1.9/ref/settings/
 """
 
 import os
+import json
+import string
+import random
 
 
-PROJECT_ROOT = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), ".."),
-)
-
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+SETTINGS_FILE = os.path.abspath(os.path.join(BASE_DIR, "settings.json"))
+if os.path.isfile(SETTINGS_FILE):
+    with open(SETTINGS_FILE) as f:
+        env = json.loads(f.read())
+else:
+    raise Exception('Could not open settings.json')
 
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/1.9/howto/deployment/checklist/
+# =====================================
+# Core settings
+# =====================================
+if 'secret_key' in env['django']:
+    SECRET_KEY = env['django']['secret_key']
+else:
+    SECRET_KEY = ''.join([random.SystemRandom().choice("{}{}{}".format(string.ascii_letters, string.digits, string.punctuation)) for i in range(50)])
+    env['django']['secret_key'] = SECRET_KEY
+    with open(SETTINGS_FILE, 'w') as f:
+        json.dump(env, f, sort_keys=True, indent=4)
+DEBUG = env['django']['debug']
+ALLOWED_HOSTS = env['django']['allowed_hosts']
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = ')wh5bt&wlj&^5ui=#(hvyo!2%nkyx)#hba0$8)mbozmoyfzhv!'
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-ALLOWED_HOSTS = []
-
-
+# =====================================
 # Application definition
-
+# =====================================
 INSTALLED_APPS = [
     # Django
     'django.contrib.admin',
@@ -52,7 +59,6 @@ INSTALLED_APPS = [
     # Third Party
     'django_rq',
 ]
-
 MIDDLEWARE_CLASSES = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -63,13 +69,11 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
-
 ROOT_URLCONF = 'steward.urls'
-
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': ['{}/templates'.format(PROJECT_ROOT)],
+        'DIRS': ['{}/templates'.format(BASE_DIR)],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -81,28 +85,27 @@ TEMPLATES = [
         },
     },
 ]
-
 WSGI_APPLICATION = 'steward.wsgi.application'
 
 
+# =====================================
 # Database
-# https://docs.djangoproject.com/en/1.9/ref/settings/#databases
-
+# =====================================
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'HOST': '127.0.0.1',
-        'PORT': '5432',
-        'NAME': 'steward',
-        'USER': 'steward',
-        'PASSWORD': 'steward',
+        'ENGINE': env['database']['engine'],
+        'NAME': env['database']['db_name'],
+        'USER': env['database']['username'],
+        'PASSWORD': env['database']['password'],
+        'HOST': env['database']['host'],
+        'PORT': env['database']['port'],
     }
 }
 
 
+# =====================================
 # Password validation
-# https://docs.djangoproject.com/en/1.9/ref/settings/#auth-password-validators
-
+# =====================================
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -118,34 +121,35 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+
+# =====================================
 # Where to redirect after login (and no next reference)
+# =====================================
 LOGIN_REDIRECT_URL = "/"
 LOGIN_URL = "/accounts/login/"
 LOGOUT_URL = "/accounts/logout/"
 
 
-
+# =====================================
 # Internationalization
-# https://docs.djangoproject.com/en/1.9/topics/i18n/
-
+# =====================================
 LANGUAGE_CODE = 'en-us'
-
 TIME_ZONE = 'UTC'
-
 USE_I18N = True
-
 USE_L10N = True
-
 USE_TZ = True
 
 
+# =====================================
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/1.9/howto/static-files/
-
+# =====================================
 STATIC_URL = '/static/'
-STATIC_ROOT = '{}/static/'.format(PROJECT_ROOT)
+STATIC_ROOT = '{}/static/'.format(BASE_DIR)
 
 
+# =====================================
+# Redis Queue
+# =====================================
 RQ_QUEUES = {
     'default': {
         'HOST': 'localhost',
@@ -153,3 +157,19 @@ RQ_QUEUES = {
         'DB': 0,
     },
 }
+
+
+# =====================================
+# Email
+# =====================================
+EMAIL_HOST = env['email']['smtp_server']
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+DEFAULT_FROM_EMAIL = env['email']['from_address']
+SERVER_EMAIL = env['email']['from_address']
+
+
+# =====================================
+# Admins & Managers
+# =====================================
+ADMINS = env['admins']
+MANAGERS = ADMINS

@@ -1,0 +1,22 @@
+{
+    "admins": [
+        ["Admin 1", "admin1@example.com"],
+        ["Admin 2", "admin2@example.com"]
+    ],
+    "database": {
+        "engine": "django.db.backends.postgresql_psycopg2",
+        "host": "localhost",
+        "port": "5432",
+        "db_name": "test",
+        "username": "test",
+        "password": "test"
+    },
+    "django": {
+        "debug": true,
+        "allowed_hosts": []
+    },
+    "email": {
+        "smtp_server": "smtp.example.com",
+        "from_address": "system@example.com"
+    }
+}
