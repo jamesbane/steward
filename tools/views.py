@@ -147,7 +147,7 @@ class ToolView(TemplateView):
             # Forcing possible reverse_lazy evaluation
             url = force_text(self.success_url)
         else:
-            url = reverse('result-detail', args=(self.object.pk,))
+            url = reverse('process-detail', args=(self.object.pk,))
         return url
 
 
@@ -167,6 +167,13 @@ class FraudComplianceResetToolView(LoginRequiredMixin, ToolView):
     process_function = 'tools.jobs.fraud_compliance_reset.fraud_compliance_reset'
     template_name = 'tools/fraud_compliance_reset_tool.html'
     form_class = tools.forms.TypedProviderGroupForm
+
+
+class LabResetToolView(LoginRequiredMixin, ToolView):
+    process_name = 'Lab Enterrpise Reset'
+    process_function = 'tools.jobs.lab_rebuild.lab_rebuild'
+    template_name = 'tools/lab_rebuild.html'
+    form_class = tools.forms.LabRebuildForm
 
 
 class FirmwareReportView(LoginRequiredMixin, ToolView):

@@ -21,6 +21,7 @@ urlpatterns = [
     # Tools
     url(r'^tools/device-specific-migration-tool$', tools.views.DeviceSpecificMigrationToolView.as_view(), name='device-specific-migration-tool'),
     url(r'^tools/fraud-compliance-reset-tool$', tools.views.FraudComplianceResetToolView.as_view(), name='fraud-compliance-reset-tool'),
+    url(r'^tools/lab-rebuild-tool$', tools.views.LabResetToolView.as_view(), name='lab-rebuild-tool'),
     # Reports
     url(r'^reports/firmware-report$', tools.views.FirmwareReportView.as_view(), name='firmware-report'),
     url(r'^reports/registration-by-type$', tools.views.RegistrationByTypeReportView.as_view(), name='registration-by-type'),

@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h1 class="page-header">Lab Rebuild</h1>
+  <form method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <p><label></label><input id="submit" type="submit" value="Run"/></p>
+  </form>
+{% endblock content %}
+
+{% block javascript %}
+  {{ block.super }}
+  {% if form.javascript %}
+    <script src="{{ form.javascript }}"></script>
+  {% endif %}
+{% endblock javascript %}

@@ -84,6 +84,15 @@
                 {% endif %}
               </a>
             </li>
+            {% url 'lab-rebuild-tool' as the_url %}
+            <li {% if request.get_full_path == the_url %}class="active"{% endif %}>
+              <a href="{{ the_url }}">
+                Lab Rebuild
+                {% if request.get_full_path == the_url %}
+                  <span class="sr-only">(current)</span>
+                {% endif %}
+              </a>
+            </li>
           </ul>
           <!-- Reports -->
           <ul class="nav nav-sidebar">
