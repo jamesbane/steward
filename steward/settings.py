@@ -12,8 +12,13 @@ https://docs.djangoproject.com/en/1.9/ref/settings/
 
 import os
 import json
+import ldap
 import string
 import random
+import logging
+
+from django_auth_ldap.config import LDAPSearch, GroupOfNamesType
+
 
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -86,6 +91,33 @@ TEMPLATES = [
     },
 ]
 WSGI_APPLICATION = 'steward.wsgi.application'
+
+
+# =====================================
+# Authentication
+# =====================================
+AUTHENTICATION_BACKENDS = [
+    'django_auth_ldap.backend.LDAPBackend',
+    'django.contrib.auth.backends.ModelBackend',
+]
+AUTH_LDAP_SERVER_URI = "ldap://ds01.ipa.cspirevoice.com"
+AUTH_LDAP_BIND_DN = "uid=steward,cn=sysaccounts,cn=etc,dc=ipa,dc=cspirevoice,dc=com"
+AUTH_LDAP_BIND_PASSWORD = "najica123"
+AUTH_LDAP_GROUP_TYPE = GroupOfNamesType(name_attr="cn")
+AUTH_LDAP_GROUP_SEARCH = LDAPSearch("cn=groups,cn=accounts,dc=ipa,dc=cspirevoice,dc=com",
+    ldap.SCOPE_SUBTREE, "(objectClass=groupOfNames)"
+)
+AUTH_LDAP_USER_DN_TEMPLATE = "uid=%(user)s,cn=users,cn=accounts,dc=ipa,dc=cspirevoice,dc=com"
+AUTH_LDAP_USER_ATTR_MAP = {"first_name": "givenName", "last_name": "sn", "email": "mail"}
+AUTH_LDAP_USER_FLAGS_BY_GROUP = {
+    "is_active": "cn=admins,cn=groups,cn=accounts,dc=ipa,dc=cspirevoice,dc=com",
+    "is_staff": "cn=admins,cn=groups,cn=accounts,dc=ipa,dc=cspirevoice,dc=com",
+    "is_superuser": "cn=admins,cn=groups,cn=accounts,dc=ipa,dc=cspirevoice,dc=com",
+}
+
+# logger = logging.getLogger('django_auth_ldap')
+# logger.addHandler(logging.StreamHandler())
+# logger.setLevel(logging.DEBUG)
 
 
 # =====================================
