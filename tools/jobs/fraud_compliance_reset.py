@@ -133,11 +133,9 @@ class FraudCompliance():
                                    'line_port': line_port,
                                    'line_port_type': 'Shared'})
 
-            print(self._device_type_cache)
-            print(line_ports)
-
             auth_username = '{}_{}'.format(user_id, Util.random_password(length=16, specials=False))
             auth_password = Util.random_password(length=32)
+            user_password = Util.random_password(length=32)
 
             # Reboot phones
             for line_port in line_ports:
@@ -157,6 +155,11 @@ class FraudCompliance():
             resp6 = self._bw.UserAuthenticationModifyRequest(userId=user_id, userName=auth_username, newPassword=auth_password)
             content.write(self.parse_response(resp6, level))
 
+            # Reset user passwords
+            content.write('{}    UserModifyRequest17sp4(userId={}, newPassword={}) >> '.format('    '*level, user_id, user_password)),
+            resp6 = self._bw.UserModifyRequest17sp4(userId=user_id, newPassword=user_password)
+            content.write(self.parse_response(resp6, level))
+
             # Rebuild files
             for line_port in line_ports:
                 if line_port['device_level'] == 'Group':
@@ -174,6 +177,7 @@ class FraudCompliance():
             content.write(self.parse_response(resp8, level))
 
         # Deactivate intercept group
+        content.write('{}Post Process Group {}::{}\n'.format('    '*level, provider_id, group_id))
         content.write('{}    GroupInterceptGroupModifyRequest16(serviceProviderId={}, groupId={}, isActive=False) >> '.format('    '*level, provider_id, group_id)),
         resp9 = self._bw.GroupInterceptGroupModifyRequest16(serviceProviderId=provider_id, groupId=group_id, isActive=False)
         content.write(self.parse_response(resp9, level))
