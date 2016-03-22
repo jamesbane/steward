@@ -7,6 +7,8 @@
     <p>This tool resets critical features, passwords and settings commonly found to be abused for fraudulent purposes. It can be run on either a Service Provider or an Enterprise. When run on a Service Provider, a Group is required. When running on an Enterprise, a group is optional. If no group is provided, <strong>it is assumed that all groups require action within the Enterprise.</strong></p>
     <h4>Summary of actions:</h4>
     <pre>
+GroupOutgoingCallingPlanOriginatingModifyListRequest
+GroupOutgoingCallingPlanRedirectingModifyListRequest
 UserGetListInGroupRequest
 for each user:
     UserOutgoingCallingPlanOriginatingModifyRequest
@@ -18,8 +20,8 @@ for each user:
     Generate New Auth Username
     Generate New Auth Password
     GroupAccessDeviceResetRequest or ServiceProviderAccessDeviceResetRequest
-    UserAuthenticationModifyRequest
-    UserModifyRequest17sp4(newPassword)
+    UserModifyRequest17sp4(newUserPassword)
+    UserAuthenticationModifyRequest(newAuthUsername, newAuthPassword)
     GroupCPEConfigRebuildDeviceConfigFileRequest or ServiceProviderCPEConfigRebuildDeviceConfigFileRequest
     UserInterceptUserModifyRequest16(isActive=False)
 GroupInterceptGroupModifyRequest16(isActive=False)

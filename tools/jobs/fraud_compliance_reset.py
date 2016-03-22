@@ -4,6 +4,7 @@ import sys
 import time
 import datetime
 import traceback
+from collections import OrderedDict
 
 # Django
 from django.utils import timezone
@@ -64,23 +65,61 @@ class FraudCompliance():
         content = io.StringIO()
         passwords = io.StringIO()
         content.write('{}Processing Group {}::{}\n'.format('    '*level, provider_id, group_id))
-        content.write('{}    UserGetListInGroupRequest(serviceProviderId={}, groupId={}) >> '.format('    '*level, provider_id, group_id)),
-        resp1 = self._bw.UserGetListInGroupRequest(serviceProviderId=provider_id, groupId=group_id)
+        orig_permissions = OrderedDict([
+            ('group', 'Allow'),
+            ('local', 'Allow'),
+            ('tollFree', 'Allow'),
+            ('toll', 'Allow'),
+            ('international', 'Disallow'),
+            ('operatorAssisted', 'Allow'),
+            ('chargeableDirectoryAssisted', 'Allow'),
+            ('specialServicesI', 'Allow'),
+            ('specialServicesII', 'Allow'),
+            ('premiumServicesI', 'Allow'),
+            ('premiumServicesII', 'Allow'),
+            ('casual', 'Disallow'),
+            ('urlDialing', 'Disallow'),
+            ('unknown', 'Disallow'),
+        ])
+        content.write('{}    GroupOutgoingCallingPlanOriginatingModifyListRequest(serviceProviderId={}, groupId={}, origPermissions) >> '.format('    '*level, provider_id, group_id)),
+        resp0 = self._bw.GroupOutgoingCallingPlanOriginatingModifyListRequest(provider_id, group_id, groupPermissions=orig_permissions)
+        content.write(self.parse_response(resp0, level))
+        redirect_permissions = OrderedDict([
+            ('group', True),
+            ('local', True),
+            ('tollFree', True),
+            ('toll', True),
+            ('international', False),
+            ('operatorAssisted', False),
+            ('chargeableDirectoryAssisted', False),
+            ('specialServicesI', False),
+            ('specialServicesII', False),
+            ('premiumServicesI', False),
+            ('premiumServicesII', False),
+            ('casual', False),
+            ('urlDialing', False),
+            ('unknown', False),
+        ])
+        content.write('{}    GroupOutgoingCallingPlanRedirectingModifyListRequest(serviceProviderId={}, groupId={}, redirectPermissions) >> '.format('    '*level, provider_id, group_id)),
+        resp1 = self._bw.GroupOutgoingCallingPlanRedirectingModifyListRequest(provider_id, group_id, groupPermissions=redirect_permissions)
         content.write(self.parse_response(resp1, level))
-        users = resp1['data']['userTable']
+        content.write('{}    UserGetListInGroupRequest(serviceProviderId={}, groupId={}) >> '.format('    '*level, provider_id, group_id)),
+        resp2 = self._bw.UserGetListInGroupRequest(serviceProviderId=provider_id, groupId=group_id)
+        content.write(self.parse_response(resp2, level))
+        users = resp2['data']['userTable']
         for user in users:
             user_id = user['User Id']
             content.write('{}  User {}\n'.format('    '*level, user_id))
             # Outbound calling plan set to group
             content.write('{}    UserOutgoingCallingPlanOriginatingModifyRequest(useCustomSettings=False) >> '.format('    '*level)),
-            resp2 = self._bw.UserOutgoingCallingPlanOriginatingModifyRequest(userId=user_id, useCustomSettings=False)
-            content.write(self.parse_response(resp2, level))
+            resp3 = self._bw.UserOutgoingCallingPlanOriginatingModifyRequest(userId=user_id, useCustomSettings=False)
+            content.write(self.parse_response(resp3, level))
             # Get devices
             line_ports = list()
             content.write('{}    UserGetRequest19(userId={}) >> '.format('    '*level, user_id)),
-            resp3 = self._bw.UserGetRequest19(userId=user_id)
-            content.write(self.parse_response(resp3, level))
-            user_info = resp3['data']
+            resp4 = self._bw.UserGetRequest19(userId=user_id)
+            content.write(self.parse_response(resp4, level))
+            user_info = resp4['data']
 
             # primary device
             if 'accessDeviceEndpoint' in user_info:
@@ -88,14 +127,14 @@ class FraudCompliance():
                 device_level = user_info['accessDeviceEndpoint']['accessDevice']['deviceLevel']
                 line_port = user_info['accessDeviceEndpoint']['linePort']
                 if device_level == 'Group':
-                    resp4 = self._bw.GroupAccessDeviceGetRequest18sp1(provider_id, group_id, device_name)
-                    device_type = resp4['data']['deviceType']
+                    resp5 = self._bw.GroupAccessDeviceGetRequest18sp1(provider_id, group_id, device_name)
+                    device_type = resp5['data']['deviceType']
                 elif device_level == 'Service Provider':
-                    resp4 = self._bw.ServiceProviderAccessDeviceGetRequest18sp1(provider_id, device_name)
-                    device_type = resp4['data']['deviceType']
+                    resp5 = self._bw.ServiceProviderAccessDeviceGetRequest18sp1(provider_id, device_name)
+                    device_type = resp5['data']['deviceType']
                 if device_type not in self._device_type_cache:
-                    resp4 = self._bw.SystemDeviceTypeGetRequest19(device_type)
-                    if resp4['data']['deviceTypeConfigurationOption'] in ('Device Management', 'Legacy'):
+                    resp5 = self._bw.SystemDeviceTypeGetRequest19(device_type)
+                    if resp5['data']['deviceTypeConfigurationOption'] in ('Device Management', 'Legacy'):
                         self._device_type_cache[device_type] = True
                     else:
                         self._device_type_cache[device_type] = False
@@ -110,17 +149,17 @@ class FraudCompliance():
 
             # shared call appearances
             content.write('{}    UserSharedCallAppearanceGetRequest16sp2(userId={}) >> '.format('    '*level, user_id)),
-            resp4 = self._bw.UserSharedCallAppearanceGetRequest16sp2(userId=user_id)
+            resp6 = self._bw.UserSharedCallAppearanceGetRequest16sp2(userId=user_id)
             content.write(self.parse_response(resp4, level))
-            appearances = resp4['data']['endpointTable']
+            appearances = resp6['data']['endpointTable']
             for appearance in appearances:
                 device_name = appearance['Device Name']
                 device_level = appearance['Device Level']
                 device_type = appearance['Device Type']
                 line_port = appearance['Line/Port']
                 if device_type not in self._device_type_cache:
-                    resp4 = self._bw.SystemDeviceTypeGetRequest19(device_type)
-                    if resp4['data']['deviceTypeConfigurationOption'] in ('Device Management', 'Legacy'):
+                    resp7 = self._bw.SystemDeviceTypeGetRequest19(device_type)
+                    if resp7['data']['deviceTypeConfigurationOption'] in ('Device Management', 'Legacy'):
                         self._device_type_cache[device_type] = True
                     else:
                         self._device_type_cache[device_type] = False
@@ -143,44 +182,44 @@ class FraudCompliance():
                     passwords.write('"{}","{}","{}","{}","{}","{}","{}","{}"\n'.format(provider_id, group_id, line_port['device_level'], line_port['device_name'], user_id, line_port['line_port'], auth_username, auth_password))
                 if line_port['device_level'] == 'Group':
                     content.write('{}    GroupAccessDeviceResetRequest(serviceProviderId={}, groupId={}, deviceName={}) >> '.format('    '*level, provider_id, group_id, line_port['device_name'])),
-                    resp5 = self._bw.GroupAccessDeviceResetRequest(serviceProviderId=provider_id, groupId=group_id, deviceName=line_port['device_name'])
-                    content.write(self.parse_response(resp5, level))
+                    resp8 = self._bw.GroupAccessDeviceResetRequest(serviceProviderId=provider_id, groupId=group_id, deviceName=line_port['device_name'])
+                    content.write(self.parse_response(resp8, level))
                 elif line_port['device_level'] == 'Service Provider':
                     content.write('{}    ServiceProviderAccessDeviceResetRequest(serviceProviderId={}, deviceName={}) >> '.format('    '*level, provider_id, line_port['device_name'])),
-                    resp5 = self._bw.ServiceProviderAccessDeviceResetRequest(serviceProviderId=provider_id, deviceName=line_port['device_name'])
-                    content.write(self.parse_response(resp5, level))
-
-            # Reset sip passwords
-            content.write('{}    UserAuthenticationModifyRequest(userId={}, userName={}, newPassword={}) >> '.format('    '*level, user_id, auth_username, auth_password)),
-            resp6 = self._bw.UserAuthenticationModifyRequest(userId=user_id, userName=auth_username, newPassword=auth_password)
-            content.write(self.parse_response(resp6, level))
+                    resp8 = self._bw.ServiceProviderAccessDeviceResetRequest(serviceProviderId=provider_id, deviceName=line_port['device_name'])
+                    content.write(self.parse_response(resp8, level))
 
             # Reset user passwords
-            content.write('{}    UserModifyRequest17sp4(userId={}, newPassword={}) >> '.format('    '*level, user_id, user_password)),
-            resp6 = self._bw.UserModifyRequest17sp4(userId=user_id, newPassword=user_password)
-            content.write(self.parse_response(resp6, level))
+            content.write('{}    UserModifyRequest17sp4(userId={}, newPassword="...") >> '.format('    '*level, user_id, user_password)),
+            resp9 = self._bw.UserModifyRequest17sp4(userId=user_id, newPassword=user_password)
+            content.write(self.parse_response(resp9, level))
+
+            # Reset sip passwords
+            content.write('{}    UserAuthenticationModifyRequest(userId={}, userName={}, newPassword="...") >> '.format('    '*level, user_id, auth_username, auth_password)),
+            resp9 = self._bw.UserAuthenticationModifyRequest(userId=user_id, userName=auth_username, newPassword=auth_password)
+            content.write(self.parse_response(resp9, level))
 
             # Rebuild files
             for line_port in line_ports:
                 if line_port['device_level'] == 'Group':
                     content.write('{}    GroupCPEConfigRebuildDeviceConfigFileRequest(serviceProviderId={}, groupId={}, deviceName={}) >> '.format('    '*level, provider_id, group_id, line_port['device_name'])),
-                    resp7 = self._bw.GroupCPEConfigRebuildDeviceConfigFileRequest(serviceProviderId=provider_id, groupId=group_id, deviceName=line_port['device_name'])
-                    content.write(self.parse_response(resp7, level))
+                    resp10 = self._bw.GroupCPEConfigRebuildDeviceConfigFileRequest(serviceProviderId=provider_id, groupId=group_id, deviceName=line_port['device_name'])
+                    content.write(self.parse_response(resp10, level))
                 elif device['device_level'] == 'Service Provider':
                     content.write('{}    ServiceProviderCPEConfigRebuildDeviceConfigFileRequest(serviceProviderId={}, deviceName={}) >> '.format('    '*level, provider_id, line_port['device_name'])),
-                    resp7 = self._bw.ServiceProviderCPEConfigRebuildDeviceConfigFileRequest(serviceProviderId=provider_id, deviceName=line_port['device_name'])
-                    content.write(self.parse_response(resp7, level))
+                    resp10 = self._bw.ServiceProviderCPEConfigRebuildDeviceConfigFileRequest(serviceProviderId=provider_id, deviceName=line_port['device_name'])
+                    content.write(self.parse_response(resp10, level))
 
             # Deactivate intercept user
             content.write('{}    UserInterceptUserModifyRequest16(userId={}, isActive=False) >> '.format('    '*level, user_id)),
-            resp8 = self._bw.UserInterceptUserModifyRequest16(userId=user_id, isActive=False)
-            content.write(self.parse_response(resp8, level))
+            resp11 = self._bw.UserInterceptUserModifyRequest16(userId=user_id, isActive=False)
+            content.write(self.parse_response(resp11, level))
 
         # Deactivate intercept group
         content.write('{}Post Process Group {}::{}\n'.format('    '*level, provider_id, group_id))
         content.write('{}    GroupInterceptGroupModifyRequest16(serviceProviderId={}, groupId={}, isActive=False) >> '.format('    '*level, provider_id, group_id)),
-        resp9 = self._bw.GroupInterceptGroupModifyRequest16(serviceProviderId=provider_id, groupId=group_id, isActive=False)
-        content.write(self.parse_response(resp9, level))
+        resp12 = self._bw.GroupInterceptGroupModifyRequest16(serviceProviderId=provider_id, groupId=group_id, isActive=False)
+        content.write(self.parse_response(resp12, level))
 
         rval = {
             'content': content.getvalue(),
@@ -207,14 +246,14 @@ def fraud_compliance_reset(process_id):
         group_id = process.parameters.get('group_id', None)
 
         if provider_id and group_id:
-            content_key_name = "toolchest_fraud_compliance_{}-{}_{}.txt".format(provider_id, group_id, datetime.datetime.now().strftime("%Y-%m-%d-%H%M%S"))
-            password_key_name = "toolchest_fraud_compliance_passwords_{}-{}_{}.csv".format(provider_id, group_id, datetime.datetime.now().strftime("%Y-%m-%d-%H%M%S"))
+            content_key_name = "log_{}-{}_{}.txt".format(provider_id, group_id, datetime.datetime.now().strftime("%Y-%m-%d-%H%M%S"))
+            password_key_name = "passwords_{}-{}_{}.csv".format(provider_id, group_id, datetime.datetime.now().strftime("%Y-%m-%d-%H%M%S"))
         elif provider_id:
-            content_key_name = "toolchest_fraud_compliance_{}_{}.txt".format(provider_id, datetime.datetime.now().strftime("%Y-%m-%d-%H%M%S"))
-            password_key_name = "toolchest_fraud_compliance_passwords_{}_{}.csv".format(provider_id, datetime.datetime.now().strftime("%Y-%m-%d-%H%M%S"))
+            content_key_name = "log_{}_{}.txt".format(provider_id, datetime.datetime.now().strftime("%Y-%m-%d-%H%M%S"))
+            password_key_name = "passwords_{}_{}.csv".format(provider_id, datetime.datetime.now().strftime("%Y-%m-%d-%H%M%S"))
         else:
-            content_key_name = "toolchest_fraud_compliance_{}.txt".format(datetime.datetime.now().strftime("%Y-%m-%d-%H%M%S"))
-            password_key_name = "toolchest_fraud_compliance_passwords_{}.csv".format(datetime.datetime.now().strftime("%Y-%m-%d-%H%M%S"))
+            content_key_name = "log_{}.txt".format(datetime.datetime.now().strftime("%Y-%m-%d-%H%M%S"))
+            password_key_name = "passwords_{}.csv".format(datetime.datetime.now().strftime("%Y-%m-%d-%H%M%S"))
 
         file_content = io.StringIO()
         password_content = io.StringIO()
