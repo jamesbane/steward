@@ -45,6 +45,20 @@ class FraudCompliance():
         resp0 = self._bw.GroupGetListInServiceProviderRequest(serviceProviderId=provider_id)
         return resp0['data']['groupTable']
 
+    @staticmethod
+    def has_primary_line_port(device_user_table):
+        for line_port in device_user_table:
+            if line_port['Primary Line/Port'] == 'true':
+                return True
+        return False
+
+    @staticmethod
+    def get_first_primary_line_port(line_ports):
+        for line_port in line_ports:
+            if line_port['Endpoint Type'] == 'Primary':
+                return line_port
+        return None
+
     def parse_response(self, response, level):
         content = io.StringIO()
         content.write('{}\n'.format(response['type']))
@@ -103,6 +117,31 @@ class FraudCompliance():
         content.write('{}    GroupOutgoingCallingPlanRedirectingModifyListRequest(serviceProviderId={}, groupId={}, redirectPermissions) >> '.format('    '*level, provider_id, group_id)),
         resp1 = self._bw.GroupOutgoingCallingPlanRedirectingModifyListRequest(provider_id, group_id, groupPermissions=redirect_permissions)
         content.write(self.parse_response(resp1, level))
+
+        # Reboot phones
+        content.write('    {}GroupAccessDeviceGetListRequest({}, {}) '.format('    '*level, provider_id, group_id))
+        resp3 = self._bw.GroupAccessDeviceGetListRequest(provider_id, group_id)
+        content.write(self.parse_response(resp3, level))
+        devices = resp3['data']['accessDeviceTable']
+        for device in devices:
+            device_name = device['Device Name']
+            device_type = device['Device Type']
+            content.write('{}GroupAccessDeviceGetUserListRequest({}, {}, {}) '.format('    '*level, provider_id, group_id, device_name))
+            resp0 = self._bw.GroupAccessDeviceGetUserListRequest(provider_id, group_id, device_name)
+            content.write(self.parse_response(resp0, level))
+            line_ports = sorted(resp0['data']['deviceUserTable'], key=lambda k: k['Order'])
+            if len(line_ports) > 0 and not FraudCompliance.has_primary_line_port(line_ports):
+                line_port = FraudCompliance.get_first_primary_line_port(line_ports)
+                if line_port is not None:
+                    content.write('{}GroupAccessDeviceModifyUserRequest({}, {}, {}, {}, isPrimaryLinePort={}) '.format('    '*(level+1), provider_id, group_id, device_name, line_port['Line/Port'], True))
+                    resp1 = self._bw.GroupAccessDeviceModifyUserRequest(serviceProviderId=provider_id, groupId=group_id, deviceName=device_name, linePort=line_port['Line/Port'], isPrimaryLinePort=True)
+                    content.write(self.parse_response(resp1, level))
+            # Reboot device
+            content.write('{}    GroupAccessDeviceResetRequest(serviceProviderId={}, groupId={}, deviceName={}) >> '.format('    '*level, provider_id, group_id, device_name)),
+            resp8 = self._bw.GroupAccessDeviceResetRequest(serviceProviderId=provider_id, groupId=group_id, deviceName=device_name)
+            content.write(self.parse_response(resp8, level))
+
+
         content.write('{}    UserGetListInGroupRequest(serviceProviderId={}, groupId={}) >> '.format('    '*level, provider_id, group_id)),
         resp2 = self._bw.UserGetListInGroupRequest(serviceProviderId=provider_id, groupId=group_id)
         content.write(self.parse_response(resp2, level))
@@ -176,19 +215,6 @@ class FraudCompliance():
             auth_password = Util.random_password(length=32)
             user_password = Util.random_password(length=32)
 
-            # Reboot phones
-            for line_port in line_ports:
-                if not line_port['device_type_dms']:
-                    passwords.write('"{}","{}","{}","{}","{}","{}","{}","{}"\n'.format(provider_id, group_id, line_port['device_level'], line_port['device_name'], user_id, line_port['line_port'], auth_username, auth_password))
-                if line_port['device_level'] == 'Group':
-                    content.write('{}    GroupAccessDeviceResetRequest(serviceProviderId={}, groupId={}, deviceName={}) >> '.format('    '*level, provider_id, group_id, line_port['device_name'])),
-                    resp8 = self._bw.GroupAccessDeviceResetRequest(serviceProviderId=provider_id, groupId=group_id, deviceName=line_port['device_name'])
-                    content.write(self.parse_response(resp8, level))
-                elif line_port['device_level'] == 'Service Provider':
-                    content.write('{}    ServiceProviderAccessDeviceResetRequest(serviceProviderId={}, deviceName={}) >> '.format('    '*level, provider_id, line_port['device_name'])),
-                    resp8 = self._bw.ServiceProviderAccessDeviceResetRequest(serviceProviderId=provider_id, deviceName=line_port['device_name'])
-                    content.write(self.parse_response(resp8, level))
-
             # Reset user passwords
             content.write('{}    UserModifyRequest17sp4(userId={}, newPassword="...") >> '.format('    '*level, user_id, user_password)),
             resp9 = self._bw.UserModifyRequest17sp4(userId=user_id, newPassword=user_password)
@@ -198,6 +224,11 @@ class FraudCompliance():
             content.write('{}    UserAuthenticationModifyRequest(userId={}, userName={}, newPassword="...") >> '.format('    '*level, user_id, auth_username, auth_password)),
             resp9 = self._bw.UserAuthenticationModifyRequest(userId=user_id, userName=auth_username, newPassword=auth_password)
             content.write(self.parse_response(resp9, level))
+
+            # Line/Port Passwords
+            for line_port in line_ports:
+                if not line_port['device_type_dms']:
+                    passwords.write('"{}","{}","{}","{}","{}","{}","{}","{}"\n'.format(provider_id, group_id, line_port['device_level'], line_port['device_name'], user_id, line_port['line_port'], auth_username, auth_password))
 
             # Rebuild files
             for line_port in line_ports:
