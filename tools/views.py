@@ -170,7 +170,7 @@ class FraudComplianceResetToolView(LoginRequiredMixin, ToolView):
 
 
 class LabResetToolView(LoginRequiredMixin, ToolView):
-    process_name = 'Lab Enterrpise Reset'
+    process_name = 'Lab Rebuild'
     process_function = 'tools.jobs.lab_rebuild.lab_rebuild'
     template_name = 'tools/lab_rebuild.html'
     form_class = tools.forms.LabRebuildForm
