@@ -28,6 +28,10 @@ class IndexView(LoginRequiredMixin, TemplateView):
 class ProcessListView(LoginRequiredMixin, ListView):
     model = Process
 
+    def get_queryset(self):
+        queryset = super(ProcessListView, self).get_queryset()
+        return queryset.defer("content")
+
 
 class ProcessDetailView(LoginRequiredMixin, DetailView):
     model = Process
