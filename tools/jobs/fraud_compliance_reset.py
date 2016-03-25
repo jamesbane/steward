@@ -130,7 +130,7 @@ class FraudCompliance():
             resp0 = self._bw.GroupAccessDeviceGetUserListRequest(provider_id, group_id, device_name)
             content.write(self.parse_response(resp0, level))
             if 'deviceUserTable' in resp0['data'] and len(resp0['data']['deviceUserTable']) > 0:
-                line_ports = sorted(resp0['data']['deviceUserTable'], key=lambda k: k['Order'])
+                line_ports = sorted(resp0['data']['deviceUserTable'], key=lambda k: "None" if k['Order'] is None else k['Order'])
                 if not FraudCompliance.has_primary_line_port(line_ports):
                     line_port = FraudCompliance.get_first_primary_line_port(line_ports)
                     if line_port is not None:
