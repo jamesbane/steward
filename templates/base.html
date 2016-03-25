@@ -106,6 +106,15 @@
                 {% endif %}
               </a>
             </li>
+            {% url 'registrations' as the_url %}
+            <li {% if request.get_full_path == the_url %}class="active"{% endif %}>
+              <a href="{{ the_url }}">
+                Registrations
+                {% if request.get_full_path == the_url %}
+                  <span class="sr-only">(current)</span>
+                {% endif %}
+              </a>
+            </li>
             {% url 'registration-by-type' as the_url %}
             <li {% if request.get_full_path == the_url %}class="active"{% endif %}>
               <a href="{{ the_url }}">

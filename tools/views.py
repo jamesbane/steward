@@ -155,10 +155,6 @@ class ToolView(TemplateView):
         return url
 
 
-class ReportView(TemplateView):
-    pass
-
-
 class DeviceSpecificMigrationToolView(LoginRequiredMixin, ToolView):
     process_name = 'Device Specific Migration'
     process_function = 'tools.jobs.device_specific_migration.device_specific_migration'
@@ -184,6 +180,12 @@ class FirmwareReportView(LoginRequiredMixin, ToolView):
     process_name = 'Firmware Report'
     process_function = 'tools.jobs.firmware_report.firmware_report'
     template_name = 'tools/firmware_report.html'
+    form_class = tools.forms.ProviderGroupForm
+
+class RegistrationReportView(LoginRequiredMixin, ToolView):
+    process_name = 'Registration Report'
+    process_function = 'tools.jobs.registration_report.registration_report'
+    template_name = 'tools/registration_report.html'
     form_class = tools.forms.ProviderGroupForm
 
 class RegistrationByTypeReportView(LoginRequiredMixin, ToolView):
