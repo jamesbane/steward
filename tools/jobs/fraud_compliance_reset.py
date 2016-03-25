@@ -229,7 +229,7 @@ class FraudCompliance():
             # Line/Port Passwords
             for line_port in line_ports:
                 if not line_port['device_type_dms']:
-                    passwords.write('"{}","{}","{}","{}","{}","{}","{}","{}"\n'.format(provider_id, group_id, line_port['device_level'], line_port['device_name'], user_id, line_port['line_port'], auth_username, auth_password))
+                    passwords.write('"{}","{}","{}","{}","{}","{}","{}","{}","{}"\n'.format(provider_id, group_id, line_port['device_level'], line_port['device_name'], line_port['device_type'], user_id, line_port['line_port'], auth_username, auth_password))
 
             # Rebuild files
             for line_port in line_ports:
@@ -289,7 +289,7 @@ def fraud_compliance_reset(process_id):
 
         file_content = io.StringIO()
         password_content = io.StringIO()
-        password_content.write('"{}","{}","{}","{}","{}","{}","{}","{}"\n'.format('Provider Id', 'Group Id', 'Device Level', 'Device Name', 'User Id', 'Line Port', 'Auth Username', 'Auth Password'))
+        password_content.write('"{}","{}","{}","{}","{}","{}","{}","{}","{}"\n'.format('Provider Id', 'Group Id', 'Device Level', 'Device Name', 'Device Type', 'User Id', 'Line Port', 'Auth Username', 'Auth Password'))
 
         if provider_id and group_id:
             file_content.write('Group {}::{}\n'.format(provider_id, group_id))
