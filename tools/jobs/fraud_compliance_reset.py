@@ -126,7 +126,7 @@ class FraudCompliance():
         for device in devices:
             device_name = device['Device Name']
             device_type = device['Device Type']
-            content.write('{}GroupAccessDeviceGetUserListRequest({}, {}, {}) '.format('    '*level, provider_id, group_id, device_name))
+            content.write('{}GroupAccessDeviceGetUserListRequest({}, {}, {}) '.format('    '*(level+1), provider_id, group_id, device_name))
             resp0 = self._bw.GroupAccessDeviceGetUserListRequest(provider_id, group_id, device_name)
             content.write(self.parse_response(resp0, level))
             if 'deviceUserTable' in resp0['data'] and len(resp0['data']['deviceUserTable']) > 0:
@@ -138,7 +138,7 @@ class FraudCompliance():
                         resp1 = self._bw.GroupAccessDeviceModifyUserRequest(serviceProviderId=provider_id, groupId=group_id, deviceName=device_name, linePort=line_port['Line/Port'], isPrimaryLinePort=True)
                         content.write(self.parse_response(resp1, level))
             # Reboot device
-            content.write('{}    GroupAccessDeviceResetRequest(serviceProviderId={}, groupId={}, deviceName={}) >> '.format('    '*level, provider_id, group_id, device_name)),
+            content.write('{}GroupAccessDeviceResetRequest(serviceProviderId={}, groupId={}, deviceName={}) >> '.format('    '*(level+1), provider_id, group_id, device_name)),
             resp8 = self._bw.GroupAccessDeviceResetRequest(serviceProviderId=provider_id, groupId=group_id, deviceName=device_name)
             content.write(self.parse_response(resp8, level))
 
