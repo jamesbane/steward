@@ -66,7 +66,7 @@
           <!-- Tools -->
           <ul class="nav nav-sidebar">
             <li class="header">Tools</li>
-            <!-- {% url 'device-specific-migration-tool' as the_url %}
+            {% url 'device-specific-migration-tool' as the_url %}
             <li {% if request.get_full_path == the_url %}class="active"{% endif %}>
               <a href="{{ the_url }}">
                 Device Specific Migration
@@ -74,7 +74,7 @@
                   <span class="sr-only">(current)</span>
                   {% endif %}
                 </a>
-            </li> -->
+            </li>
             {% url 'fraud-compliance-reset-tool' as the_url %}
             <li {% if request.get_full_path == the_url %}class="active"{% endif %}>
               <a href="{{ the_url }}">
