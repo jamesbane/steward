@@ -64,13 +64,13 @@ class FraudCompliance():
         content.write('{}\n'.format(response['type']))
         if response['type'] == 'c:ErrorResponse':
             if 'summaryEnglish' in response['data'] and 'errorCode' in response['data']:
-                content.write('        {}[{}] {}\n'.format('    '*level, response['data']['errorCode'], response['data']['summaryEnglish']))
+                content.write('{}[{}] {}\n'.format('    '*(level+1), response['data']['errorCode'], response['data']['summaryEnglish']))
             elif 'summaryEnglish' in response['data']:
-                content.write('        {}{}\n'.format('    '*level, response['data']['summaryEnglish']))
+                content.write('{}{}\n'.format('    '*level, response['data']['summaryEnglish']))
             elif 'summary' in response['data'] and 'errorCode' in response['data']:
-                content.write('        {}[{}] {}\n'.format('    '*level, response['data']['errorCode'], response['data']['summary']))
+                content.write('{}[{}] {}\n'.format('    '*(level+1), response['data']['errorCode'], response['data']['summary']))
             elif 'summary' in response['data']:
-                content.write('        {}{}\n'.format('    '*level, response['data']['summary']))
+                content.write('{}{}\n'.format('    '*(level+1), response['data']['summary']))
         rval = content.getvalue()
         content.close()
         return rval

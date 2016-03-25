@@ -4,3 +4,6 @@
 [submodule "lib/pyutil"]
 	path = lib/pyutil
 	url = git@git.ops.cspirevoice.com:ops/util.git
+[submodule "lib/pypalladion"]
+	path = lib/pypalladion
+	url = git@git.ops.cspirevoice.com:ops/palladion.git
