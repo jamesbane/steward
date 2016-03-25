@@ -129,13 +129,14 @@ class FraudCompliance():
             content.write('{}GroupAccessDeviceGetUserListRequest({}, {}, {}) '.format('    '*level, provider_id, group_id, device_name))
             resp0 = self._bw.GroupAccessDeviceGetUserListRequest(provider_id, group_id, device_name)
             content.write(self.parse_response(resp0, level))
-            line_ports = sorted(resp0['data']['deviceUserTable'], key=lambda k: k['Order'])
-            if len(line_ports) > 0 and not FraudCompliance.has_primary_line_port(line_ports):
-                line_port = FraudCompliance.get_first_primary_line_port(line_ports)
-                if line_port is not None:
-                    content.write('{}GroupAccessDeviceModifyUserRequest({}, {}, {}, {}, isPrimaryLinePort={}) '.format('    '*(level+1), provider_id, group_id, device_name, line_port['Line/Port'], True))
-                    resp1 = self._bw.GroupAccessDeviceModifyUserRequest(serviceProviderId=provider_id, groupId=group_id, deviceName=device_name, linePort=line_port['Line/Port'], isPrimaryLinePort=True)
-                    content.write(self.parse_response(resp1, level))
+            if 'deviceUserTable' in resp0['data'] and len(resp0['data']['deviceUserTable']) > 0:
+                line_ports = sorted(resp0['data']['deviceUserTable'], key=lambda k: k['Order'])
+                if not FraudCompliance.has_primary_line_port(line_ports):
+                    line_port = FraudCompliance.get_first_primary_line_port(line_ports)
+                    if line_port is not None:
+                        content.write('{}GroupAccessDeviceModifyUserRequest({}, {}, {}, {}, isPrimaryLinePort={}) '.format('    '*(level+1), provider_id, group_id, device_name, line_port['Line/Port'], True))
+                        resp1 = self._bw.GroupAccessDeviceModifyUserRequest(serviceProviderId=provider_id, groupId=group_id, deviceName=device_name, linePort=line_port['Line/Port'], isPrimaryLinePort=True)
+                        content.write(self.parse_response(resp1, level))
             # Reboot device
             content.write('{}    GroupAccessDeviceResetRequest(serviceProviderId={}, groupId={}, deviceName={}) >> '.format('    '*level, provider_id, group_id, device_name)),
             resp8 = self._bw.GroupAccessDeviceResetRequest(serviceProviderId=provider_id, groupId=group_id, deviceName=device_name)
