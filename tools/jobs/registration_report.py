@@ -21,12 +21,14 @@ from lib.pypalladion.palladion import Palladion
 
 class RegistrationReport:
     _palladion = None
+    _pl_devices = None
     _bw = None
     _process = None
 
     def __init__(self, process):
         self._process = process
         self._palladion = Palladion(uri='https://palladion.tpx.cspirevoice.com/me', api_key='mhumes;96bbd3595763fa15b7c1b0bbeb')
+        self._pl_devices = { x['id']: x for x in self._palladion.devices() }
         requests.packages.urllib3.disable_warnings()
         self._bw = BroadWorks(url='http://192.168.151.21/webservice/services/ProvisioningService?wsdl', username='develop', password='W4sz2lZHtk^3W)P4+P2VS#IH=H_xXV$3')
         self._bw.LoginRequest14sp4()
@@ -55,7 +57,6 @@ class RegistrationReport:
         log = io.StringIO()
         summary = io.StringIO()
 
-        # Reboot phones
         log.write('{}GroupAccessDeviceGetListRequest({}, {}) '.format('    '*level, provider_id, group_id))
         resp0 = self._bw.GroupAccessDeviceGetListRequest(provider_id, group_id)
         log.write(self.parse_response(resp0, level))
@@ -72,21 +73,19 @@ class RegistrationReport:
                 for line_port in line_ports:
                     user_line_id = line_port['Line/Port'].split('@')[0]
                     log.write('{}{} :: '.format('    '*(level+2), user_line_id))
-                    registrations = self._palladion.user_search(user_line_id)
+                    registrars = list()
+                    registrations = sorted(self._palladion.registrations(user_line_id), key=lambda reg: reg['dev_id'])
                     for registration in registrations:
-                        if registration['uri'] == user_line_id:
-                            if registration['registered'] == 1:
-                                log.write('{}\n'.format('Registered'))
-                                summary.write('"{}","{}","{}","{}","{}","{}"\n'.format(provider_id, group_id, device_name, device_type, user_line_id, 'Registered'))
-                            else:
-                                log.write('{}\n'.format('Not Registered'))
-                                summary.write('"{}","{}","{}","{}","{}","{}"\n'.format(provider_id, group_id, device_name, device_type, user_line_id, 'Not Registered'))
-                            break
-                        else:
-                            continue
+                        device_name = "???"
+                        if registration['dev_id'] in self._pl_devices:
+                            device_name = self._pl_devices[registration['dev_id']]['name']
+                        registrars.append(device_name)
+                    if len(registrars) > 0:
+                        log.write('{}\n'.format('Registered'))
+                        summary.write('"{}","{}","{}","{}","{}","{}","{}"\n'.format(provider_id, group_id, device_name, device_type, user_line_id, 'Registered', ','.join(registrars)))
                     else:
-                        log.write('{}\n'.format('Not found'))
-                        summary.write('"{}","{}","{}","{}","{}","{}"\n'.format(provider_id, group_id, device_name, device_type, user_line_id, 'Not Registered'))
+                        log.write('{}\n'.format('Not Registered'))
+                        summary.write('"{}","{}","{}","{}","{}","{}","{}"\n'.format(provider_id, group_id, device_name, device_type, user_line_id, 'Not Registered', ''))
 
         return {'log': log.getvalue(), 'summary': summary.getvalue()}
 
@@ -109,7 +108,7 @@ def registration_report(process_id):
         summary = io.StringIO()
         log_key_name = 'log.txt'
         summary_key_name = 'summary.csv'
-        summary.write('"{}","{}","{}","{}","{}","{}"\n'.format('Provider Id', 'Group Id', 'Device Name', 'Device Type', 'Line/Port', 'Status'))
+        summary.write('"{}","{}","{}","{}","{}","{}","{}"\n'.format('Provider Id', 'Group Id', 'Device Name', 'Device Type', 'Line/Port', 'Status', 'Proxy/Registrar'))
 
         if provider_id and group_id:
             log.write('Group {}::{}\n'.format(provider_id, group_id))
