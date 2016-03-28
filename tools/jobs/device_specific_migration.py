@@ -121,7 +121,7 @@ class BroadWorksDeviceMigration:
             users = resp1['data']['deviceUserTable']
         else:
             log.write('{}Could not get device user list for {}:{}:{}, not enough data\n'.format('    '*(level+1), provider_id, group_id, device_name))
-            summary.write('"{}","{}","{}","{}","{}","{}","{}"\n'.format(provider_id, group_id, device_type, device_id, '', '', 'Could not get device user list'))
+            summary.write('"{}","{}","{}","{}","{}","{}","{}"\n'.format(provider_id, group_id, device_type, device_name, '', '', 'Could not get device user list'))
             return {'log': log.getvalue(), 'summary': summary.getvalue()}
         device_user_agent = None
         device_registered = False
@@ -145,7 +145,7 @@ class BroadWorksDeviceMigration:
         device_type_2 = None
         if device_user_agent is None:
             log.write('{}Could not determine device type for {}:{}:{}, no User Agent present (not registered)\n'.format('    '*(level+1), provider_id, group_id, device_name))
-            summary.write('"{}","{}","{}","{}","{}","{}","{}"\n'.format(provider_id, group_id, device_type, device_id, '', '', 'Could not determine device type'))
+            summary.write('"{}","{}","{}","{}","{}","{}","{}"\n'.format(provider_id, group_id, device_type, device_name, '', '', 'Could not determine device type'))
             return {'log': log.getvalue(), 'summary': summary.getvalue()}
         elif 'PolycomVVX-VVX_300' in device_user_agent:
             device_suffix = 'VVX300'
@@ -191,7 +191,7 @@ class BroadWorksDeviceMigration:
             device_type_2 = 'Polycom-conf'
         else:
             log.write('{}Could not determine device type for {}:{}:{} with UserAgent of {}\n'.format('    '*(level+1), provider_id, group_id, device_name, device_user_agent))
-            summary.write('"{}","{}","{}","{}","{}","{}","{}"\n'.format(provider_id, group_id, device_type, device_id, '', '', 'Could not determine device type'))
+            summary.write('"{}","{}","{}","{}","{}","{}","{}"\n'.format(provider_id, group_id, device_type, device_name, '', '', 'Could not determine device type'))
             return {'log': log.getvalue(), 'summary': summary.getvalue()}
 
         # Retrieve Device Info
@@ -207,7 +207,7 @@ class BroadWorksDeviceMigration:
             device_info = resp1['data']
         else:
             log.write('{}Could not determine device type for {}:{}:{}, not enough data\n'.format('    '*(level+1), provider_id, group_id, device_name))
-            summary.write('"{}","{}","{}","{}","{}","{}","{}"\n'.format(provider_id, group_id, device_type, device_id, '', '', 'Could not retrieve device details'))
+            summary.write('"{}","{}","{}","{}","{}","{}","{}"\n'.format(provider_id, group_id, device_type, device_name, '', '', 'Could not retrieve device details'))
             return {'log': log.getvalue(), 'summary': summary.getvalue()}
 
         # New device info
@@ -241,7 +241,7 @@ class BroadWorksDeviceMigration:
         log.write(self.parse_response(resp1, level))
         if resp1['type'] == 'c:ErrorResponse':
             # could not build device, ruh roh!
-            summary.write('"{}","{}","{}","{}","{}","{}","{}"\n'.format(provider_id, group_id, device_type, device_id, device_type_2, device_id_2, 'ERROR: Could not add new device'))
+            summary.write('"{}","{}","{}","{}","{}","{}","{}"\n'.format(provider_id, group_id, device_type, device_name, device_type_2, device_name_2, 'ERROR: Could not add new device'))
             return {'log': log.getvalue(), 'summary': summary.getvalue()}
 
         # Move device tags to new device
