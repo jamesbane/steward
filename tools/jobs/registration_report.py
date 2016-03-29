@@ -76,10 +76,10 @@ class RegistrationReport:
                     registrars = list()
                     registrations = sorted(self._palladion.registrations(user_line_id), key=lambda reg: reg['dev_id'])
                     for registration in registrations:
-                        device_name = "???"
+                        registrar_name = "???"
                         if registration['dev_id'] in self._pl_devices:
-                            device_name = self._pl_devices[registration['dev_id']]['name']
-                        registrars.append(device_name)
+                            registrar_name = self._pl_devices[registration['dev_id']]['name']
+                        registrars.append(registrar_name)
                     if len(registrars) > 0:
                         log.write('{}\n'.format('Registered'))
                         summary.write('"{}","{}","{}","{}","{}","{}","{}"\n'.format(provider_id, group_id, device_name, device_type, user_line_id, 'Registered', ','.join(registrars)))
