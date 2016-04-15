@@ -5,6 +5,7 @@ import traceback
 
 # Django
 from django.utils import timezone
+from django.conf import settings
 
 # Application
 from tools.models import Process
@@ -29,7 +30,7 @@ def registration_by_type(process_id):
         detail_file.write('"{}","{}","{}","{}","{}","{}"\n'.format("Provider Id", "Group Id", "Device Name", "Device Type", "Device User Agent", "Registered"))
         summary_file.write('"{}","{}","{}","{}"\n'.format('Device Type', 'Device Count', 'Registration Count', 'Perc Registered'))
 
-        bw = BroadWorks(url='http://as1.tpx.cspirevoice.com/webservice/services/ProvisioningService?wsdl', username='develop', password='W4sz2lZHtk^3W)P4+P2VS#IH=H_xXV$3')
+        bw = BroadWorks(**settings.PLATFORMS['broadworks'])
         bw.LoginRequest14sp4()
         device_types = ['Polycom Soundpoint IP 300', 'Polycom Soundpoint IP 320 330',
                         'Polycom Soundpoint IP 335', 'Polycom Soundpoint IP 4000',
@@ -106,7 +107,7 @@ def registration_by_type(process_id):
         else:
             total_perc_registered = 0
         summary_file.write('"{}","{}","{}","{:0.2f}%"\n'.format('TOTAL', total_device_count, total_registration_count, total_perc_registered))
-        
+
         content[detail_file_key] = detail_file.getvalue()
         content[summary_file_key] = summary_file.getvalue()
         process.content = content

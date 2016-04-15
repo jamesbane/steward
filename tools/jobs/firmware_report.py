@@ -7,6 +7,7 @@ from collections import OrderedDict
 
 # Django
 from django.utils import timezone
+from django.conf import settings
 
 # Application
 from tools.models import Process
@@ -38,8 +39,7 @@ def firmware_report(process_id):
         file_content = io.StringIO()
 
         # Login to BroadWorks
-        bw = BroadWorks(url='http://192.168.151.21/webservice/services/ProvisioningService?wsdl',
-                        username='develop', password='W4sz2lZHtk^3W)P4+P2VS#IH=H_xXV$3')
+        bw = BroadWorks(**settings.PLATFORMS['broadworks'])
         bw.LoginRequest14sp4()
 
         user_agent_regex = re.compile('^(?P<device_type>PolycomVVX-VVX_\d{3}|PolycomSoundStationIP-SSIP_\d{4}|PolycomSoundPointIP-SPIP_\d{3})-UA\/(?P<version>[\d\.]+)$')

@@ -8,6 +8,7 @@ from collections import OrderedDict
 
 # Django
 from django.utils import timezone
+from django.conf import settings
 
 # Application
 from tools.models import Process
@@ -23,8 +24,7 @@ class FraudCompliance():
     _device_type_cache = dict()
 
     def __init__(self, process):
-        self._bw = BroadWorks(url='http://192.168.151.21/webservice/services/ProvisioningService?wsdl',
-                              username='develop', password='W4sz2lZHtk^3W)P4+P2VS#IH=H_xXV$3')
+        self._bw = BroadWorks(**settings.PLATFORMS['broadworks'])
         self._process = process
         self._bw.LoginRequest14sp4()
 

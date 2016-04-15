@@ -9,6 +9,7 @@ from collections import OrderedDict
 
 # Django
 from django.utils import timezone
+from django.conf import settings
 
 # Application
 from tools.models import Process
@@ -27,10 +28,10 @@ class RegistrationReport:
 
     def __init__(self, process):
         self._process = process
-        self._palladion = Palladion(uri='https://palladion.tpx.cspirevoice.com/me', api_key='mhumes;96bbd3595763fa15b7c1b0bbeb')
+        self._palladion = Palladion(**settings.PLATFORMS['palladion'])
         self._pl_devices = { x['id']: x for x in self._palladion.devices() }
         requests.packages.urllib3.disable_warnings()
-        self._bw = BroadWorks(url='http://192.168.151.21/webservice/services/ProvisioningService?wsdl', username='develop', password='W4sz2lZHtk^3W)P4+P2VS#IH=H_xXV$3')
+        self._bw = BroadWorks(**settings.PLATFORMS['broadworks'])
         self._bw.LoginRequest14sp4()
 
     def parse_response(self, response, level):
