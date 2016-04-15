@@ -12,7 +12,7 @@ A virtual environment for python is **strongly** recommended!
 
 ### Ubuntu Packages
 ```
-apt-get install git python3 python3-dev python3-virtualenv nodejs-legacy npm postgresql-9.4 postgresql-server-dev-9.4 redis-server redis-tools
+apt-get install git python3 python3-dev python3-virtualenv nodejs-legacy npm postgresql-9.5 postgresql-server-dev-9.5 redis-server redis-tools libsasl2-dev libldap2-dev libssl-dev
 ```
 
 ### Virtual Environment
