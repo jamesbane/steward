@@ -36,6 +36,26 @@ class ProviderGroupForm(forms.Form):
     provider_id = forms.CharField(label='Provider Id', max_length=256, required=True)
     group_id = forms.CharField(label='Group Id', max_length=256, required=False)
 
+
+class SystemProviderGroupForm(forms.Form):
+    ACTION_TYPE_CHOICE_SYSTEM = 'System'
+    ACTION_TYPE_CHOICE_PROVIDER = 'Provider/Group'
+    ACTION_TYPE_CHOICES = (
+        ('', '----'),
+        (ACTION_TYPE_CHOICE_SYSTEM, ACTION_TYPE_CHOICE_SYSTEM),
+        (ACTION_TYPE_CHOICE_PROVIDER, ACTION_TYPE_CHOICE_PROVIDER),
+    )
+    action_type = forms.ChoiceField(label='Type', choices=ACTION_TYPE_CHOICES, required=True)
+    provider_id = forms.CharField(label='Provider Id', max_length=256, required=False)
+    group_id = forms.CharField(label='Group Id', max_length=256, required=False)
+
+    javascript = static('tools/system_provider_group_form.js')
+
+
+class TagReportForm(SystemProviderGroupForm):
+    tag_names = forms.CharField(label='Tag Names', max_length=256, required=True)
+
+
 class LabRebuildForm(forms.Form):
     ACTION_CHOICE_REBUILD = 'Rebuild'
     ACTION_CHOICE_STATUS = 'Status'

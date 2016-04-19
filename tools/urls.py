@@ -24,8 +24,9 @@ urlpatterns = [
     url(r'^tools/lab-rebuild-tool$', tools.views.LabResetToolView.as_view(), name='lab-rebuild-tool'),
     # Reports
     url(r'^reports/firmware-report$', tools.views.FirmwareReportView.as_view(), name='firmware-report'),
-    url(r'^reports/registrations$', tools.views.RegistrationReportView.as_view(), name='registrations'),
-    url(r'^reports/registration-by-type$', tools.views.RegistrationByTypeReportView.as_view(), name='registration-by-type'),
+    url(r'^reports/registrations$', tools.views.RegistrationReportView.as_view(), name='registrations-report'),
+    url(r'^reports/registration-by-type$', tools.views.RegistrationByTypeReportView.as_view(), name='registration-by-type-report'),
+    url(r'^reports/tag-report$', tools.views.TagReportView.as_view(), name='tag-report'),
     # Results
     url(r'^jobs/$', tools.views.ProcessListView.as_view(), name='process-list'),
     url(r'^results/(?P<pk>\d+)/$', tools.views.ProcessDetailView.as_view(), name='process-detail'),

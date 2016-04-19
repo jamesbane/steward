@@ -19,4 +19,4 @@ venv/
 settings.json
 
 # Static files
-static/
+static/**

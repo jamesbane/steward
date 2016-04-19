@@ -106,7 +106,7 @@
                 {% endif %}
               </a>
             </li>
-            {% url 'registrations' as the_url %}
+            {% url 'registrations-report' as the_url %}
             <li {% if request.get_full_path == the_url %}class="active"{% endif %}>
               <a href="{{ the_url }}">
                 Registrations
@@ -115,10 +115,19 @@
                 {% endif %}
               </a>
             </li>
-            {% url 'registration-by-type' as the_url %}
+            {% url 'registration-by-type-report' as the_url %}
             <li {% if request.get_full_path == the_url %}class="active"{% endif %}>
               <a href="{{ the_url }}">
                 Registration by Type
+                {% if request.get_full_path == the_url %}
+                  <span class="sr-only">(current)</span>
+                {% endif %}
+              </a>
+            </li>
+            {% url 'tag-report' as the_url %}
+            <li {% if request.get_full_path == the_url %}class="active"{% endif %}>
+              <a href="{{ the_url }}">
+                Tag Report
                 {% if request.get_full_path == the_url %}
                   <span class="sr-only">(current)</span>
                 {% endif %}

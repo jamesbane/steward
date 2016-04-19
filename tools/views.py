@@ -193,3 +193,9 @@ class RegistrationByTypeReportView(LoginRequiredMixin, ToolView):
     process_function = 'tools.jobs.registration_by_type.registration_by_type'
     template_name = 'tools/registration_by_type.html'
     form_class = tools.forms.EmptyForm
+
+class TagReportView(LoginRequiredMixin, ToolView):
+    process_name = 'Tag Report'
+    process_function = 'tools.jobs.tag_report.tag_report'
+    template_name = 'tools/tag_report.html'
+    form_class = tools.forms.TagReportForm
