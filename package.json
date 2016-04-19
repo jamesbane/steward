@@ -1,0 +1,19 @@
+{
+  "name": "steward",
+  "version": "1.0.0",
+  "description": "A web application to provide automation solutions.",
+  "main": "index.js",
+  "dependencies": {
+    "bower": "^1.7.9"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@git.ops.cspirevoice.com:ops/steward.git"
+  },
+  "author": "Morgan Humes",
+  "license": ""
+}
