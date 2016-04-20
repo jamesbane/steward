@@ -177,8 +177,8 @@ def ptt_configurator(process_id):
         # Determine what to do
         if provider_id and group_id:
             log.write('Group {}::{}\n'.format(provider_id, group_id))
-            content[content_key_name] = file_content.getvalue()
-            content[password_key_name] = password_content.getvalue()
+            content['log.txt'] = log.getvalue()
+            content['summary.csv'] = summary.getvalue()
             process.content = content
             process.save(update_fields=['content'])
             data = ptt.configure_group(provider_id=provider_id, group_id=group_id, level=1)
