@@ -19,6 +19,7 @@ import tools.views
 urlpatterns = [
     url(r'^$', tools.views.IndexView.as_view(), name='index'),
     # Tools
+    url(r'^tools/call-park-pickup-configurator$', tools.views.CallParkPickupConfiguratorToolView.as_view(), name='call-park-pickup-configurator'),
     url(r'^tools/device-specific-migration-tool$', tools.views.DeviceSpecificMigrationToolView.as_view(), name='device-specific-migration-tool'),
     url(r'^tools/fraud-compliance-reset-tool$', tools.views.FraudComplianceResetToolView.as_view(), name='fraud-compliance-reset-tool'),
     url(r'^tools/lab-rebuild-tool$', tools.views.LabResetToolView.as_view(), name='lab-rebuild-tool'),

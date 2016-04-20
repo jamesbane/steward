@@ -205,3 +205,9 @@ class PushToTalkConfiguratorToolView(LoginRequiredMixin, ToolView):
     process_function = 'tools.jobs.ptt_configurator.ptt_configurator'
     template_name = 'tools/ptt_configurator.html'
     form_class = tools.forms.TypedProviderGroupForm
+
+class CallParkPickupConfiguratorToolView(LoginRequiredMixin, ToolView):
+    process_name = 'Call Park/Pickup Configurator'
+    process_function = 'tools.jobs.call_park_pickup_configurator.call_park_pickup_configurator'
+    template_name = 'tools/call_park_pickup_configurator.html'
+    form_class = tools.forms.TypedProviderGroupForm
