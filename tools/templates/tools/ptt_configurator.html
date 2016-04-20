@@ -12,23 +12,8 @@
     <pre>
 for each group:
   UserGetListInGroupRequest
-  UserPushToTalkModifyRequest
-  UserGetRequest19
-  UserSharedCallAppearanceGetRequest16sp2
-  for each device which has the user assigned:
-      GroupAccessDeviceCustomTagGetListRequest
-      tags = [
-          {'tag_name': '%SK5-Action%', 'tag_value': '!grppark'},
-          {'tag_name': '%SK5-Active%', 'tag_value': '1'},
-          {'tag_name': '%SK5-Enable%', 'tag_value': '1'},
-          {'tag_name': '%SK5-Label%', 'tag_value': 'Park'},
-          {'tag_name': '%SK6-Action%', 'tag_value': '!retrieve'},
-          {'tag_name': '%SK6-Enable%', 'tag_value': '1'},
-          {'tag_name': '%SK6-Idle%', 'tag_value': '1'},
-          {'tag_name': '%SK6-Label%', 'tag_value': 'Retrieve'},
-      ]
-      for each tag:
-        GroupAccessDeviceCustomTagModifyRequest or GroupAccessDeviceCustomTagAddRequest
+  for each user:
+    UserPushToTalkModifyRequest
 </pre>
 
     <h2 class="text-danger"><i class="fa fa-warning"></i> Invoke</h2>
