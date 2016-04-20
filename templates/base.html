@@ -93,6 +93,15 @@
                 {% endif %}
               </a>
             </li>
+            {% url 'push-to-talk-configurator' as the_url %}
+            <li {% if request.get_full_path == the_url %}class="active"{% endif %}>
+              <a href="{{ the_url }}">
+                Push To Talk Configurator
+                {% if request.get_full_path == the_url %}
+                  <span class="sr-only">(current)</span>
+                {% endif %}
+              </a>
+            </li>
           </ul>
           <!-- Reports -->
           <ul class="nav nav-sidebar">

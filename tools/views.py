@@ -199,3 +199,9 @@ class TagReportView(LoginRequiredMixin, ToolView):
     process_function = 'tools.jobs.tag_report.tag_report'
     template_name = 'tools/tag_report.html'
     form_class = tools.forms.TagReportForm
+
+class PushToTalkConfiguratorToolView(LoginRequiredMixin, ToolView):
+    process_name = 'Push To Talk Configurator'
+    process_function = 'tools.jobs.ptt_configurator.ptt_configurator'
+    template_name = 'tools/ptt_configurator.html'
+    form_class = tools.forms.TypedProviderGroupForm
