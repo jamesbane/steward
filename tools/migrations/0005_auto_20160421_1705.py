@@ -7,7 +7,7 @@ from django.db import migrations
 
 def update_processes(apps, schema_editor):
     Process = apps.get_model("tools", "Process")
-    for process in Process.objects.all():
+    for process in Process.objects.all().defer('content'):
         if process.method == 'Call Park/Pickup Configurator':
             process.view_permission = 'tools.process_call_park_pickup_configurator_view'
         elif process.method == 'Device Specific Migration':
