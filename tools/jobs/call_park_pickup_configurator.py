@@ -82,83 +82,97 @@ class CallParkPickupConfigurator():
             resp2 = self._bw.GroupCallPickupAddInstanceRequest(provider_id, group_id, 'Default', userId=available_users)
             log.write(self.parse_response(resp2, level))
 
-        # Add tags to all user devices which could be added to a Pickup Group
-        log.write("{}Users:\n".format('    '*level))
-        for user_id in available_users:
-            log.write("{}User: {}\n".format('    '*(level+1), user_id))
-            # Get Line Ports
-            devices = list()
-            # primary device
-            log.write("{}UserGetRequest19({}) ".format('    '*(level+2), user_id))
-            resp2 = self._bw.UserGetRequest19(user_id)
-            log.write(self.parse_response(resp2, (level+2)))
-            user_info = resp2['data']
-            if 'accessDeviceEndpoint' in user_info:
-                device_name = user_info['accessDeviceEndpoint']['accessDevice']['deviceName']
-                device_level = user_info['accessDeviceEndpoint']['accessDevice']['deviceLevel']
-                devices.append({'device_name': device_name, 'device_level': device_level})
-            # shared call appearances
-            log.write('{}UserSharedCallAppearanceGetRequest16sp2(userId={}) >> '.format('    '*(level+2), user_id)),
-            resp3 = self._bw.UserSharedCallAppearanceGetRequest16sp2(userId=user_id)
-            log.write(self.parse_response(resp3, (level+2)))
-            appearances = resp3['data']['endpointTable']
-            for appearance in appearances:
-                device_name = appearance['Device Name']
-                device_level = appearance['Device Level']
-                devices.append({'device_name': device_name, 'device_level': device_level})
-            devices_unique = list()
-            for device in devices:
-                if device not in devices_unique:
-                    devices_unique.append(device)
-            devices = devices_unique
+        # Add tags to all user devices which can have a Pickup Group
+        log.write('{}UserGetListInGroupRequest({}, {}) '.format('    '*(level+1), provider_id, group_id))
+        resp3 = self._bw.UserGetListInGroupRequest(provider_id, group_id)
+        log.write(self.parse_response(resp3, level))
+        users = resp3['data']['userTable']
+        for user in users:
+            user_id = user['User Id']
+            # Test if we can retrieve data about this user
+            log.write('{}UserCallPickupGetRequest({}) '.format('    '*(level+1), group_id))
+            resp4 = self._bw.UserCallPickupGetRequest(user_id)
+            log.write('{}\n'.format(resp4['type']))
+            if resp4['type'] == 'c:SuccessResponse':
+                # Get Line Ports
+                devices = list()
+                # primary device
+                log.write("{}UserGetRequest19({}) ".format('    '*(level+2), user_id))
+                resp2 = self._bw.UserGetRequest19(user_id)
+                log.write(self.parse_response(resp2, (level+2)))
+                user_info = resp2['data']
+                if 'accessDeviceEndpoint' in user_info:
+                    device_name = user_info['accessDeviceEndpoint']['accessDevice']['deviceName']
+                    device_level = user_info['accessDeviceEndpoint']['accessDevice']['deviceLevel']
+                    devices.append({'device_name': device_name, 'device_level': device_level})
+                # shared call appearances
+                log.write('{}UserSharedCallAppearanceGetRequest16sp2(userId={}) >> '.format('    '*(level+2), user_id)),
+                resp3 = self._bw.UserSharedCallAppearanceGetRequest16sp2(userId=user_id)
+                log.write(self.parse_response(resp3, (level+2)))
+                appearances = resp3['data']['endpointTable']
+                for appearance in appearances:
+                    device_name = appearance['Device Name']
+                    device_level = appearance['Device Level']
+                    devices.append({'device_name': device_name, 'device_level': device_level})
+                devices_unique = list()
+                for device in devices:
+                    if device not in devices_unique:
+                        devices_unique.append(device)
+                devices = devices_unique
 
-            # add tags to devices?
-            tags = [
-                {'tag_name': '%SK5-Action%', 'tag_value': '!grppark'},
-                {'tag_name': '%SK5-Active%', 'tag_value': '1'},
-                {'tag_name': '%SK5-Enable%', 'tag_value': '1'},
-                {'tag_name': '%SK5-Label%', 'tag_value': 'Park'},
-                {'tag_name': '%SK6-Action%', 'tag_value': '!retrieve'},
-                {'tag_name': '%SK6-Enable%', 'tag_value': '1'},
-                {'tag_name': '%SK6-Idle%', 'tag_value': '1'},
-                {'tag_name': '%SK6-Label%', 'tag_value': 'Retrieve'},
-            ]
-            for device in devices:
-                device_name = device['device_name']
-                log.write('{}Device: {}\n'.format('    '*(level+3), device_name))
-                log.write('{}GroupAccessDeviceCustomTagGetListRequest({}, {}, {}) '.format('    '*(level+4), provider_id, group_id, device_name))
-                resp4 = self._bw.GroupAccessDeviceCustomTagGetListRequest(provider_id, group_id, device_name)
-                log.write(self.parse_response(resp4, level))
-                if 'deviceCustomustomTagsTable' in resp4['data']:
-                    device_tags = {x['Tag Name']: x['Tag Value'] for x in resp4['data']['deviceCustomustomTagsTable']}
-                else:
-                    device_tags = dict()
-                if device['device_level'] == 'Group':
-                    for tag in tags:
-                        tag_name = tag['tag_name']
-                        tag_value = tag['tag_value']
-                        if tag_name in device_tags:
-                            log.write('{}GroupAccessDeviceCustomTagModifyRequest(serviceProviderId={}, groupId={}, deviceName={}, tagName={}, tagValue={}) >> '.format('    '*(level+4), provider_id, group_id, device['device_name'], tag_name, tag_value)),
-                            resp4 = self._bw.GroupAccessDeviceCustomTagModifyRequest(serviceProviderId=provider_id, groupId=group_id, deviceName=device['device_name'], tagName=tag_name, tagValue=tag_value)
-                            log.write(self.parse_response(resp4, (level+4)))
-                        else:
-                            log.write('{}GroupAccessDeviceCustomTagAddRequest(serviceProviderId={}, groupId={}, deviceName={}, tagName={}, tagValue={}) >> '.format('    '*(level+4), provider_id, group_id, device['device_name'], tag_name, tag_value)),
-                            resp4 = self._bw.GroupAccessDeviceCustomTagAddRequest(serviceProviderId=provider_id, groupId=group_id, deviceName=device['device_name'], tagName=tag_name, tagValue=tag_value)
-                            log.write(self.parse_response(resp4, (level+4)))
-                elif device['device_level'] == 'Provider':
-                    for tag in tags:
-                        tag_name = tag['tag_name']
-                        tag_value = tag['tag_value']
-                        if tag_name in device_tags:
-                            log.write('{}ServiceProviderAccessDeviceCustomTagModifyRequest(serviceProviderId={}, deviceName={}, tagName={}, tagValue={}) >> '.format('    '*(level+4), provider_id, device['device_name'], tag_name, tag_value)),
-                            resp5 = self._bw.ServiceProviderAccessDeviceCustomTagModifyRequest(serviceProviderId=provider_id, deviceName=device['device_name'], tagName=tag_name, tagValue=tag_value)
-                            log.write(self.parse_response(resp5, (level+4)))
-                        else:
-                            log.write('{}ServiceProviderAccessDeviceCustomTagAddRequest(serviceProviderId={}, deviceName={}, tagName={}, tagValue={}) >> '.format('    '*(level+4), provider_id, device['device_name'], tag_name, tag_value)),
-                            resp5 = self._bw.ServiceProviderAccessDeviceCustomTagAddRequest(serviceProviderId=provider_id, deviceName=device['device_name'], tagName=tag_name, tagValue=tag_value)
-                            log.write(self.parse_response(resp5, (level+4)))
-            # write to summary file
-            summary.write('"{}","{}","{}","{}"\n'.format(provider_id, group_id, user_id, 'Success'))
+                # add tags to devices?
+                tags = [
+                    {'tag_name': '%SK5-Action%', 'tag_value': '!grppark'},
+                    {'tag_name': '%SK5-Active%', 'tag_value': '1'},
+                    {'tag_name': '%SK5-Enable%', 'tag_value': '1'},
+                    {'tag_name': '%SK5-Label%', 'tag_value': 'Park'},
+                    {'tag_name': '%SK6-Action%', 'tag_value': '!retrieve'},
+                    {'tag_name': '%SK6-Enable%', 'tag_value': '1'},
+                    {'tag_name': '%SK6-Idle%', 'tag_value': '1'},
+                    {'tag_name': '%SK6-Label%', 'tag_value': 'Retrieve'},
+                ]
+                for device in devices:
+                    device_name = device['device_name']
+                    log.write('{}Device: {}\n'.format('    '*(level+3), device_name))
+                    log.write('{}GroupAccessDeviceCustomTagGetListRequest({}, {}, {}) '.format('    '*(level+4), provider_id, group_id, device_name))
+                    resp4 = self._bw.GroupAccessDeviceCustomTagGetListRequest(provider_id, group_id, device_name)
+                    log.write(self.parse_response(resp4, level))
+                    if 'deviceCustomustomTagsTable' in resp4['data']:
+                        device_tags = {x['Tag Name']: x['Tag Value'] for x in resp4['data']['deviceCustomustomTagsTable']}
+                    else:
+                        device_tags = dict()
+                    if device['device_level'] == 'Group':
+                        for tag in tags:
+                            tag_name = tag['tag_name']
+                            tag_value = tag['tag_value']
+                            if tag_name in device_tags:
+                                log.write('{}GroupAccessDeviceCustomTagModifyRequest(serviceProviderId={}, groupId={}, deviceName={}, tagName={}, tagValue={}) >> '.format('    '*(level+4), provider_id, group_id, device['device_name'], tag_name, tag_value)),
+                                resp4 = self._bw.GroupAccessDeviceCustomTagModifyRequest(serviceProviderId=provider_id, groupId=group_id, deviceName=device['device_name'], tagName=tag_name, tagValue=tag_value)
+                                log.write(self.parse_response(resp4, (level+4)))
+                            else:
+                                log.write('{}GroupAccessDeviceCustomTagAddRequest(serviceProviderId={}, groupId={}, deviceName={}, tagName={}, tagValue={}) >> '.format('    '*(level+4), provider_id, group_id, device['device_name'], tag_name, tag_value)),
+                                resp4 = self._bw.GroupAccessDeviceCustomTagAddRequest(serviceProviderId=provider_id, groupId=group_id, deviceName=device['device_name'], tagName=tag_name, tagValue=tag_value)
+                                log.write(self.parse_response(resp4, (level+4)))
+                        log.write('{}GroupCPEConfigRebuildConfigFileRequest(serviceProviderId={}, groupId={}, deviceName={}) >> '.format('    '*(level+4), provider_id, group_id, device['device_name'])),
+                        resp5 = self._bw.GroupCPEConfigRebuildConfigFileRequest(serviceProviderId=provider_id, groupId=group_id, deviceName=device['device_name'])
+                        log.write(self.parse_response(resp5, (level+4)))
+                    elif device['device_level'] == 'Provider':
+                        for tag in tags:
+                            tag_name = tag['tag_name']
+                            tag_value = tag['tag_value']
+                            if tag_name in device_tags:
+                                log.write('{}ServiceProviderAccessDeviceCustomTagModifyRequest(serviceProviderId={}, deviceName={}, tagName={}, tagValue={}) >> '.format('    '*(level+4), provider_id, device['device_name'], tag_name, tag_value)),
+                                resp4 = self._bw.ServiceProviderAccessDeviceCustomTagModifyRequest(serviceProviderId=provider_id, deviceName=device['device_name'], tagName=tag_name, tagValue=tag_value)
+                                log.write(self.parse_response(resp4, (level+4)))
+                            else:
+                                log.write('{}ServiceProviderAccessDeviceCustomTagAddRequest(serviceProviderId={}, deviceName={}, tagName={}, tagValue={}) >> '.format('    '*(level+4), provider_id, device['device_name'], tag_name, tag_value)),
+                                resp4 = self._bw.ServiceProviderAccessDeviceCustomTagAddRequest(serviceProviderId=provider_id, deviceName=device['device_name'], tagName=tag_name, tagValue=tag_value)
+                                log.write(self.parse_response(resp4, (level+4)))
+                        log.write('{}ServiceProviderCPEConfigRebuildDeviceConfigFileRequest(serviceProviderId={}, deviceName={}) >> '.format('    '*(level+4), provider_id, device['device_name'])),
+                        resp5 = self._bw.ServiceProviderCPEConfigRebuildDeviceConfigFileRequest(serviceProviderId=provider_id, deviceName=device['device_name'])
+                        log.write(self.parse_response(resp5, (level+4)))
+                # write to summary file
+                summary.write('"{}","{}","{}","{}"\n'.format(provider_id, group_id, user_id, 'Success'))
 
         rval = {'log': log.getvalue(), 'summary': summary.getvalue()}
         log.close()

@@ -16,7 +16,7 @@ for each group:
   if there are no Pickup Groups:
     if len(pickup_groups) > 0:
       GroupCallPickupAddInstanceRequest(provider_id, group_id, 'Default', userId=available_users)
-  # Add tags to all user devices which could be added to a Pickup Group
+  # Add tags to all user devices which could have a Pickup Group
   for each available user:
       # Get Line Ports
       UserGetRequest19
@@ -40,6 +40,7 @@ for each group:
           GroupAccessDeviceCustomTagAddRequest
           ServiceProviderAccessDeviceCustomTagModifyRequest
           ServiceProviderAccessDeviceCustomTagAddRequest
+        GroupCPEConfigRebuildConfigFileRequest or ServiceProviderCPEConfigRebuildDeviceConfigFileRequest
 </pre>
 
     <h2 class="text-danger"><i class="fa fa-warning"></i> Invoke</h2>
