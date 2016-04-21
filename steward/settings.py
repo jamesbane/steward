@@ -110,10 +110,11 @@ AUTH_LDAP_GROUP_SEARCH = LDAPSearch("cn=groups,cn=accounts,dc=ipa,dc=cspirevoice
 AUTH_LDAP_USER_DN_TEMPLATE = "uid=%(user)s,cn=users,cn=accounts,dc=ipa,dc=cspirevoice,dc=com"
 AUTH_LDAP_USER_ATTR_MAP = {"first_name": "givenName", "last_name": "sn", "email": "mail"}
 AUTH_LDAP_USER_FLAGS_BY_GROUP = {
-    "is_active": "cn=admins,cn=groups,cn=accounts,dc=ipa,dc=cspirevoice,dc=com",
+    "is_active": "cn=steward,cn=groups,cn=accounts,dc=ipa,dc=cspirevoice,dc=com",
     "is_staff": "cn=admins,cn=groups,cn=accounts,dc=ipa,dc=cspirevoice,dc=com",
     "is_superuser": "cn=admins,cn=groups,cn=accounts,dc=ipa,dc=cspirevoice,dc=com",
 }
+AUTH_LDAP_MIRROR_GROUPS = True
 
 # logger = logging.getLogger('django_auth_ldap')
 # logger.addHandler(logging.StreamHandler())
