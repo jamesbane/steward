@@ -145,7 +145,7 @@ class CallParkPickupConfigurator():
                     resp4 = self._bw.GroupAccessDeviceCustomTagGetListRequest(provider_id, group_id, device_name)
                     log.write(self.parse_response(resp4, level))
                     if 'deviceCustomTagsTable' in resp4['data']:
-                        device_tags = {x['Tag Name']: x['Tag Value'] for x in resp4['data']['deviceCustomustomTagsTable']}
+                        device_tags = {x['Tag Name']: x['Tag Value'] for x in resp4['data']['deviceCustomTagsTable']}
                     else:
                         device_tags = dict()
                     if device['device_level'] == 'Group':
