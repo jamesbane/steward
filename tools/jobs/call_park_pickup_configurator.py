@@ -93,7 +93,7 @@ class CallParkPickupConfigurator():
             log.write('{}UserCallPickupGetRequest({}) '.format('    '*(level+1), group_id))
             resp4 = self._bw.UserCallPickupGetRequest(user_id)
             log.write('{}\n'.format(resp4['type']))
-            if resp4['type'] == 'c:SuccessResponse':
+            if resp4['type'] == 'UserCallPickupGetResponse':
                 # Get Line Ports
                 devices = list()
                 # primary device
