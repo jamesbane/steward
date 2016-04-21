@@ -104,7 +104,13 @@ class CallParkPickupConfigurator():
                 if 'accessDeviceEndpoint' in user_info:
                     device_name = user_info['accessDeviceEndpoint']['accessDevice']['deviceName']
                     device_level = user_info['accessDeviceEndpoint']['accessDevice']['deviceLevel']
-                    devices.append({'device_name': device_name, 'device_level': device_level})
+                    if device_level == 'Group':
+                        resp5 = self._bw.GroupAccessDeviceGetRequest18sp1(provider_id, group_id, device_name)
+                        device_type = resp5['data']['deviceType']
+                    elif device_level == 'Service Provider':
+                        resp5 = self._bw.ServiceProviderAccessDeviceGetRequest18sp1(provider_id, device_name)
+                        device_type = resp5['data']['deviceType']
+                    devices.append({'device_name': device_name, 'device_level': device_level, 'device_type': device_type})
                 # shared call appearances
                 log.write('{}UserSharedCallAppearanceGetRequest16sp2(userId={}) >> '.format('    '*(level+2), user_id)),
                 resp3 = self._bw.UserSharedCallAppearanceGetRequest16sp2(userId=user_id)
@@ -113,7 +119,8 @@ class CallParkPickupConfigurator():
                 for appearance in appearances:
                     device_name = appearance['Device Name']
                     device_level = appearance['Device Level']
-                    devices.append({'device_name': device_name, 'device_level': device_level})
+                    device_type = appearance['Device Type']
+                    devices.append({'device_name': device_name, 'device_level': device_level, 'device_type': device_type})
                 devices_unique = list()
                 for device in devices:
                     if device not in devices_unique:
