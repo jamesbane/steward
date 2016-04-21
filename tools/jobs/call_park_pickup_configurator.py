@@ -160,8 +160,8 @@ class CallParkPickupConfigurator():
                                 log.write('{}GroupAccessDeviceCustomTagAddRequest(serviceProviderId={}, groupId={}, deviceName={}, tagName={}, tagValue={}) >> '.format('    '*(level+4), provider_id, group_id, device['device_name'], tag_name, tag_value)),
                                 resp4 = self._bw.GroupAccessDeviceCustomTagAddRequest(serviceProviderId=provider_id, groupId=group_id, deviceName=device['device_name'], tagName=tag_name, tagValue=tag_value)
                                 log.write(self.parse_response(resp4, (level+4)))
-                        log.write('{}GroupCPEConfigRebuildConfigFileRequest(serviceProviderId={}, groupId={}, deviceName={}) >> '.format('    '*(level+4), provider_id, group_id, device['device_name'])),
-                        resp5 = self._bw.GroupCPEConfigRebuildConfigFileRequest(serviceProviderId=provider_id, groupId=group_id, deviceName=device['device_name'])
+                        log.write('{}GroupCPEConfigRebuildConfigFileRequest(serviceProviderId={}, groupId={}, deviceName={}, deviceType={}) >> '.format('    '*(level+4), provider_id, group_id, device['device_name'], device['device_type'])),
+                        resp5 = self._bw.GroupCPEConfigRebuildConfigFileRequest(serviceProviderId=provider_id, groupId=group_id, deviceName=device['device_name'], deviceType=device['device_type'])
                         log.write(self.parse_response(resp5, (level+4)))
                     elif device['device_level'] == 'Provider':
                         for tag in tags:
