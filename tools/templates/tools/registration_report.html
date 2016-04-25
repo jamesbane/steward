@@ -2,11 +2,19 @@
 
 {% block content %}
   <h1 class="page-header">Registration Report</h1>
-  <form method="POST">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <p><label></label><input id="submit" type="submit" value="Run"/></p>
-  </form>
+  <div>
+    <h2 class="text-primary"><i class="fa fa-info"></i> Documentation</h2>
+    <p>Retreives Line/Ports from BroadWorks and polls Palladion for registration details for each Line/Port and via which network element the registrations flow through.</p>
+
+    <h2 class="text-danger"><i class="fa fa-warning"></i> Invoke</h2>
+    <div class="well">
+      <form method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <p><label></label><input id="submit" type="submit" value="Run"/></p>
+      </form>
+    </div>
+  </div>
 {% endblock content %}
 
 {% block javascript %}

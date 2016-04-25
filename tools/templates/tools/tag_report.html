@@ -2,11 +2,19 @@
 
 {% block content %}
   <h1 class="page-header">Tag Report</h1>
-  <form method="POST">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <p><label></label><input id="submit" type="submit" value="Run"/></p>
-  </form>
+  <div>
+    <h2 class="text-primary"><i class="fa fa-info"></i> Documentation</h2>
+    <p>Polls BroadWorks for Device Types and their respective tags and reports any device with the tags. Multiple tags may be entered by separating them with commas. It is important to note that tags are case sensitive.</p>
+
+    <h2 class="text-danger"><i class="fa fa-warning"></i> Invoke</h2>
+    <div class="well">
+      <form method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <p><label></label><input id="submit" type="submit" value="Run"/></p>
+      </form>
+    </div>
+  </div>
 {% endblock content %}
 
 {% block javascript %}
