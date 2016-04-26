@@ -132,11 +132,11 @@ class CallParkPickupConfigurator():
                     {'tag_name': '%SK5-Action%', 'tag_value': '!grppark'},
                     {'tag_name': '%SK5-Active%', 'tag_value': '1'},
                     {'tag_name': '%SK5-Enable%', 'tag_value': '1'},
-                    {'tag_name': '%SK5-Label%', 'tag_value': 'Park'},
+                    {'tag_name': '%SK5-Label%',  'tag_value': 'Park'},
                     {'tag_name': '%SK6-Action%', 'tag_value': '!retrieve'},
                     {'tag_name': '%SK6-Enable%', 'tag_value': '1'},
-                    {'tag_name': '%SK6-Idle%', 'tag_value': '1'},
-                    {'tag_name': '%SK6-Label%', 'tag_value': 'Retrieve'},
+                    {'tag_name': '%SK6-Idle%',   'tag_value': '1'},
+                    {'tag_name': '%SK6-Label%',  'tag_value': 'Retrieve'},
                 ]
                 for device in devices:
                     device_name = device['device_name']
