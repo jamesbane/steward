@@ -3,7 +3,7 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.postgres.fields import ArrayField, HStoreField
 
-# Create your models here.
+
 class Process(models.Model):
     STATUS_SCHEDULED = 0
     STATUS_COMPLETED = 1
