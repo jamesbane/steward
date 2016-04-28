@@ -75,7 +75,10 @@ class CallParkPickupConfigurator():
         log.write('{}GroupCallPickupGetAvailableUserListRequest({}, {}) '.format('    '*level, provider_id, group_id))
         resp1 = self._bw.GroupCallPickupGetAvailableUserListRequest(provider_id, group_id)
         log.write(self.parse_response(resp1, level))
-        available_users = [x['User Id'] for x in resp1['data']['userTable']]
+        if 'userTable' in resp1['data']:
+            available_users = [x['User Id'] for x in resp1['data']['userTable']]
+        else:
+            available_users = []
 
         if not pickup_groups:
             log.write("{}GroupCallPickupAddInstanceRequest({}, {}, 'Default', {{...}}) ".format('    '*level, provider_id, group_id))
