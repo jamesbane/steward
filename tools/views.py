@@ -22,9 +22,6 @@ import rq
 from redis import Redis
 import django_rq
 
-class IndexView(LoginRequiredMixin, TemplateView):
-    template_name = "index.html"
-
 
 class ProcessListView(LoginRequiredMixin, ListView):
     model = Process
