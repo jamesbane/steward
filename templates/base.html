@@ -53,7 +53,7 @@
           <!-- Dashboards -->
           <ul class="nav nav-sidebar">
             <li class="header">Dashboards</li>
-            {% url 'index' as the_url %}
+            {% url 'dashboard:voip' as the_url %}
             <li {% if request.get_full_path == the_url %}class="active"{% endif %}>
               <a href="{{ the_url }}">
                 VoIP Network
@@ -67,7 +67,7 @@
           <ul class="nav nav-sidebar">
             <li class="header">Tools</li>
             {% if perms.tools.process_call_park_pickup_configurator_exec %}
-              {% url 'call-park-pickup-configurator' as the_url %}
+              {% url 'tools:call-park-pickup-configurator' as the_url %}
               <li {% if request.get_full_path == the_url %}class="active"{% endif %}>
                 <a href="{{ the_url }}">
                   Call Park/Pickup Configurator
@@ -78,7 +78,7 @@
               </li>
             {% endif %}
             {% if perms.tools.process_device_specific_migration_exec %}
-              {% url 'device-specific-migration-tool' as the_url %}
+              {% url 'tools:device-specific-migration-tool' as the_url %}
               <li {% if request.get_full_path == the_url %}class="active"{% endif %}>
                 <a href="{{ the_url }}">
                   Device Specific Migration
@@ -89,7 +89,7 @@
               </li>
             {% endif %}
             {% if perms.tools.process_fraud_compliance_reset_exec %}
-              {% url 'fraud-compliance-reset-tool' as the_url %}
+              {% url 'tools:fraud-compliance-reset-tool' as the_url %}
               <li {% if request.get_full_path == the_url %}class="active"{% endif %}>
                 <a href="{{ the_url }}">
                   Fraud Compliance Reset
@@ -100,7 +100,7 @@
               </li>
             {% endif %}
             {% if perms.tools.process_lab_rebuild_exec %}
-              {% url 'lab-rebuild-tool' as the_url %}
+              {% url 'tools:lab-rebuild-tool' as the_url %}
               <li {% if request.get_full_path == the_url %}class="active"{% endif %}>
                 <a href="{{ the_url }}">
                   Lab Rebuild
@@ -111,7 +111,7 @@
               </li>
             {% endif %}
             {% if perms.tools.process_ptt_configurator_exec %}
-              {% url 'push-to-talk-configurator' as the_url %}
+              {% url 'tools:push-to-talk-configurator' as the_url %}
               <li {% if request.get_full_path == the_url %}class="active"{% endif %}>
                 <a href="{{ the_url }}">
                   Push To Talk Configurator
@@ -126,7 +126,7 @@
           <ul class="nav nav-sidebar">
             <li class="header">Reports</li>
             {% if perms.tools.process_firmware_report_exec %}
-              {% url 'firmware-report' as the_url %}
+              {% url 'tools:firmware-report' as the_url %}
               <li {% if request.get_full_path == the_url %}class="active"{% endif %}>
                 <a href="{{ the_url }}">
                   Firmware Report
@@ -137,7 +137,7 @@
               </li>
             {% endif %}
             {% if perms.tools.process_registration_report_exec %}
-              {% url 'registrations-report' as the_url %}
+              {% url 'tools:registrations-report' as the_url %}
               <li {% if request.get_full_path == the_url %}class="active"{% endif %}>
                 <a href="{{ the_url }}">
                   Registrations
@@ -148,7 +148,7 @@
               </li>
             {% endif %}
             {% if perms.tools.process_registration_by_type_exec %}
-              {% url 'registration-by-type-report' as the_url %}
+              {% url 'tools:registration-by-type-report' as the_url %}
               <li {% if request.get_full_path == the_url %}class="active"{% endif %}>
                 <a href="{{ the_url }}">
                   Registration by Type
@@ -159,7 +159,7 @@
               </li>
             {% endif %}
             {% if perms.tools.process_tag_report_exec %}
-              {% url 'tag-report' as the_url %}
+              {% url 'tools:tag-report' as the_url %}
               <li {% if request.get_full_path == the_url %}class="active"{% endif %}>
                 <a href="{{ the_url }}">
                   Tag Report
@@ -173,7 +173,7 @@
           <!-- Jobs -->
           <ul class="nav nav-sidebar">
             <li class="header">Jobs</li>
-            {% url 'process-list' as the_url %}
+            {% url 'tools:process-list' as the_url %}
             <li {% if request.get_full_path == the_url %}class="active"{% endif %}>
               <a href="{{ the_url }}">
                 All Jobs

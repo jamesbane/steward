@@ -13,7 +13,7 @@
     <tbody]>
       {% for object in object_list %}
         <tr>
-          <td><a href="{% url 'process-detail' object.id %}">{{ object.method }}</a></td>
+          <td><a href="{% url 'tools:process-detail' object.id %}">{{ object.method }}</a></td>
           <td>{{ object.user.get_full_name }}</td>
           <td>{{ object.start_timestamp }}</td>
           <td>{{ object.end_timestamp }}</td>
