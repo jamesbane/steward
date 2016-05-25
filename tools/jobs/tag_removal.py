@@ -96,15 +96,21 @@ class TagRemoval():
             device_data = list()
             device_name = device['Device Name']
             resp2 = self._bw.GroupAccessDeviceCustomTagGetListRequest(provider_id, group_id, device_name)
+            log.write(self.parse_response(resp2, level))
             device_tags = resp2['data']['deviceCustomTagsTable']
             for tag in device_tags:
                 tag_name = tag['Tag Name']
                 tag_value = tag['Tag Value']
                 if tag_name in self._tags:
                     device_data.append(tag_name)
+                    log.write('{}GroupAccessDeviceCustomTagDeleteListRequest({}, {}, {}, tagNames={})) '.format('    '*(level+1), provider_id, group_id, device_name, tag_name))
                     resp3 = self._bw.GroupAccessDeviceCustomTagDeleteListRequest(provider_id, group_id, device_name, tagNames=tag_name)
+                    log.write(self.parse_response(resp3, level))
                     break
             if device_data:
+                log.write('{}GroupCPEConfigRebuildDeviceConfigFileRequest({}, {}, {}) '.format('    '*(level+1), provider_id, group_id, device_name))
+                resp5 = self._bw.GroupCPEConfigRebuildDeviceConfigFileRequest(serviceProviderId=provider_id, groupId=group_id, deviceName=device_name)
+                log.write(self.parse_response(resp5, level))
                 summary.write('"{}","{}","{}","{}"\n'.format(provider_id, group_id, device_name, ", ".join(device_data)))
 
         rval = {'log': log.getvalue(), 'summary': summary.getvalue()}
