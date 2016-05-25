@@ -242,3 +242,12 @@ class TagReportView(PermissionRequiredMixin, LoginRequiredMixin, ToolView):
     process_function = 'tools.jobs.tag_report.tag_report'
     template_name = 'tools/tag_report.html'
     form_class = tools.forms.TagReportForm
+
+
+class TagRemovalToolView(PermissionRequiredMixin, LoginRequiredMixin, ToolView):
+    permission_required = 'tools.process_tag_removal_exec'
+    permission_view = 'tools.process_tag_removal_view'
+    process_name = 'Tag Removal'
+    process_function = 'tools.jobs.tag_removal.tag_removal'
+    template_name = 'tools/tag_removal_tool.html'
+    form_class = tools.forms.TagRemovalForm
