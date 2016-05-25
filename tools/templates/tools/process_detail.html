@@ -1,6 +1,6 @@
-{% extends 'base.html' %}
+{% extends 'tools/base.html' %}
 
-{% block content %}
+{% block tool_content %}
   <h1 class="page-header">{{ object.method }} Results</h1>
   User: {{ object.user.get_full_name }}<br/>
   Parameters: {{ object.parameters }}<br/>
@@ -56,4 +56,4 @@
       {% endfor %}
     </div>
   </div>
-{% endblock content %}
+{% endblock tool_content %}

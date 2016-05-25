@@ -1,6 +1,6 @@
-{% extends 'base.html' %}
+{% extends 'tools/base.html' %}
 
-{% block content %}
+{% block tool_content %}
   <h1 class="page-header">Lab Rebuild</h1>
   <div>
     <h2 class="text-primary"><i class="fa fa-info"></i> Documentation</h2>
@@ -56,7 +56,7 @@ for each group that was created:
       </form>
     </div>
   </div>
-{% endblock content %}
+{% endblock tool_content %}
 
 {% block javascript %}
   {{ block.super }}
