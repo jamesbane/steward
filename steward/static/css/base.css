@@ -116,3 +116,7 @@ p > label {
   width: 15em;
   text-align: right;
 }
+
+.monospace {
+  font-family: 'Source Code Pro';
+}

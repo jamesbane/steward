@@ -2,6 +2,8 @@ import pytz
 
 from django.utils import timezone
 
+from steward.models import Profile
+
 
 class TimezoneMiddleware(object):
     def process_request(self, request):

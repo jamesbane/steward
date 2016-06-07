@@ -14,6 +14,7 @@
     <!-- CSS -->
     <link rel="stylesheet" href="{% static 'bower/bootstrap/dist/css/bootstrap.min.css' %}">
     <link rel="stylesheet" href="{% static 'bower/font-awesome/css/font-awesome.min.css' %}">
+    <link href='https://fonts.googleapis.com/css?family=Source+Code+Pro' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" href="{% static 'css/base.css' %}">
   </head>
 
@@ -31,6 +32,16 @@
           <a class="navbar-brand" href="{% url 'index' %}">Steward</a>
         </div>
         <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li><a href="{% url 'tools:index' %}">Tools</a></li>
+            <li><a href="{% url 'deploy:index' %}">Deploy</a></li>
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Dashboards <span class="caret"></span></a>
+              <ul class="dropdown-menu">
+                <li><a href="{% url 'dashboard:voip' %}">VoIP Network</a></li>
+              </ul>
+            </li>
+          </ul>
           <ul class="nav navbar-nav navbar-right">
             <li class="dropdown">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
@@ -48,146 +59,7 @@
     </nav>
 
     <div class="container-fluid">
-      <div class="row">
-        <div class="col-sm-3 col-md-2 sidebar">
-          <!-- Dashboards -->
-          <ul class="nav nav-sidebar">
-            <li class="header">Dashboards</li>
-            {% url 'dashboard:voip' as the_url %}
-            <li {% if request.get_full_path == the_url %}class="active"{% endif %}>
-              <a href="{{ the_url }}">
-                VoIP Network
-                {% if request.get_full_path == the_url %}
-                  <span class="sr-only">(current)</span>
-                  {% endif %}
-                </a>
-            </li>
-          </ul>
-          <!-- Tools -->
-          <ul class="nav nav-sidebar">
-            <li class="header">Tools</li>
-            {% if perms.tools.process_call_park_pickup_configurator_exec %}
-              {% url 'tools:call-park-pickup-configurator' as the_url %}
-              <li {% if request.get_full_path == the_url %}class="active"{% endif %}>
-                <a href="{{ the_url }}">
-                  Call Park/Pickup Configurator
-                  {% if request.get_full_path == the_url %}
-                    <span class="sr-only">(current)</span>
-                    {% endif %}
-                  </a>
-              </li>
-            {% endif %}
-            {% if perms.tools.process_device_specific_migration_exec %}
-              {% url 'tools:device-specific-migration-tool' as the_url %}
-              <li {% if request.get_full_path == the_url %}class="active"{% endif %}>
-                <a href="{{ the_url }}">
-                  Device Specific Migration
-                  {% if request.get_full_path == the_url %}
-                    <span class="sr-only">(current)</span>
-                    {% endif %}
-                  </a>
-              </li>
-            {% endif %}
-            {% if perms.tools.process_fraud_compliance_reset_exec %}
-              {% url 'tools:fraud-compliance-reset-tool' as the_url %}
-              <li {% if request.get_full_path == the_url %}class="active"{% endif %}>
-                <a href="{{ the_url }}">
-                  Fraud Compliance Reset
-                  {% if request.get_full_path == the_url %}
-                    <span class="sr-only">(current)</span>
-                  {% endif %}
-                </a>
-              </li>
-            {% endif %}
-            {% if perms.tools.process_lab_rebuild_exec %}
-              {% url 'tools:lab-rebuild-tool' as the_url %}
-              <li {% if request.get_full_path == the_url %}class="active"{% endif %}>
-                <a href="{{ the_url }}">
-                  Lab Rebuild
-                  {% if request.get_full_path == the_url %}
-                    <span class="sr-only">(current)</span>
-                  {% endif %}
-                </a>
-              </li>
-            {% endif %}
-            {% if perms.tools.process_ptt_configurator_exec %}
-              {% url 'tools:push-to-talk-configurator' as the_url %}
-              <li {% if request.get_full_path == the_url %}class="active"{% endif %}>
-                <a href="{{ the_url }}">
-                  Push To Talk Configurator
-                  {% if request.get_full_path == the_url %}
-                    <span class="sr-only">(current)</span>
-                  {% endif %}
-                </a>
-              </li>
-            {% endif %}
-          </ul>
-          <!-- Reports -->
-          <ul class="nav nav-sidebar">
-            <li class="header">Reports</li>
-            {% if perms.tools.process_firmware_report_exec %}
-              {% url 'tools:firmware-report' as the_url %}
-              <li {% if request.get_full_path == the_url %}class="active"{% endif %}>
-                <a href="{{ the_url }}">
-                  Firmware Report
-                  {% if request.get_full_path == the_url %}
-                    <span class="sr-only">(current)</span>
-                  {% endif %}
-                </a>
-              </li>
-            {% endif %}
-            {% if perms.tools.process_registration_report_exec %}
-              {% url 'tools:registrations-report' as the_url %}
-              <li {% if request.get_full_path == the_url %}class="active"{% endif %}>
-                <a href="{{ the_url }}">
-                  Registrations
-                  {% if request.get_full_path == the_url %}
-                    <span class="sr-only">(current)</span>
-                  {% endif %}
-                </a>
-              </li>
-            {% endif %}
-            {% if perms.tools.process_registration_by_type_exec %}
-              {% url 'tools:registration-by-type-report' as the_url %}
-              <li {% if request.get_full_path == the_url %}class="active"{% endif %}>
-                <a href="{{ the_url }}">
-                  Registration by Type
-                  {% if request.get_full_path == the_url %}
-                    <span class="sr-only">(current)</span>
-                  {% endif %}
-                </a>
-              </li>
-            {% endif %}
-            {% if perms.tools.process_tag_report_exec %}
-              {% url 'tools:tag-report' as the_url %}
-              <li {% if request.get_full_path == the_url %}class="active"{% endif %}>
-                <a href="{{ the_url }}">
-                  Tag Report
-                  {% if request.get_full_path == the_url %}
-                    <span class="sr-only">(current)</span>
-                  {% endif %}
-                </a>
-              </li>
-            {% endif %}
-          </ul>
-          <!-- Jobs -->
-          <ul class="nav nav-sidebar">
-            <li class="header">Jobs</li>
-            {% url 'tools:process-list' as the_url %}
-            <li {% if request.get_full_path == the_url %}class="active"{% endif %}>
-              <a href="{{ the_url }}">
-                All Jobs
-                {% if request.get_full_path == the_url %}
-                  <span class="sr-only">(current)</span>
-                {% endif %}
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
-          {% block content %}{% endblock content %}
-        </div>
-      </div>
+      {% block content %}{% endblock content %}
     </div>
 
     {% block javascript %}

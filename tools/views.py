@@ -19,8 +19,13 @@ from tools.models import Process
 
 # Third Party
 import rq
-from redis import Redis
 import django_rq
+from redis import Redis
+from lib.pyutil.django.mixins import ProcessFormMixin
+
+
+class IndexView(LoginRequiredMixin, TemplateView):
+    template_name = 'tools/index.html'
 
 
 class ProcessListView(LoginRequiredMixin, ListView):
@@ -61,70 +66,7 @@ class ProcessDetailView(LoginRequiredMixin, DetailView):
             }
         return context
 
-class ToolView(TemplateView):
-    form_class = None
-    initial = {}
-    prefix = None
-    success_url = None
-
-    def get_form(self, form_class=None):
-        """
-        Returns an instance of the form to be used in this view.
-        """
-        if form_class is None:
-            form_class = self.get_form_class()
-        return form_class(**self.get_form_kwargs())
-
-    def get_form_class(self):
-        """
-        Returns the form class to use in this view
-        """
-        return self.form_class
-
-    def get_form_kwargs(self):
-        """
-        Returns the keyword arguments for instantiating the form.
-        """
-        kwargs = {
-            'initial': self.get_initial(),
-            'prefix': self.get_prefix(),
-        }
-        if self.request.method in ('POST', 'PUT'):
-            kwargs.update({
-                'data': self.request.POST,
-                'files': self.request.FILES,
-            })
-        return kwargs
-
-    def get_initial(self):
-        """
-        Returns the initial data to use for forms on this view.
-        """
-        return self.initial.copy()
-
-    def get_prefix(self):
-        """
-        Returns the prefix to use for forms on this view
-        """
-        return self.prefix
-
-    def get_context_data(self, **kwargs):
-        """
-        Insert the form into the context dict.
-        """
-        kwargs.setdefault('form', self.get_form())
-        return super(ToolView, self).get_context_data(**kwargs)
-
-    def post(self, request, *args, **kwargs):
-        """
-        Handles POST requests, instantiating a form instance with the passed
-        POST variables and then checked for validity.
-        """
-        form = self.get_form()
-        if form.is_valid():
-            return self.form_valid(form)
-        else:
-            return self.form_invalid(form)
+class ToolView(ProcessFormMixin, TemplateView):
 
     def form_valid(self, form):
         """
@@ -144,13 +86,6 @@ class ToolView(TemplateView):
         q.enqueue_call(process_function, args=(self.object.pk,))
         return HttpResponseRedirect(self.get_success_url())
 
-    def form_invalid(self, form):
-        """
-        If the form is invalid, re-render the context data with the
-        data-filled form and errors.
-        """
-        return self.render_to_response(self.get_context_data())
-
     def get_success_url(self):
         """
         Returns the supplied success URL.
@@ -159,7 +94,7 @@ class ToolView(TemplateView):
             # Forcing possible reverse_lazy evaluation
             url = force_text(self.success_url)
         else:
-            url = reverse('process-detail', args=(self.object.pk,))
+            url = reverse('tools:process-detail', args=(self.object.pk,))
         return url
 
 

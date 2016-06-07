@@ -59,6 +59,8 @@ INSTALLED_APPS = [
 
     # Project
     'dashboard',
+    'deploy',
+    'dms',
     'steward',
     'tools',
 
@@ -190,10 +192,15 @@ STATIC_ROOT = '{}/static/'.format(BASE_DIR)
 
 
 # =====================================
-# Redis Queue
+# Redis Queues
 # =====================================
 RQ_QUEUES = {
     'default': {
+        'HOST': 'localhost',
+        'PORT': 6379,
+        'DB': 0,
+    },
+    'deploy': {
         'HOST': 'localhost',
         'PORT': 6379,
         'DB': 0,

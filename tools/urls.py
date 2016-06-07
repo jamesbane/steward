@@ -2,6 +2,7 @@ from django.conf.urls import url
 import tools.views
 
 urlpatterns = [
+    url(r'^$', tools.views.IndexView.as_view(), name='index'),
     # Tools
     url(r'^call-park-pickup-configurator$', tools.views.CallParkPickupConfiguratorToolView.as_view(), name='call-park-pickup-configurator'),
     url(r'^device-specific-migration-tool$', tools.views.DeviceSpecificMigrationToolView.as_view(), name='device-specific-migration-tool'),
