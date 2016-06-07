@@ -200,6 +200,11 @@ RQ_QUEUES = {
         'PORT': 6379,
         'DB': 0,
     },
+    'tool': {
+        'HOST': 'localhost',
+        'PORT': 6379,
+        'DB': 0,
+    },
     'deploy': {
         'HOST': 'localhost',
         'PORT': 6379,

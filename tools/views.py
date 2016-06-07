@@ -82,7 +82,7 @@ class ToolView(ProcessFormMixin, TemplateView):
         method = self.process_function.split('.')[-1]
         importlib.import_module(module)
         process_function = eval(self.process_function)
-        q = rq.Queue('default', connection=Redis(), default_timeout=10800)
+        q = rq.Queue('tool', connection=Redis(), default_timeout=10800)
         q.enqueue_call(process_function, args=(self.object.pk,))
         return HttpResponseRedirect(self.get_success_url())
 
