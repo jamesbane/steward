@@ -1,5 +1,5 @@
 [Unit]
-Description=Steward Workers
+Description=Steward Deploy Workers
 Requires=postgresql.service redis.service
 After=postgresql.service redis.service
 
@@ -9,7 +9,7 @@ Type=simple
 KillMode=process
 Restart=always
 ExecStart=/var/html/steward/venv/bin/python -O                  \
-          /var/html/steward/manage.py rqworker                  \
+          /var/html/steward/manage.py rqworker deploy           \
           --pythonpath=/var/html/steward                        \
           --name steward-worker
 
