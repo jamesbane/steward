@@ -9,7 +9,7 @@ Type=simple
 KillMode=process
 Restart=always
 ExecStart=/var/html/steward/venv/bin/python -O                  \
-          /var/html/steward/manage.py rqworker default          \
+          /var/html/steward/manage.py rqworker tool             \
           --pythonpath=/var/html/steward                        \
           --name steward-worker
 
