@@ -3,6 +3,8 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.postgres.fields import ArrayField, HStoreField
 
+from steward.storage import ProtectedFileStorage
+
 
 class Process(models.Model):
     STATUS_SCHEDULED = 0
@@ -22,7 +24,6 @@ class Process(models.Model):
     parameters = HStoreField()
     start_timestamp = models.DateTimeField(null=False)
     end_timestamp = models.DateTimeField(null=True)
-    content = HStoreField(default={})
     status = models.PositiveSmallIntegerField(null=False, default=STATUS_SCHEDULED, choices=CHOICES_STATUS)
     exception = models.TextField()
     view_permission = models.CharField(max_length=64, db_index=True)
@@ -51,3 +52,14 @@ class Process(models.Model):
             ("process_tag_removal_exec", "Tag Removal Tool Execute"),
             ("process_tag_removal_view", "Tag Removal Tool View Results"),
         )
+
+
+class ProcessContent(models.Model):
+    process = models.ForeignKey('Process', related_name='content')
+    tab = models.CharField(max_length=32)
+    priority = models.PositiveSmallIntegerField(default=32767)
+    raw = models.FileField(upload_to='process', storage=ProtectedFileStorage())
+    html = models.FileField(upload_to='process', storage=ProtectedFileStorage())
+
+    class Meta:
+        ordering = ['priority', 'tab']

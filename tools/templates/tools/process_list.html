@@ -3,21 +3,30 @@
 {% block tool_content %}
   <h1 class="page-header">Jobs</h1>
   <table class="table table-bordered table-striped table-hover">
-    <tr>
-      <th>Process</td>
-      <th>User</th>
-      <th>Start</th>
-      <th>End</th>
-      <th>Status</th>
-    </tr>
-    <tbody]>
+    <thead>
+      <tr>
+        <th class="col-lg-4" colspan="2">Process</th>
+        <th class="col-lg-2" rowspan="2">User</th>
+        <th class="col-lg-2" rowspan="2">Start</th>
+        <th class="col-lg-2" rowspan="2">End</th>
+        <th class="col-lg-2" rowspan="2">Status</th>
+        <th rowspan="2"/>
+      </tr>
+      <tr>
+        <th>Id</id>
+        <th>Name</td>
+      </tr>
+    </thead>
+    <tbody>
       {% for object in object_list %}
         <tr>
+          <td><a href="{% url 'tools:process-detail' object.id %}">{{ object.id }}</a></td>
           <td><a href="{% url 'tools:process-detail' object.id %}">{{ object.method }}</a></td>
           <td>{{ object.user.get_full_name }}</td>
           <td>{{ object.start_timestamp }}</td>
           <td>{{ object.end_timestamp }}</td>
           <td>{{ object.get_status_display }}</td>
+          <td><a class="btn btn-xs btn-primary" href="{% url 'tools:process-detail' object.id %}"><i class="fa fa-chevron-right"></i></a></td>
         </tr>
       {% endfor %}
     </tbody>

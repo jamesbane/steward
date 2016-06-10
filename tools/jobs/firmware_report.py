@@ -1,5 +1,7 @@
 # Python
 import io
+import os
+import csv
 import re
 import datetime
 import traceback
@@ -10,7 +12,7 @@ from django.utils import timezone
 from django.conf import settings
 
 # Application
-from tools.models import Process
+from tools.models import Process, ProcessContent
 
 # Third Party
 from lib.pybw.broadworks import BroadWorks, Nil
@@ -18,6 +20,21 @@ from lib.pybw.broadworks import BroadWorks, Nil
 
 def firmware_report(process_id):
     process = Process.objects.get(id=process_id)
+    # Summary Tab
+    summary_content = ProcessContent.objects.create(process=process, tab='Summary', priority=1)
+    dir_path = os.path.join(settings.PROTECTED_ROOT, 'process')
+    filename_html = '{}_{}'.format(process.id, 'summary.html')
+    pathname_html = os.path.join(dir_path, filename_html)
+    filename_raw = '{}_{}'.format(process.id, 'summary.csv')
+    pathname_raw = os.path.join(dir_path, filename_raw)
+    if not os.path.isdir(dir_path):
+        os.makedirs(dir_path)
+    summary_html = open(pathname_html, "w")
+    summary_content.html.name = os.path.join('process', filename_html)
+    summary_raw = open(pathname_raw, "w")
+    summary_content.raw.name = os.path.join('process', filename_raw)
+    summary_content.save()
+
     try:
         print("Process {}: {} -> {}".format(process_id, process.method, process.parameters))
         process.status = process.STATUS_RUNNING
@@ -29,15 +46,6 @@ def firmware_report(process_id):
         provider_id = process.parameters.get('provider_id', None)
         group_id = process.parameters.get('group_id', None)
 
-        if provider_id and group_id:
-            key_name = "toolchest_firmware_report_{}-{}_{}.csv".format(provider_id, group_id, datetime.datetime.now().strftime("%Y-%m-%d-%H%M%S"))
-        elif provider_id:
-            key_name = "toolchest_firmware_report_{}_{}.csv".format(provider_id, datetime.datetime.now().strftime("%Y-%m-%d-%H%M%S"))
-        else:
-            key_name = "toolchest_firmware_report_{}.csv".format(datetime.datetime.now().strftime("%Y-%m-%d-%H%M%S"))
-
-        file_content = io.StringIO()
-
         # Login to BroadWorks
         bw = BroadWorks(**settings.PLATFORMS['broadworks'])
         bw.LoginRequest14sp4()
@@ -45,10 +53,12 @@ def firmware_report(process_id):
         user_agent_regex = re.compile('^(?P<device_type>PolycomVVX-VVX_\d{3}|PolycomSoundStationIP-SSIP_\d{4}|PolycomSoundPointIP-SPIP_\d{3})-UA\/(?P<version>[\d\.]+)$')
         device_types = ['Polycom', 'Polycom_VVX300', 'Polycom_VVX400', 'Polycom_VVX500', 'Polycom_VVX600']
 
-        file_content.write('"Provider Id","Group Id","Device Type","Device Name","Version","User Agent","Registered"\n')
-        content[key_name] = file_content.getvalue()
-        process.content = content
-        process.save(update_fields=['content'])
+        summary_html.write('<table class="table table-striped table-bordered table-hover">\n')
+        summary_html.write('<tr>\n')
+        summary_html.write('\t<th>Provider Id</th><th>Group Id</th><th>Device Type</th><th>Device Name</th><th>Version</th><th>User Agent</th><th>Registered</th>\n')
+        summary_html.write('</tr>\n')
+        summary_html.write('<tbody>\n')
+        summary_raw.write('"Provider Id","Group Id","Device Type","Device Name","Version","User Agent","Registered"\n')
         # Process Devices
         for device_type in device_types:
             if provider_id and group_id:
@@ -99,31 +109,37 @@ def firmware_report(process_id):
                     if m:
                         reg_device_type = m.group('device_type')
                         reg_version = m.group('version')
-                        file_content.write('"{}","{}","{}","{}","{}","{}","{}"\n'.format(device_provider_id, device_group_id, device_type, device_name, reg_version, device_user_agent, device_registered))
-                        content[key_name] = file_content.getvalue()
-                        process.content = content
-                        process.save(update_fields=['content'])
+                        summary_raw.write('"{}","{}","{}","{}","{}","{}","{}"\n'.format(device_provider_id, device_group_id, device_type, device_name, reg_version, device_user_agent, device_registered))
+                        summary_html.write('<tr>\n')
+                        summary_html.write('\t<td>{}</td><td>{}</td><td>{}</td><td>{}</td><td>{}</td><td>{}</td><td>{}</td>\n'.format(device_provider_id, device_group_id, device_type, device_name, reg_version, device_user_agent, device_registered))
+                        summary_html.write('</tr>\n')
                     else:
-                        file_content.write('"{}","{}","{}","{}","{}","{}","{}"\n'.format(device_provider_id, device_group_id, device_type, device_name, '', device_user_agent, device_registered))
-                        content[key_name] = file_content.getvalue()
-                        process.content = content
-                        process.save(update_fields=['content'])
+                        summary_raw.write('"{}","{}","{}","{}","{}","{}","{}"\n'.format(device_provider_id, device_group_id, device_type, device_name, '', device_user_agent, device_registered))
+                        summary_html.write('<tr>\n')
+                        summary_html.write('\t<td>{}</td><td>{}</td><td>{}</td><td>{}</td><td>{}</td><td>{}</td><td>{}</td>\n'.format(device_provider_id, device_group_id, device_type, device_name, '', device_user_agent, device_registered))
+                        summary_html.write('</tr>\n')
                 else:
                     # Not registered, so blank version/UA
-                    file_content.write('"{}","{}","{}","{}","{}","{}","{}"\n'.format(device_provider_id, device_group_id, device_type, device_name, '', '', device_registered))
-                    content[key_name] = file_content.getvalue()
-                    process.content = content
-                    process.save(update_fields=['content'])
+                    summary_raw.write('"{}","{}","{}","{}","{}","{}","{}"\n'.format(device_provider_id, device_group_id, device_type, device_name, '', '', device_registered))
+                    summary_html.write('<tr>\n')
+                    summary_html.write('\t<td>{}</td><td>{}</td><td>{}</td><td>{}</td><td>{}</td><td>{}</td><td>{}</td>\n'.format(device_provider_id, device_group_id, device_type, device_name, '', '', device_registered))
+                    summary_html.write('</tr>\n')
 
-        content[key_name] = file_content.getvalue()
-        process.content = content
+        # after things are finished
+        # end html
+        summary_html.write('</tbody>\n')
+        summary_html.write('</table>\n')
+        # save data
         process.status = process.STATUS_COMPLETED
         process.end_timestamp = timezone.now()
-        process.save(update_fields=['content', 'status', 'end_timestamp'])
-        file_content.close()
+        process.save(update_fields=['status', 'end_timestamp'])
         bw.LogoutRequest()
     except Exception:
         process.status = process.STATUS_ERROR
         process.end_timestamp = timezone.now()
         process.exception = traceback.format_exc()
         process.save(update_fields=['status', 'exception', 'end_timestamp'])
+
+    # Cleanup
+    summary_html.close()
+    summary_raw.close()

@@ -1,5 +1,7 @@
 # Python
 import io
+import os
+import csv
 import datetime
 import traceback
 
@@ -8,7 +10,7 @@ from django.utils import timezone
 from django.conf import settings
 
 # Application
-from tools.models import Process
+from tools.models import Process, ProcessContent
 
 # Third Party
 from lib.pyutil.util import Util
@@ -17,18 +19,55 @@ from lib.pybw.broadworks import BroadWorks, Nil
 
 def registration_by_type(process_id):
     process = Process.objects.get(id=process_id)
+
+    # Summary Tab
+    summary_content = ProcessContent.objects.create(process=process, tab='Summary', priority=1)
+    dir_path = os.path.join(settings.PROTECTED_ROOT, 'process')
+    filename_html = '{}_{}'.format(process.id, 'summary.html')
+    pathname_html = os.path.join(dir_path, filename_html)
+    filename_raw = '{}_{}'.format(process.id, 'summary.csv')
+    pathname_raw = os.path.join(dir_path, filename_raw)
+    if not os.path.isdir(dir_path):
+        os.makedirs(dir_path)
+    summary_html = open(pathname_html, "w")
+    summary_content.html.name = os.path.join('process', filename_html)
+    summary_raw = open(pathname_raw, "w")
+    summary_content.raw.name = os.path.join('process', filename_raw)
+    summary_content.save()
+
+    # Detail Tab
+    detail_content = ProcessContent.objects.create(process=process, tab='Detail', priority=2)
+    dir_path = os.path.join(settings.PROTECTED_ROOT, 'process')
+    filename_html = '{}_{}'.format(process.id, 'detail.html')
+    pathname_html = os.path.join(dir_path, filename_html)
+    filename_raw = '{}_{}'.format(process.id, 'detail.csv')
+    pathname_raw = os.path.join(dir_path, filename_raw)
+    if not os.path.isdir(dir_path):
+        os.makedirs(dir_path)
+    detail_html = open(pathname_html, "w")
+    detail_content.html.name = os.path.join('process', filename_html)
+    detail_raw = open(pathname_raw, "w")
+    detail_content.raw.name = os.path.join('process', filename_raw)
+    detail_content.save()
+
     try:
         print("Process {}: {} -> {}".format(process_id, process.method, process.parameters))
         process.status = process.STATUS_RUNNING
         process.save(update_fields=['status'])
 
-        content = dict()
-        detail_file_key = "device_report_details_{}.csv".format(datetime.datetime.now().strftime("%Y-%m-%d-%H%M%S"))
-        summary_file_key = "device_report_summary_{}.csv".format(datetime.datetime.now().strftime("%Y-%m-%d-%H%M%S"))
-        detail_file = io.StringIO()
-        summary_file = io.StringIO()
-        detail_file.write('"{}","{}","{}","{}","{}","{}"\n'.format("Provider Id", "Group Id", "Device Name", "Device Type", "Device User Agent", "Registered"))
-        summary_file.write('"{}","{}","{}","{}"\n'.format('Device Type', 'Device Count', 'Registration Count', 'Perc Registered'))
+        # Initial content
+        detail_html.write('<table class="table table-striped table-bordered table-hover">\n')
+        detail_html.write('<tr>\n')
+        detail_html.write('\t<th>Provider Id</th><th>Group Id</th><th>Device Name</th><th>Device Type</th><th>Device User Agent</th><th>Registered</th>\n')
+        detail_html.write('</tr>\n')
+        detail_html.write('<tbody>\n')
+        detail_raw.write('"{}","{}","{}","{}","{}","{}"\n'.format("Provider Id", "Group Id", "Device Name", "Device Type", "Device User Agent", "Registered"))
+        summary_html.write('<table class="table table-striped table-bordered table-hover">\n')
+        summary_html.write('<tr>\n')
+        summary_html.write('\t<th>Device Type</th><th>Device Count</th><th>Registration Count</th><th>Perc Registered</th>\n')
+        summary_html.write('</tr>\n')
+        summary_html.write('<tbody>\n')
+        summary_raw.write('"{}","{}","{}","{}"\n'.format('Device Type', 'Device Count', 'Registration Count', 'Perc Registered'))
 
         bw = BroadWorks(**settings.PLATFORMS['broadworks'])
         bw.LoginRequest14sp4()
@@ -82,7 +121,8 @@ def registration_by_type(process_id):
                         else:
                             continue
                         break
-                    detail_file.write('"{}","{}","{}","{}","{}","{}"\n'.format(provider_id, group_id, device_name, device_type, device_user_agent, device_registered))
+                    detail_raw.write('"{}","{}","{}","{}","{}","{}"\n'.format(provider_id, group_id, device_name, device_type, device_user_agent, device_registered))
+                    detail_html.write('\t<tr><th>{}</th><th>{}</th><th>{}</th><th>{}</th><th>{}</th><th>{}</th></tr>\n'.format(provider_id, group_id, device_name, device_type, device_user_agent, device_registered))
                     if device_registered:
                         registration_count[device_type] += 1
 
@@ -91,11 +131,8 @@ def registration_by_type(process_id):
                 perc_registered = (registration_count[device_type] / device_count[device_type]) * 100
             else:
                 perc_registered = 0
-            summary_file.write('"{}","{}","{}","{:0.2f}%"\n'.format(device_type, device_count[device_type], registration_count[device_type], perc_registered))
-            content[detail_file_key] = detail_file.getvalue()
-            content[summary_file_key] = summary_file.getvalue()
-            process.content = content
-            process.save(update_fields=['content'])
+            summary_raw.write('"{}","{}","{}","{:0.2f}%"\n'.format(device_type, device_count[device_type], registration_count[device_type], perc_registered))
+            summary_html.write('\t<tr><th>{}</th><th>{}</th><th>{}</th><th>{}</th></tr>\n'.format(device_type, device_count[device_type], registration_count[device_type], perc_registered))
 
         total_device_count = 0
         total_registration_count = 0
@@ -106,19 +143,28 @@ def registration_by_type(process_id):
             total_perc_registered = (total_registration_count / total_device_count) * 100
         else:
             total_perc_registered = 0
-        summary_file.write('"{}","{}","{}","{:0.2f}%"\n'.format('TOTAL', total_device_count, total_registration_count, total_perc_registered))
+        summary_raw.write('"{}","{}","{}","{:0.2f}%"\n'.format('TOTAL', total_device_count, total_registration_count, total_perc_registered))
+        summary_html.write('\t<tr><th>{}</th><th>{}</th><th>{}</th><th>{}</th></tr>\n'.format('TOTAL', total_device_count, total_registration_count, total_perc_registered))
 
-        content[detail_file_key] = detail_file.getvalue()
-        content[summary_file_key] = summary_file.getvalue()
-        process.content = content
+        # after things are finished
+        # end html
+        detail_html.write('</tbody>\n')
+        detail_html.write('</table>\n')
+        summary_html.write('</tbody>\n')
+        summary_html.write('</table>\n')
+        # save data
         process.status = process.STATUS_COMPLETED
         process.end_timestamp = timezone.now()
-        process.save(update_fields=['content', 'status', 'end_timestamp'])
-        detail_file.close()
-        summary_file.close()
+        process.save(update_fields=['status', 'end_timestamp'])
         bw.LogoutRequest()
     except Exception:
         process.status = process.STATUS_ERROR
         process.end_timestamp = timezone.now()
         process.exception = traceback.format_exc()
         process.save(update_fields=['status', 'exception', 'end_timestamp'])
+
+    # Cleanup
+    detail_html.close()
+    detail_raw.close()
+    summary_html.close()
+    summary_raw.close()

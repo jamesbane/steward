@@ -1,5 +1,7 @@
 # Python
 import io
+import os
+import csv
 import sys
 import time
 import requests
@@ -12,7 +14,7 @@ from django.utils import timezone
 from django.conf import settings
 
 # Application
-from tools.models import Process
+from tools.models import Process, ProcessContent
 
 # Third Party
 from lib.pyutil.util import Util
@@ -130,7 +132,33 @@ def tag_clean(tag_name):
 
 def tag_removal(process_id):
     process = Process.objects.get(id=process_id)
-    content = dict()
+
+    # Summary Tab
+    summary_content = ProcessContent.objects.create(process=process, tab='Summary', priority=1)
+    dir_path = os.path.join(settings.PROTECTED_ROOT, 'process')
+    filename_html = '{}_{}'.format(process.id, 'summary.html')
+    pathname_html = os.path.join(dir_path, filename_html)
+    filename_raw = '{}_{}'.format(process.id, 'summary.csv')
+    pathname_raw = os.path.join(dir_path, filename_raw)
+    if not os.path.isdir(dir_path):
+        os.makedirs(dir_path)
+    summary_html = open(pathname_html, "w")
+    summary_content.html.name = os.path.join('process', filename_html)
+    summary_raw = open(pathname_raw, "w")
+    summary_content.raw.name = os.path.join('process', filename_raw)
+    summary_content.save()
+
+    # Log Tab
+    log_content = ProcessContent.objects.create(process=process, tab='Log', priority=2)
+    dir_path = os.path.join(settings.PROTECTED_ROOT, 'process')
+    filename_raw = '{}_{}'.format(process.id, 'log.txt')
+    pathname_raw = os.path.join(dir_path, filename_raw)
+    if not os.path.isdir(dir_path):
+        os.makedirs(dir_path)
+    log_raw = open(pathname_raw, "w")
+    log_content.raw.name = os.path.join('process', filename_raw)
+    log_content.save()
+
     try:
         print("Process {}: {} -> {}".format(process_id, process.method, process.parameters))
         process.status = process.STATUS_RUNNING
@@ -147,47 +175,55 @@ def tag_removal(process_id):
             tags = [tag_clean(tag) for tag in tags.split(',')]
         tr = TagRemoval(process, tags)
 
-        log = io.StringIO()
-        summary = io.StringIO()
-        summary.write('"Provider Id","Group Id","Device Name","Removed Tags"\n')
-
         # Initial content
-        content['log.txt'] = log.getvalue()
-        content['summary.csv'] = summary.getvalue()
-        process.content = content
-        process.save(update_fields=['content'])
+        summary_html.write('<table class="table table-striped table-bordered table-hover">\n')
+        summary_html.write('\t<thead>\n')
+        summary_html.write('\t\t<tr><th>Provider Id</th><th>Group Id</th><th>Device Name</th><th>Removed Tags</th></tr>\n')
+        summary_html.write('\t</thead>\n')
+        summary_html.write('<tbody>\n')
+        summary_raw.write('"Provider Id","Group Id","Device Name","Removed Tags"\n')
 
         # Determine what to do
         if provider_id and group_id:
             data = tr.group_remove_tags(provider_id=provider_id, group_id=group_id)
-            log.write(data['log'])
-            summary.write(data['summary'])
-            content['log.txt'] = log.getvalue()
-            content['summary.csv'] = summary.getvalue()
-            process.content = content
-            process.save(update_fields=['content'])
+            log_raw.write(data['log'])
+            summary_raw.write(data['summary'])
+            for row in csv.reader(data['summary'].split('\n')):
+                if row:
+                    summary_html.write('<tr>\n\t')
+                    for d in row:
+                        summary_html.write('<td>{}</td>'.format(d))
+                    summary_html.write('\n</tr>\n')
         elif provider_id:
             tr.provider_check(provider_id, True if provider_type == 'Enterprise' else False)
             groups = tr.groups(provider_id)
             for group in groups:
                 group_id = group['Group Id']
                 data = tr.group_remove_tags(provider_id=provider_id, group_id=group_id)
-                log.write(data['log'])
-                summary.write(data['summary'])
-                content['log.txt'] = log.getvalue()
-                content['summary.csv'] = summary.getvalue()
-                process.content = content
-                process.save(update_fields=['content'])
+                log_raw.write(data['log'])
+                summary_raw.write(data['summary'])
+                for row in csv.reader(data['summary'].split('\n')):
+                    if row:
+                        summary_html.write('<tr>\n\t')
+                        for d in row:
+                            summary_html.write('<td>{}</td>'.format(d))
+                        summary_html.write('\n</tr>\n')
 
         # after things are finished
-        content['log.txt'] = log.getvalue()
-        content['summary.csv'] = summary.getvalue()
-        process.content = content
+        # end html
+        summary_html.write('</tbody>\n')
+        summary_html.write('</table>\n')
+        # save data
         process.status = process.STATUS_COMPLETED
         process.end_timestamp = timezone.now()
-        process.save(update_fields=['content', 'status', 'end_timestamp'])
+        process.save(update_fields=['status', 'end_timestamp'])
     except Exception:
         process.status = process.STATUS_ERROR
         process.end_timestamp = timezone.now()
         process.exception = traceback.format_exc()
         process.save(update_fields=['status', 'exception', 'end_timestamp'])
+
+    # Cleanup
+    log_raw.close()
+    summary_html.close()
+    summary_raw.close()

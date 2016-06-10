@@ -1,5 +1,7 @@
 # Python
 import io
+import os
+import csv
 import sys
 import time
 import datetime
@@ -11,7 +13,7 @@ from django.utils import timezone
 from django.conf import settings
 
 # Application
-from tools.models import Process
+from tools.models import Process, ProcessContent
 
 # Third Party
 from lib.pyutil.util import Util
@@ -95,9 +97,9 @@ class FraudCompliance():
             ('urlDialing', 'Disallow'),
             ('unknown', 'Disallow'),
         ])
-        content.write('{}    GroupOutgoingCallingPlanOriginatingModifyListRequest(serviceProviderId={}, groupId={}, origPermissions) >> '.format('    '*level, provider_id, group_id)),
+        content.write('{}GroupOutgoingCallingPlanOriginatingModifyListRequest(serviceProviderId={}, groupId={}, origPermissions) >> '.format('    '*(level+1), provider_id, group_id)),
         resp0 = self._bw.GroupOutgoingCallingPlanOriginatingModifyListRequest(provider_id, group_id, groupPermissions=orig_permissions)
-        content.write(self.parse_response(resp0, level))
+        content.write(self.parse_response(resp0, (level+1)))
         redirect_permissions = OrderedDict([
             ('group', True),
             ('local', True),
@@ -114,14 +116,14 @@ class FraudCompliance():
             ('urlDialing', False),
             ('unknown', False),
         ])
-        content.write('{}    GroupOutgoingCallingPlanRedirectingModifyListRequest(serviceProviderId={}, groupId={}, redirectPermissions) >> '.format('    '*level, provider_id, group_id)),
+        content.write('{}GroupOutgoingCallingPlanRedirectingModifyListRequest(serviceProviderId={}, groupId={}, redirectPermissions) >> '.format('    '*(level+1), provider_id, group_id)),
         resp1 = self._bw.GroupOutgoingCallingPlanRedirectingModifyListRequest(provider_id, group_id, groupPermissions=redirect_permissions)
-        content.write(self.parse_response(resp1, level))
+        content.write(self.parse_response(resp1, (level+1)))
 
         # Reboot phones
-        content.write('    {}GroupAccessDeviceGetListRequest({}, {}) '.format('    '*level, provider_id, group_id))
+        content.write('{}GroupAccessDeviceGetListRequest({}, {}) '.format('    '*(level+1), provider_id, group_id))
         resp3 = self._bw.GroupAccessDeviceGetListRequest(provider_id, group_id)
-        content.write(self.parse_response(resp3, level))
+        content.write(self.parse_response(resp3, (level+1)))
         devices = resp3['data']['accessDeviceTable']
         for device in devices:
             device_name = device['Device Name']
@@ -143,22 +145,22 @@ class FraudCompliance():
             content.write(self.parse_response(resp8, level))
 
 
-        content.write('{}    UserGetListInGroupRequest(serviceProviderId={}, groupId={}) >> '.format('    '*level, provider_id, group_id)),
+        content.write('{}UserGetListInGroupRequest(serviceProviderId={}, groupId={}) >> '.format('    '*(level+1), provider_id, group_id)),
         resp2 = self._bw.UserGetListInGroupRequest(serviceProviderId=provider_id, groupId=group_id)
-        content.write(self.parse_response(resp2, level))
+        content.write(self.parse_response(resp2, (level+1)))
         users = resp2['data']['userTable']
         for user in users:
             user_id = user['User Id']
             content.write('{}  User {}\n'.format('    '*level, user_id))
             # Outbound calling plan set to group
-            content.write('{}    UserOutgoingCallingPlanOriginatingModifyRequest(useCustomSettings=False) >> '.format('    '*level)),
+            content.write('{}UserOutgoingCallingPlanOriginatingModifyRequest(useCustomSettings=False) >> '.format('    '*(level+1))),
             resp3 = self._bw.UserOutgoingCallingPlanOriginatingModifyRequest(userId=user_id, useCustomSettings=False)
-            content.write(self.parse_response(resp3, level))
+            content.write(self.parse_response(resp3, (level+1)))
             # Get devices
             line_ports = list()
-            content.write('{}    UserGetRequest19(userId={}) >> '.format('    '*level, user_id)),
+            content.write('{}UserGetRequest19(userId={}) >> '.format('    '*(level+1), user_id)),
             resp4 = self._bw.UserGetRequest19(userId=user_id)
-            content.write(self.parse_response(resp4, level))
+            content.write(self.parse_response(resp4, (level+1)))
             user_info = resp4['data']
 
             # primary device
@@ -188,9 +190,9 @@ class FraudCompliance():
                                    'line_port_type': 'Primary'})
 
             # shared call appearances
-            content.write('{}    UserSharedCallAppearanceGetRequest16sp2(userId={}) >> '.format('    '*level, user_id)),
+            content.write('{}UserSharedCallAppearanceGetRequest16sp2(userId={}) >> '.format('    '*(level+1), user_id)),
             resp6 = self._bw.UserSharedCallAppearanceGetRequest16sp2(userId=user_id)
-            content.write(self.parse_response(resp4, level))
+            content.write(self.parse_response(resp4, (level+1)))
             appearances = resp6['data']['endpointTable']
             for appearance in appearances:
                 device_name = appearance['Device Name']
@@ -217,14 +219,14 @@ class FraudCompliance():
             user_password = Util.random_password(length=32)
 
             # Reset user passwords
-            content.write('{}    UserModifyRequest17sp4(userId={}, newPassword="...") >> '.format('    '*level, user_id, user_password)),
+            content.write('{}UserModifyRequest17sp4(userId={}, newPassword="...") >> '.format('    '*(level+1), user_id, user_password)),
             resp9 = self._bw.UserModifyRequest17sp4(userId=user_id, newPassword=user_password)
-            content.write(self.parse_response(resp9, level))
+            content.write(self.parse_response(resp9, (level+1)))
 
             # Reset sip passwords
-            content.write('{}    UserAuthenticationModifyRequest(userId={}, userName={}, newPassword="...") >> '.format('    '*level, user_id, auth_username, auth_password)),
+            content.write('{}UserAuthenticationModifyRequest(userId={}, userName={}, newPassword="...") >> '.format('    '*(level+1), user_id, auth_username, auth_password)),
             resp9 = self._bw.UserAuthenticationModifyRequest(userId=user_id, userName=auth_username, newPassword=auth_password)
-            content.write(self.parse_response(resp9, level))
+            content.write(self.parse_response(resp9, (level+1)))
 
             # Line/Port Passwords
             for line_port in line_ports:
@@ -234,24 +236,24 @@ class FraudCompliance():
             # Rebuild files
             for line_port in line_ports:
                 if line_port['device_level'] == 'Group':
-                    content.write('{}    GroupCPEConfigRebuildDeviceConfigFileRequest(serviceProviderId={}, groupId={}, deviceName={}) >> '.format('    '*level, provider_id, group_id, line_port['device_name'])),
+                    content.write('{}GroupCPEConfigRebuildDeviceConfigFileRequest(serviceProviderId={}, groupId={}, deviceName={}) >> '.format('    '*(level+1), provider_id, group_id, line_port['device_name'])),
                     resp10 = self._bw.GroupCPEConfigRebuildDeviceConfigFileRequest(serviceProviderId=provider_id, groupId=group_id, deviceName=line_port['device_name'])
-                    content.write(self.parse_response(resp10, level))
+                    content.write(self.parse_response(resp10, (level+1)))
                 elif device['device_level'] == 'Service Provider':
-                    content.write('{}    ServiceProviderCPEConfigRebuildDeviceConfigFileRequest(serviceProviderId={}, deviceName={}) >> '.format('    '*level, provider_id, line_port['device_name'])),
+                    content.write('{}ServiceProviderCPEConfigRebuildDeviceConfigFileRequest(serviceProviderId={}, deviceName={}) >> '.format('    '*(level+1), provider_id, line_port['device_name'])),
                     resp10 = self._bw.ServiceProviderCPEConfigRebuildDeviceConfigFileRequest(serviceProviderId=provider_id, deviceName=line_port['device_name'])
-                    content.write(self.parse_response(resp10, level))
+                    content.write(self.parse_response(resp10, (level+1)))
 
             # Deactivate intercept user
-            content.write('{}    UserInterceptUserModifyRequest16(userId={}, isActive=False) >> '.format('    '*level, user_id)),
+            content.write('{}UserInterceptUserModifyRequest16(userId={}, isActive=False) >> '.format('    '*(level+1), user_id)),
             resp11 = self._bw.UserInterceptUserModifyRequest16(userId=user_id, isActive=False)
-            content.write(self.parse_response(resp11, level))
+            content.write(self.parse_response(resp11, (level+1)))
 
         # Deactivate intercept group
         content.write('{}Post Process Group {}::{}\n'.format('    '*level, provider_id, group_id))
-        content.write('{}    GroupInterceptGroupModifyRequest16(serviceProviderId={}, groupId={}, isActive=False) >> '.format('    '*level, provider_id, group_id)),
+        content.write('{}GroupInterceptGroupModifyRequest16(serviceProviderId={}, groupId={}, isActive=False) >> '.format('    '*(level+1), provider_id, group_id)),
         resp12 = self._bw.GroupInterceptGroupModifyRequest16(serviceProviderId=provider_id, groupId=group_id, isActive=False)
-        content.write(self.parse_response(resp12, level))
+        content.write(self.parse_response(resp12, (level+1)))
 
         rval = {
             'content': content.getvalue(),
@@ -264,80 +266,97 @@ class FraudCompliance():
 
 def fraud_compliance_reset(process_id):
     process = Process.objects.get(id=process_id)
+
+    # Log Tab
+    log_content = ProcessContent.objects.create(process=process, tab='Log', priority=1)
+    dir_path = os.path.join(settings.PROTECTED_ROOT, 'process')
+    filename_raw = '{}_{}'.format(process.id, 'log.txt')
+    pathname_raw = os.path.join(dir_path, filename_raw)
+    if not os.path.isdir(dir_path):
+        os.makedirs(dir_path)
+    log_raw = open(pathname_raw, "w")
+    log_content.raw.name = os.path.join('process', filename_raw)
+    log_content.save()
+
+    # Passwords Tab
+    password_content = ProcessContent.objects.create(process=process, tab='Passwords', priority=2)
+    dir_path = os.path.join(settings.PROTECTED_ROOT, 'process')
+    filename_html = '{}_{}'.format(process.id, 'passwords.html')
+    pathname_html = os.path.join(dir_path, filename_html)
+    filename_raw = '{}_{}'.format(process.id, 'passwords.csv')
+    pathname_raw = os.path.join(dir_path, filename_raw)
+    if not os.path.isdir(dir_path):
+        os.makedirs(dir_path)
+    password_html = open(pathname_html, "w")
+    password_content.html.name = os.path.join('process', filename_html)
+    password_raw = open(pathname_raw, "w")
+    password_content.raw.name = os.path.join('process', filename_raw)
+    password_content.save()
+
     try:
         print("Process {}: {} -> {}".format(process_id, process.method, process.parameters))
         process.status = process.STATUS_RUNNING
         process.save(update_fields=['status'])
 
         fc = FraudCompliance(process=process)
-        content = dict()
 
         # Retrieve Data
         provider_type = process.parameters.get('provider_type', None)
         provider_id = process.parameters.get('provider_id', None)
         group_id = process.parameters.get('group_id', None)
 
-        if provider_id and group_id:
-            content_key_name = "log_{}-{}_{}.txt".format(provider_id, group_id, datetime.datetime.now().strftime("%Y-%m-%d-%H%M%S"))
-            password_key_name = "passwords_{}-{}_{}.csv".format(provider_id, group_id, datetime.datetime.now().strftime("%Y-%m-%d-%H%M%S"))
-        elif provider_id:
-            content_key_name = "log_{}_{}.txt".format(provider_id, datetime.datetime.now().strftime("%Y-%m-%d-%H%M%S"))
-            password_key_name = "passwords_{}_{}.csv".format(provider_id, datetime.datetime.now().strftime("%Y-%m-%d-%H%M%S"))
-        else:
-            content_key_name = "log_{}.txt".format(datetime.datetime.now().strftime("%Y-%m-%d-%H%M%S"))
-            password_key_name = "passwords_{}.csv".format(datetime.datetime.now().strftime("%Y-%m-%d-%H%M%S"))
-
-        file_content = io.StringIO()
-        password_content = io.StringIO()
-        password_content.write('"{}","{}","{}","{}","{}","{}","{}","{}","{}"\n'.format('Provider Id', 'Group Id', 'Device Level', 'Device Name', 'Device Type', 'User Id', 'Line Port', 'Auth Username', 'Auth Password'))
+        # Initial content
+        password_html.write('<table class="table table-striped table-bordered table-hover">\n')
+        password_html.write('<tr>\n')
+        password_html.write('\t<th>Provider Id</th><th>Group Id</th><th>Device Level</th><th>Device Name</th><th>Device Type</th><th>User Id</th><th>Line Port</th><th>Auth Username</th><th>Auth Password</th>\n')
+        password_html.write('</tr>\n')
+        password_html.write('<tbody>\n')
+        password_raw.write('"{}","{}","{}","{}","{}","{}","{}","{}","{}"\n'.format('Provider Id', 'Group Id', 'Device Level', 'Device Name', 'Device Type', 'User Id', 'Line Port', 'Auth Username', 'Auth Password'))
 
         if provider_id and group_id:
-            file_content.write('Group {}::{}\n'.format(provider_id, group_id))
-            content[content_key_name] = file_content.getvalue()
-            content[password_key_name] = password_content.getvalue()
-            process.content = content
-            process.save(update_fields=['content'])
-            rdata = fc.reset_group(provider_id=provider_id, group_id=group_id, level=1)
-            file_content.write(rdata['content'])
-            password_content.write(rdata['passwords'])
-            content[content_key_name] = file_content.getvalue()
-            content[password_key_name] = password_content.getvalue()
-            process.content = content
-            process.save(update_fields=['content'])
+            log_raw.write('Group {}::{}\n'.format(provider_id, group_id))
+            data = fc.reset_group(provider_id=provider_id, group_id=group_id, level=1)
+            log_raw.write(data['content'])
+            password_raw.write(data['passwords'])
+            for row in csv.reader(data['passwords'].split('\n')):
+                if row:
+                    password_html.write('<tr>\n\t')
+                    for d in row:
+                        password_html.write('<td>{}</td>'.format(d))
+                    password_html.write('\n</tr>\n')
         elif provider_id:
-            file_content.write('Provider {}\n'.format(provider_id))
-            content[content_key_name] = file_content.getvalue()
-            content[password_key_name] = password_content.getvalue()
-            process.content = content
-            process.save(update_fields=['content'])
+            log_raw.write('Provider {}\n'.format(provider_id))
             fc.provider_check(provider_id, True if provider_type == 'Enterprise' else False)
             groups = fc.groups(provider_id)
             for group in groups:
                 group_id = group['Group Id']
-                file_content.write('    Group {}::{}\n'.format(provider_id, group_id))
-                content[content_key_name] = file_content.getvalue()
-                content[password_key_name] = password_content.getvalue()
-                process.content = content
-                process.save(update_fields=['content'])
-                rdata = fc.reset_group(provider_id=provider_id, group_id=group_id, level=2)
-                file_content.write(rdata['content'])
-                password_content.write(rdata['passwords'])
-                content[content_key_name] = file_content.getvalue()
-                content[password_key_name] = password_content.getvalue()
-                process.content = content
-                process.save(update_fields=['content'])
+                log_raw.write('    Group {}::{}\n'.format(provider_id, group_id))
+                data = fc.reset_group(provider_id=provider_id, group_id=group_id, level=2)
+                log_raw.write(data['content'])
+                password_raw.write(data['passwords'])
+                for row in csv.reader(data['passwords'].split('\n')):
+                    if row:
+                        password_html.write('<tr>\n\t')
+                        for d in row:
+                            password_html.write('<td>{}</td>'.format(d))
+                        password_html.write('\n</tr>\n')
 
-        content[content_key_name] = file_content.getvalue()
-        content[password_key_name] = password_content.getvalue()
-        process.content = content
+        # after things are finished
+        # end html
+        password_html.write('</tbody>\n')
+        password_html.write('</table>\n')
+        # save data
         process.status = process.STATUS_COMPLETED
         process.end_timestamp = timezone.now()
-        process.save(update_fields=['content', 'status', 'end_timestamp'])
-        file_content.close()
-        password_content.close()
+        process.save(update_fields=['status', 'end_timestamp'])
         fc.logout()
     except Exception:
         process.status = process.STATUS_ERROR
         process.end_timestamp = timezone.now()
         process.exception = traceback.format_exc()
         process.save(update_fields=['status', 'exception', 'end_timestamp'])
+
+    # Cleanup
+    log_raw.close()
+    password_html.close()
+    password_raw.close()

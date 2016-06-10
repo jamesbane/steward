@@ -1,5 +1,7 @@
 # Python
 import io
+import os
+import csv
 import sys
 import time
 import base64
@@ -12,7 +14,7 @@ from django.utils import timezone
 from django.conf import settings
 
 # Application
-from tools.models import Process
+from tools.models import Process, ProcessContent
 
 # Third Party
 from lib.pyutil.util import Util
@@ -324,6 +326,33 @@ class BroadWorksDeviceMigration:
 
 def device_specific_migration(process_id):
     process = Process.objects.get(id=process_id)
+
+    # Summary Tab
+    summary_content = ProcessContent.objects.create(process=process, tab='Summary', priority=1)
+    dir_path = os.path.join(settings.PROTECTED_ROOT, 'process')
+    filename_html = '{}_{}'.format(process.id, 'summary.html')
+    pathname_html = os.path.join(dir_path, filename_html)
+    filename_raw = '{}_{}'.format(process.id, 'summary.csv')
+    pathname_raw = os.path.join(dir_path, filename_raw)
+    if not os.path.isdir(dir_path):
+        os.makedirs(dir_path)
+    summary_html = open(pathname_html, "w")
+    summary_content.html.name = os.path.join('process', filename_html)
+    summary_raw = open(pathname_raw, "w")
+    summary_content.raw.name = os.path.join('process', filename_raw)
+    summary_content.save()
+
+    # Log Tab
+    log_content = ProcessContent.objects.create(process=process, tab='Log', priority=2)
+    dir_path = os.path.join(settings.PROTECTED_ROOT, 'process')
+    filename_raw = '{}_{}'.format(process.id, 'log.txt')
+    pathname_raw = os.path.join(dir_path, filename_raw)
+    if not os.path.isdir(dir_path):
+        os.makedirs(dir_path)
+    log_raw = open(pathname_raw, "w")
+    log_content.raw.name = os.path.join('process', filename_raw)
+    log_content.save()
+
     try:
         print("Process {}: {} -> {}".format(process_id, process.method, process.parameters))
         process.status = process.STATUS_RUNNING
@@ -337,56 +366,58 @@ def device_specific_migration(process_id):
         provider_id = process.parameters.get('provider_id', None)
         group_id = process.parameters.get('group_id', None)
 
-        content_key_name = "log.txt"
-        summary_key_name = "summary.csv"
-
-        log_content = io.StringIO()
-        summary_content = io.StringIO()
-        summary_content.write('"Provider Id","Group Id","Device A Type","Device A Id","Device B Type","Device B Id","Status"\n')
+        # Initial content
+        summary_html.write('<table class="table table-striped table-bordered table-hover">\n')
+        summary_html.write('<tr>\n')
+        summary_html.write('\t<th>Provider Id</th><th>Group Id</th><th>Device A Type</th><th>Device A Id</th><th>Device B Type</th><th>Device B Id</th><th>Status</th>\n')
+        summary_html.write('</tr>\n')
+        summary_html.write('<tbody>\n')
+        summary_raw.write('"Provider Id","Group Id","Device A Type","Device A Id","Device B Type","Device B Id","Status"\n')
 
         if provider_id and group_id:
-            log_content.write('Group {}::{}\n'.format(provider_id, group_id))
-            content[content_key_name] = log_content.getvalue()
-            process.content = content
-            process.save(update_fields=['content'])
-            rdata = dm.migrate_group(provider_id=provider_id, group_id=group_id)
-            log_content.write(rdata['log'])
-            summary_content.write(rdata['summary'])
-            content[content_key_name] = log_content.getvalue()
-            process.content = content
-            process.save(update_fields=['content'])
+            log_raw.write('Group {}::{}\n'.format(provider_id, group_id))
+            data = dm.migrate_group(provider_id=provider_id, group_id=group_id)
+            log_raw.write(data['log'])
+            summary_raw.write(data['summary'])
+            for row in csv.reader(data['summary'].split('\n')):
+                if row:
+                    summary_html.write('<tr>\n\t')
+                    for d in row:
+                        summary_html.write('<td>{}</td>'.format(d))
+                    summary_html.write('\n</tr>\n')
         elif provider_id:
-            log_content.write('Provider {}\n'.format(provider_id))
-            content[content_key_name] = log_content.getvalue()
-            content[summary_key_name] = summary_content.getvalue()
-            process.content = content
-            process.save(update_fields=['content'])
+            log_raw.write('Provider {}\n'.format(provider_id))
             dm.provider_check(provider_id, True if provider_type == 'Enterprise' else False)
             groups = dm.groups(provider_id)
             for group in groups:
                 group_id = group['Group Id']
-                log_content.write('    Group {}::{}\n'.format(provider_id, group_id))
-                content[content_key_name] = log_content.getvalue()
-                process.content = content
-                process.save(update_fields=['content'])
-                rdata = dm.migrate_group(provider_id=provider_id, group_id=group_id, level=2)
-                log_content.write(rdata['log'])
-                summary_content.write(rdata['summary'])
-                content[content_key_name] = log_content.getvalue()
-                content[summary_key_name] = summary_content.getvalue()
-                process.content = content
-                process.save(update_fields=['content'])
+                log_raw.write('    Group {}::{}\n'.format(provider_id, group_id))
+                data = dm.migrate_group(provider_id=provider_id, group_id=group_id, level=2)
+                log_raw.write(data['log'])
+                summary_raw.write(data['summary'])
+                for row in csv.reader(data['summary'].split('\n')):
+                    if row:
+                        summary_html.write('<tr>\n\t')
+                        for d in row:
+                            summary_html.write('<td>{}</td>'.format(d))
+                        summary_html.write('\n</tr>\n')
 
-        content[content_key_name] = log_content.getvalue()
-        content[summary_key_name] = summary_content.getvalue()
-        process.content = content
+        # after things are finished
+        # end html
+        summary_html.write('</tbody>\n')
+        summary_html.write('</table>\n')
+        # save data
         process.status = process.STATUS_COMPLETED
         process.end_timestamp = timezone.now()
-        process.save(update_fields=['content', 'status', 'end_timestamp'])
-        log_content.close()
+        process.save(update_fields=['status', 'end_timestamp'])
         dm.logout()
     except Exception:
         process.status = process.STATUS_ERROR
         process.end_timestamp = timezone.now()
         process.exception = traceback.format_exc()
         process.save(update_fields=['status', 'exception', 'end_timestamp'])
+
+    # Cleanup
+    log_raw.close()
+    summary_html.close()
+    summary_raw.close()

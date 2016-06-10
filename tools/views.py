@@ -51,19 +51,6 @@ class ProcessDetailView(LoginRequiredMixin, DetailView):
         context = super(ProcessDetailView, self).get_context_data(**kwargs)
         if not self.request.user.has_perm(context['object'].view_permission):
             raise PermissionDenied
-        context['files'] = dict()
-        for key,value in context['object'].content.items():
-            extension = key.split('.')[-1]
-            if extension == 'csv':
-                content = csv.reader(value.splitlines())
-                print(content)
-            else:
-                content = value
-            context['files'][key] = {
-                'filename': key,
-                'content': content,
-                'extension': extension,
-            }
         return context
 
 class ToolView(ProcessFormMixin, TemplateView):
@@ -140,7 +127,7 @@ class LabResetToolView(PermissionRequiredMixin, LoginRequiredMixin, ToolView):
     process_name = 'Lab Rebuild'
     process_function = 'tools.jobs.lab_rebuild.lab_rebuild'
     template_name = 'tools/lab_rebuild.html'
-    form_class = tools.forms.LabRebuildForm
+    form_class = tools.forms.EmptyForm
 
 
 class PushToTalkConfiguratorToolView(PermissionRequiredMixin, LoginRequiredMixin, ToolView):

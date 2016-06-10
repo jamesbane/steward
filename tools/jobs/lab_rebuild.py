@@ -1,6 +1,8 @@
 # Python
 import io
+import os
 import re
+import csv
 import sys
 import time
 import base64
@@ -13,7 +15,7 @@ from django.utils import timezone
 from django.conf import settings
 
 # Application
-from tools.models import Process
+from tools.models import Process, ProcessContent
 
 # Third Party
 from lib.pyutil.util import Util
@@ -23,84 +25,68 @@ from lib.pybw.broadworks import BroadWorks, Nil
 
 class BroadWorksLab:
     _bw = None
-    _content = io.StringIO()
 
     def __init__(self, process):
         self._bw = BroadWorks(**settings.PLATFORMS['broadworks'])
         self._process = process
         self._bw.LoginRequest14sp4()
 
-    def status(self, provider, groups, users):
-        for user in users:
-            device_provider_id = provider['id']
-            device_group_id = user['group_id']
-            device_name = user['user_id']
-
-            device_user_agent = None
-            device_registered = False
-            device_uri = None
-            resp6 = self._bw.UserGetRegistrationListRequest(user['user_id'])
-            registrations = resp6['data']['registrationTable']
-            for reg in registrations:
-                if reg['Device Name'] == device_name:
-                    device_user_agent = reg['User Agent']
-                    device_registered = True
-                    device_uri = reg['URI']
-                    break
-            self._content.write('Provider: {:<30} Group: {:<15} User: {:<20} Status: {}\n'.format(provider['id'], user['group_id'], user['user_id'], 'Registered' if device_registered else '* Offline *'))
+    def parse_response(self, response, level):
+        content = io.StringIO()
+        content.write('{}\n'.format(response['type']))
+        if response['type'] == 'c:ErrorResponse':
+            if 'summaryEnglish' in response['data'] and 'errorCode' in response['data']:
+                content.write('{}[{}] {}\n'.format('    '*(level+1), response['data']['errorCode'], response['data']['summaryEnglish']))
+            elif 'summaryEnglish' in response['data']:
+                content.write('{}{}\n'.format('    '*level, response['data']['summaryEnglish']))
+            elif 'summary' in response['data'] and 'errorCode' in response['data']:
+                content.write('{}[{}] {}\n'.format('    '*(level+1), response['data']['errorCode'], response['data']['summary']))
+            elif 'summary' in response['data']:
+                content.write('{}{}\n'.format('    '*(level+1), response['data']['summary']))
+        rval = content.getvalue()
+        content.close()
+        return rval
 
     def rebuild(self, provider, groups, users):
-        self._content.write("Reset Existing Devices\n")
+        content = io.StringIO()
+        content.write("Reset Existing Devices\n")
+        level=1
         for user in users:
-            self._content.write("    GroupAccessDeviceResetRequest(serviceProviderId={}, groupId={}, deviceName={}) ".format(provider['id'], user['group_id'], user['user_id'])),
+            content.write("{}GroupAccessDeviceResetRequest(serviceProviderId={}, groupId={}, deviceName={}) ".format('    '*level, provider['id'], user['group_id'], user['user_id'])),
             resp = self._bw.GroupAccessDeviceResetRequest(serviceProviderId=provider['id'], groupId=user['group_id'], deviceName=user['user_id'])
-            self._content.write('{}\n'.format(resp['type']))
-            if resp['type'] == 'c:ErrorResponse':
-                self._content.write('        {}\n'.format(resp['data']['summary']))
-        self._content.write('\n')
+            content.write(self.parse_response(resp, level))
+        content.write('\n')
 
-        self._content.write("Retrieve Defaults\n")
-        self._content.write("    ServiceProviderServiceGetAuthorizationListRequest('LokiHelper') "),
+        content.write("Retrieve Defaults\n")
+        content.write("{}ServiceProviderServiceGetAuthorizationListRequest('LokiHelper') ".format('    '*level)),
         resp = self._bw.ServiceProviderServiceGetAuthorizationListRequest('LokiHelper')
+        content.write(self.parse_response(resp, level))
         loki_service_authorization_list = resp['data']
-        self._content.write('{}\n'.format(resp['type']))
-        if resp['type'] == 'c:ErrorResponse':
-            self._content.write('        {}\n'.format(resp['data']['summary']))
-        self._content.write("    GroupServiceGetAuthorizationListRequest('LokiHelper', 'IP Voice Phone System') "),
+        content.write("{}GroupServiceGetAuthorizationListRequest('LokiHelper', 'IP Voice Phone System') ".format('    '*level)),
         resp = self._bw.GroupServiceGetAuthorizationListRequest('LokiHelper', 'IP Voice Phone System')
         loki_group_service_auth = resp['data']
-        self._content.write('{}\n'.format(resp['type']))
-        if resp['type'] == 'c:ErrorResponse':
-            self._content.write('        {}\n'.format(resp['data']['summary']))
-        self._content.write('\n')
+        content.write(self.parse_response(resp, level))
+        content.write('\n')
 
-        self._content.write("Delete Groups & Provider\n")
+        content.write("Delete Groups & Provider\n")
         for group in groups:
-            self._content.write("    GroupDeleteRequest({}, {}) ".format(provider['id'], group['id'])),
+            content.write("{}GroupDeleteRequest({}, {}) ".format('    '*level, provider['id'], group['id'])),
             resp = self._bw.GroupDeleteRequest(provider['id'], group['id'])
-            self._content.write('{}\n'.format(resp['type']))
-            if resp['type'] == 'c:ErrorResponse':
-                self._content.write('        {}\n'.format(resp['data']['summary']))
-        self._content.write("    ServiceProviderDeleteRequest({}) ".format(provider['id'])),
+            content.write(self.parse_response(resp, level))
+        content.write("{}ServiceProviderDeleteRequest({}) ".format('    '*level, provider['id'])),
         resp = self._bw.ServiceProviderDeleteRequest(provider['id'])
-        self._content.write('{}\n'.format(resp['type']))
-        if resp['type'] == 'c:ErrorResponse':
-            self._content.write('        {}\n'.format(resp['data']['summary']))
-        self._content.write('\n')
+        content.write(self.parse_response(resp, level))
+        content.write('\n')
 
-        self._content.write("Enterprise: {}\n".format(provider['id']))
+        content.write("Enterprise: {}\n".format(provider['id']))
         # Enterprise
-        self._content.write("    ServiceProviderAddRequest13mp2({}, {}, enterprise=True) ".format(provider['id'], provider['description'])),
+        content.write("{}ServiceProviderAddRequest13mp2({}, {}, enterprise=True) ".format('    '*level, provider['id'], provider['description'])),
         resp = self._bw.ServiceProviderAddRequest13mp2(provider['id'], provider['description'], enterprise=True)
-        self._content.write('{}\n'.format(resp['type']))
-        if resp['type'] == 'c:ErrorResponse':
-            self._content.write('        {}\n'.format(resp['data']['summary']))
+        content.write(self.parse_response(resp, level))
         # assign numbers
-        self._content.write("    ServiceProviderDnAddListRequest({}, phoneNumber={{...}}) ".format(provider['id'])),
+        content.write("{}ServiceProviderDnAddListRequest({}, phoneNumber={{...}}) ".format('    '*level, provider['id'])),
         resp = self._bw.ServiceProviderDnAddListRequest(provider['id'], phoneNumber=provider['numbers'])
-        self._content.write('{}\n'.format(resp['type']))
-        if resp['type'] == 'c:ErrorResponse':
-            self._content.write('        {}\n'.format(resp['data']['summary']))
+        content.write(self.parse_response(resp, level))
         # authorized services
         authorization_list = {'groupServiceAuthorization': list(), 'userServiceAuthorization': list()}
         for d in loki_service_authorization_list['groupServicesAuthorizationTable']:
@@ -123,60 +109,46 @@ class BroadWorksLab:
             else:
                 data['authorizedQuantity'] = {'quantity': d['Quantity']}
             authorization_list['userServiceAuthorization'].append(data)
-        self._content.write("    ServiceProviderServiceModifyAuthorizationListRequest({}, ...) ".format(provider['id'])),
+        content.write("{}ServiceProviderServiceModifyAuthorizationListRequest({}, ...) ".format('    '*level, provider['id'])),
         resp = self._bw.ServiceProviderServiceModifyAuthorizationListRequest(provider['id'], **authorization_list)
-        self._content.write('{}\n'.format(resp['type']))
-        if resp['type'] == 'c:ErrorResponse':
-            self._content.write('        {}\n'.format(resp['data']['summary']))
+        content.write(self.parse_response(resp, level))
 
         # service packs
-        self._content.write("    ServiceProviderServicePackGetListRequest('LokiHelper') "),
+        content.write("{}ServiceProviderServicePackGetListRequest('LokiHelper') ".format('    '*level)),
         resp = self._bw.ServiceProviderServicePackGetListRequest('LokiHelper')
+        content.write(self.parse_response(resp, level))
         loki_service_pack_list = resp['data']['servicePackName']
-        self._content.write('{}\n'.format(resp['type']))
-        if resp['type'] == 'c:ErrorResponse':
-            self._content.write('        {}\n'.format(resp['data']['summary']))
         for service_pack_name in loki_service_pack_list:
-            self._content.write("    ServiceProviderServicePackGetDetailListRequest('LokiHelper', {}) ".format(service_pack_name)),
+            content.write("{}ServiceProviderServicePackGetDetailListRequest('LokiHelper', {}) ".format('    '*level, service_pack_name)),
             resp = self._bw.ServiceProviderServicePackGetDetailListRequest('LokiHelper', service_pack_name)
+            content.write(self.parse_response(resp, level))
             service_pack_detail = resp['data']
-            self._content.write('{}\n'.format(resp['type']))
-            if resp['type'] == 'c:ErrorResponse':
-                self._content.write('        {}\n'.format(resp['data']['summary']))
 
             services = list()
             for service in service_pack_detail['userServiceTable']:
                 # "Service", "Authorized" "Allocated" and "Available".
                 services.append(service['Service'])
 
-            self._content.write("    ServiceProviderServicePackAddRequest({}, {}, ...) ".format(provider['id'], service_pack_name)),
+            content.write("{}ServiceProviderServicePackAddRequest({}, {}, ...) ".format('    '*level, provider['id'], service_pack_name)),
             resp = self._bw.ServiceProviderServicePackAddRequest(provider['id'],
                                                                  service_pack_detail['servicePackName'],
                                                                  service_pack_detail['isAvailableForUse'],
                                                                  service_pack_detail['servicePackQuantity'],
                                                                  serviceName=services)
-            self._content.write('{}\n'.format(resp['type']))
-            if resp['type'] == 'c:ErrorResponse':
-                self._content.write('        {}\n'.format(resp['data']['summary']))
-        self._content.write('\n')
+            content.write(self.parse_response(resp, level))
+        content.write('\n')
 
         for group in groups:
-            self._content.write("Group: {}::{}\n".format(provider['id'], group['id']))
-            self._content.write("    GroupAddRequest({}, {}, userLimit='999999', groupName={}) ".format(provider['id'], group['id'], group['name'])),
+            content.write("Group: {}::{}\n".format(provider['id'], group['id']))
+            content.write("{}GroupAddRequest({}, {}, userLimit='999999', groupName={}) ".format('    '*level, provider['id'], group['id'], group['name'])),
             resp = self._bw.GroupAddRequest(provider['id'], group['id'], userLimit='999999', groupName=group['name'])
-            self._content.write('{}\n'.format(resp['type']))
-            if resp['type'] == 'c:ErrorResponse':
-                self._content.write('        {}\n'.format(resp['data']['summary']))
-            self._content.write("    GroupDnAssignListRequest({}, {}, phoneNumber={{...}}) ".format(provider['id'], group['id'])),
+            content.write(self.parse_response(resp, level))
+            content.write("{}GroupDnAssignListRequest({}, {}, phoneNumber={{...}}) ".format('    '*level, provider['id'], group['id'])),
             resp = self._bw.GroupDnAssignListRequest(provider['id'], group['id'], phoneNumber=group['numbers'])
-            self._content.write('{}\n'.format(resp['type']))
-            if resp['type'] == 'c:ErrorResponse':
-                self._content.write('        {}\n'.format(resp['data']['summary']))
-            self._content.write("    GroupModifyRequest({}, {}, callingLineIdPhoneNumber={}) ".format(provider['id'], group['id'], group['number'])),
+            content.write(self.parse_response(resp, level))
+            content.write("{}GroupModifyRequest({}, {}, callingLineIdPhoneNumber={}) ".format('    '*level, provider['id'], group['id'], group['number'])),
             resp = self._bw.GroupModifyRequest(provider['id'], group['id'], callingLineIdPhoneNumber=group['number'])
-            self._content.write('{}\n'.format(resp['type']))
-            if resp['type'] == 'c:ErrorResponse':
-                self._content.write('        {}\n'.format(resp['data']['summary']))
+            content.write(self.parse_response(resp, level))
             service_auth = {'servicePackAuthorization': list(), 'groupServiceAuthorization': list(), 'userServiceAuthorization': list()}
             for d in loki_group_service_auth['servicePacksAuthorizationTable']:
                 if d['Authorized'] != 'true':
@@ -209,17 +181,13 @@ class BroadWorksLab:
                     data['authorizedQuantity'] = {'quantity': d['Quantity']}
                 service_auth['userServiceAuthorization'].append(data)
 
-            self._content.write("    GroupServiceModifyAuthorizationListRequest({}, {}, ...) ".format(provider['id'], group['id'])),
+            content.write("{}GroupServiceModifyAuthorizationListRequest({}, {}, ...) ".format('    '*level, provider['id'], group['id'])),
             resp = self._bw.GroupServiceModifyAuthorizationListRequest(provider['id'], group['id'], **service_auth)
-            self._content.write('{}\n'.format(resp['type']))
-            if resp['type'] == 'c:ErrorResponse':
-                self._content.write('        {}\n'.format(resp['data']['summary']))
+            content.write(self.parse_response(resp, level))
             for service_name in group['assigned_services']:
-                self._content.write("    GroupServiceAssignListRequest({}, {}, {}) ".format(provider['id'], group['id'], service_name)),
+                content.write("{}GroupServiceAssignListRequest({}, {}, {}) ".format('    '*level, provider['id'], group['id'], service_name)),
                 resp = self._bw.GroupServiceAssignListRequest(provider['id'], group['id'], service_name)
-                self._content.write('{}\n'.format(resp['type']))
-                if resp['type'] == 'c:ErrorResponse':
-                    self._content.write('        {}\n'.format(resp['data']['summary']))
+                content.write(self.parse_response(resp, level))
             orig_permissions = OrderedDict()
             orig_permissions['group'] = 'Allow'
             orig_permissions['local'] = 'Allow'
@@ -235,11 +203,9 @@ class BroadWorksLab:
             orig_permissions['casual'] = 'Disallow'
             orig_permissions['urlDialing'] = 'Disallow'
             orig_permissions['unknown'] = 'Disallow'
-            self._content.write("    GroupOutgoingCallingPlanOriginatingModifyListRequest({}, {}, groupPermissions={{...}}) ".format(provider['id'], group['id'])),
+            content.write("{}GroupOutgoingCallingPlanOriginatingModifyListRequest({}, {}, groupPermissions={{...}}) ".format('    '*level, provider['id'], group['id'])),
             resp = self._bw.GroupOutgoingCallingPlanOriginatingModifyListRequest(provider['id'], group['id'], groupPermissions=orig_permissions)
-            self._content.write('{}\n'.format(resp['type']))
-            if resp['type'] == 'c:ErrorResponse':
-                self._content.write('        {}\n'.format(resp['data']['summary']))
+            content.write(self.parse_response(resp, level))
             redirect_permissions = OrderedDict()
             redirect_permissions['group'] = True
             redirect_permissions['local'] = True
@@ -255,44 +221,34 @@ class BroadWorksLab:
             redirect_permissions['casual'] = False
             redirect_permissions['urlDialing'] = False
             redirect_permissions['unknown'] = False
-            self._content.write("    GroupOutgoingCallingPlanRedirectingModifyListRequest({}, {}, groupPermissions={{...}}) ".format(provider['id'], group['id'])),
+            content.write("{}GroupOutgoingCallingPlanRedirectingModifyListRequest({}, {}, groupPermissions={{...}}) ".format('    '*level, provider['id'], group['id'])),
             resp = self._bw.GroupOutgoingCallingPlanRedirectingModifyListRequest(provider['id'], group['id'], groupPermissions=redirect_permissions)
-            self._content.write('{}\n'.format(resp['type']))
-            if resp['type'] == 'c:ErrorResponse':
-                self._content.write('        {}\n'.format(resp['data']['summary']))
-            self._content.write('\n')
+            content.write(self.parse_response(resp, level))
+            content.write('\n')
 
         for user in users:
-            self._content.write("    {}::{}: {}\n".format(user['group_id'], user['user_id'], user['device_type']))
-            self._content.write("        GroupAccessDeviceAddRequest14({}, {}, {}, {}, username={}, password='8675309') ".format(provider['id'], user['group_id'], user['user_id'], user['device_type'], user['device_username'])),
+            content.write("    {}::{}: {}\n".format(user['group_id'], user['user_id'], user['device_type']))
+            content.write("{}GroupAccessDeviceAddRequest14({}, {}, {}, {}, username={}, password='8675309') ".format('    '*(level+1), provider['id'], user['group_id'], user['user_id'], user['device_type'], user['device_username'])),
             resp = self._bw.GroupAccessDeviceAddRequest14(provider['id'], user['group_id'], user['user_id'], user['device_type'], username=user['device_username'], password='8675309')
-            self._content.write('{}\n'.format(resp['type']))
-            if resp['type'] == 'c:ErrorResponse':
-                self._content.write('            {}\n'.format(resp['data']['summary']))
+            content.write(self.parse_response(resp, (level+1)))
             access_device_endpoint = OrderedDict()
             access_device_endpoint['accessDevice'] = OrderedDict()
             access_device_endpoint['accessDevice']['deviceLevel'] = 'Group'
             access_device_endpoint['accessDevice']['deviceName'] = user['user_id']
             access_device_endpoint['linePort'] = user['line_port']
-            self._content.write("        UserAddRequest17sp4({}, {}, {}, {}, {}, {}, {}, extension={}, password='1234aB!', accessDeviceEndpoint={{...}}) ".format(provider['id'], user['group_id'], user['user_id'], user['last_name'], user['first_name'], user['last_name'], user['first_name'], user['extension'])),
+            content.write("{}UserAddRequest17sp4({}, {}, {}, {}, {}, {}, {}, extension={}, password='1234aB!', accessDeviceEndpoint={{...}}) ".format('    '*(level+1), provider['id'], user['group_id'], user['user_id'], user['last_name'], user['first_name'], user['last_name'], user['first_name'], user['extension'])),
             resp = self._bw.UserAddRequest17sp4(provider['id'], user['group_id'], user['user_id'], user['last_name'], user['first_name'], user['last_name'], user['first_name'], extension=user['extension'], password='1234aB!', accessDeviceEndpoint=access_device_endpoint)
-            self._content.write('{}\n'.format(resp['type']))
-            if resp['type'] == 'c:ErrorResponse':
-                self._content.write('            {}\n'.format(resp['data']['summary']))
-            self._content.write("        GroupAccessDeviceModifyUserRequest({}, {}, {}, {}, True) ".format(provider['id'], user['group_id'], user['user_id'], user['line_port'])),
+            content.write(self.parse_response(resp, (level+1)))
+            content.write("{}GroupAccessDeviceModifyUserRequest({}, {}, {}, {}, True) ".format('    '*(level+1), provider['id'], user['group_id'], user['user_id'], user['line_port'])),
             resp = self._bw.GroupAccessDeviceModifyUserRequest(provider['id'], user['group_id'], user['user_id'], user['line_port'], True)
-            self._content.write('{}\n'.format(resp['type']))
-            if resp['type'] == 'c:ErrorResponse':
-                self._content.write('            {}\n'.format(resp['data']['summary']))
-            self._content.write("        UserServiceAssignListRequest({}, servicePackName={}) ".format(user['user_id'], user['service_pack'])),
+            content.write(self.parse_response(resp, (level+1)))
+            content.write("{}UserServiceAssignListRequest({}, servicePackName={}) ".format('    '*(level+1), user['user_id'], user['service_pack'])),
             resp = self._bw.UserServiceAssignListRequest(user['user_id'], servicePackName=user['service_pack'])
-            self._content.write('{}\n'.format(resp['type']))
-            if resp['type'] == 'c:ErrorResponse':
-                self._content.write('            {}\n'.format(resp['data']['summary']))
-            self._content.write('\n')
+            content.write(self.parse_response(resp, (level+1)))
+            content.write('\n')
 
         # Shared Call and BLF
-        self._content.write("    Shared Call Appearances and Busy Lamp Field\n")
+        content.write("    Shared Call Appearances and Busy Lamp Field\n")
         for user in users:
             # SCA
             for appearance in user['appearances']:
@@ -301,23 +257,19 @@ class BroadWorksLab:
                 access_device_endpoint['accessDevice']['deviceLevel'] = 'Group'
                 access_device_endpoint['accessDevice']['deviceName'] = user['user_id']
                 access_device_endpoint['linePort'] = appearance['line_port']
-                self._content.write("        UserSharedCallAppearanceAddEndpointRequest14sp2({}, {{...}}, isActive=True, allowOrigination=True, allowTermination=True) ".format(appearance['user_id'])),
+                content.write("{}UserSharedCallAppearanceAddEndpointRequest14sp2({}, {{...}}, isActive=True, allowOrigination=True, allowTermination=True) ".format('    '*(level+1), appearance['user_id'])),
                 resp = self._bw.UserSharedCallAppearanceAddEndpointRequest14sp2(appearance['user_id'], access_device_endpoint, isActive=True, allowOrigination=True, allowTermination=True)
-                self._content.write('{}\n'.format(resp['type']))
-                if resp['type'] == 'c:ErrorResponse':
-                    self._content.write('            {}\n'.format(resp['data']['summary']))
+                content.write(self.parse_response(resp, (level+1)))
 
             # BLF
             if len(user['busy_lamp_field_users']):
-                self._content.write("        UserBusyLampFieldModifyRequest({}, listURI={}, monitoredUserIdList={{...}}) ".format(user['user_id'], '{}@telapexinc.com'.format(user['user_id']))),
+                content.write("{}UserBusyLampFieldModifyRequest({}, listURI={}, monitoredUserIdList={{...}}) ".format('    '*(level+1), user['user_id'], '{}@telapexinc.com'.format(user['user_id']))),
                 resp = self._bw.UserBusyLampFieldModifyRequest(user['user_id'], listURI='{}@telapexinc.com'.format(user['user_id']), monitoredUserIdList=user['busy_lamp_field_users'])
-                self._content.write('{}\n'.format(resp['type']))
-                if resp['type'] == 'c:ErrorResponse':
-                    self._content.write('            {}\n'.format(resp['data']['summary']))
-        self._content.write('\n')
+                content.write(self.parse_response(resp, (level+1)))
+        content.write('\n')
 
         # Group Services
-        self._content.write("Group Services\n")
+        content.write("Group Services\n")
         for group in groups:
             for service in group['service_instances']:
                 if service['type'] == 'Hunt Group':
@@ -329,16 +281,18 @@ class BroadWorksLab:
                     service_instance_profile['extension'] = service['extension']
                     service_instance_profile['password'] = '1234aB!'
                     service_instance_profile['callingLineIdPhoneNumber'] = service['clid_number']
-                    self._content.write("    GroupHuntGroupAddInstanceRequest19({}, {}, {}, ...) ".format(provider['id'], group['id'], service['user_id'])),
+                    content.write("{}GroupHuntGroupAddInstanceRequest19({}, {}, {}, ...) ".format('    '*level, provider['id'], group['id'], service['user_id'])),
                     resp = self._bw.GroupHuntGroupAddInstanceRequest19(provider['id'], group['id'], service['user_id'], service_instance_profile,
                                                                        policy='Simultaneous', huntAfterNoAnswer=False, noAnswerNumberOfRings=10, forwardAfterTimeout=False,
                                                                        forwardTimeoutSeconds=0, allowCallWaitingForAgents=False, useSystemHuntGroupCLIDSetting=True,
                                                                        includeHuntGroupNameInCLID=False, enableNotReachableForwarding=False, makeBusyWhenNotReachable=True,
                                                                        allowMembersToControlGroupBusy=False, enableGroupBusy=False, agentUserId=service['members'])
-                    self._content.write('{}\n'.format(resp['type']))
-                    if resp['type'] == 'c:ErrorResponse':
-                        self._content.write('            {}\n'.format(resp['data']['summary']))
-        self._content.write('\n')
+                    content.write(self.parse_response(resp, level))
+        content.write('\n')
+
+        rval = content.getvalue()
+        content.close()
+        return rval
 
 
 #
@@ -803,26 +757,31 @@ users = [
 
 def lab_rebuild(process_id):
     process = Process.objects.get(id=process_id)
-    content_key_name = "lab-rebuild_{}.txt".format(datetime.datetime.now().strftime("%Y-%m-%d-%H%M%S"))
+    # Log Tab
+    log_content = ProcessContent.objects.create(process=process, tab='Log', priority=1)
+    dir_path = os.path.join(settings.PROTECTED_ROOT, 'process')
+    filename_raw = '{}_{}'.format(process.id, 'log.txt')
+    pathname_raw = os.path.join(dir_path, filename_raw)
+    if not os.path.isdir(dir_path):
+        os.makedirs(dir_path)
+    log_raw = open(pathname_raw, "w")
+    log_content.raw.name = os.path.join('process', filename_raw)
+    log_content.save()
+
     try:
         print("Process {}: {} -> {}".format(process_id, process.method, process.parameters))
         process.status = process.STATUS_RUNNING
         process.save(update_fields=['status'])
-
-        action = process.parameters.get('action', None)
-
         bwl = BroadWorksLab(process)
-        if action == 'Rebuild':
-            bwl.rebuild(provider, groups, users)
-        elif action == 'Status':
-            bwl.status(provider, groups, users)
-        process.content[content_key_name] = bwl._content.getvalue()
+        data = bwl.rebuild(provider, groups, users)
+        log_raw.write(data)
         process.status = process.STATUS_COMPLETED
-        process.end_timestamp = timezone.now()
-        process.save(update_fields=['content', 'status', 'end_timestamp'])
+        process.save(update_fields=['status'])
     except Exception:
         process.status = process.STATUS_ERROR
-        process.content[content_key_name] = bwl._content.getvalue()
         process.end_timestamp = timezone.now()
         process.exception = traceback.format_exc()
-        process.save(update_fields=['status', 'content', 'exception', 'end_timestamp'])
+        process.save(update_fields=['status', 'exception', 'end_timestamp'])
+
+    # Cleanup
+    log_raw.close()

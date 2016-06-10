@@ -1,20 +1,39 @@
 {% extends 'tools/base.html' %}
 
 {% block tool_content %}
-  <h1 class="page-header">{{ object.method }} Results</h1>
-  User: {{ object.user.get_full_name }}<br/>
-  Parameters: {{ object.parameters }}<br/>
-  Runtime: {{ object.start_timestamp }} - {{ object.end_timestamp }}<br/>
-  Status: {{ object.get_status_display }}<br/>
-  <br/>
+  <h1 class="page-header">
+    {{ object.method }} Results
+  </h1>
+  <div>
+    <div class="btn-group pull-right">
+      <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" href="#">
+          <i class="fa fa-download"></i> Download
+          <span class="caret"></span>
+      </a>
+      <ul class="dropdown-menu">
+        {% for content in object.content.all %}
+          {% if content.raw %}
+            <li><a href="{{ content.raw.url }}" download>{{ content.tab }}</a></li>
+          {% endif %}
+        {% endfor %}
+      </ul>
+    </div>
+    <p>
+      User: {{ object.user.get_full_name }}<br/>
+      Process Id: {{ object.id }}<br/>
+      Parameters: {{ object.parameters }}<br/>
+      Runtime: {{ object.start_timestamp }} - {{ object.end_timestamp }}<br/>
+      Status: {{ object.get_status_display }}<br/>
+    </p>
+  </div>
   <div>
     <!-- Content tabs -->
     <ul id="content-tabs" class="nav nav-tabs" role="tablist">
       {% if object.exception %}
         <li role="presentation"><a href="#tabs-0" aria-controls="home" role="tab" data-toggle="tab">Error</a></li>
       {% endif %}
-      {% for filename,file_content in object.content.items %}
-        <li role="presentation"><a href="#tabs-{{ forloop.counter	}}" aria-controls="home" role="tab" data-toggle="tab">{{ filename }}</a></li>
+      {% for content in object.content.all %}
+        <li role="presentation"><a href="#tabs-{{ content.id	}}" aria-controls="home" role="tab" data-toggle="tab">{{ content.tab }}</a></li>
       {% endfor %}
     </ul>
 
@@ -25,35 +44,27 @@
           <pre>{{ object.exception }}</pre>
         </div>
       {% endif %}
-      {% for filename,file_context in files.items %}
-        <div role="tabpanel" class="tab-pane" id="tabs-{{ forloop.counter	}}">
-          {% if file_context.extension == 'csv' %}
-            <table class="table table-bordered table-striped table-hover">
-              {% for row in file_context.content %}
-                {% if forloop.first %}
-                  <tr>
-                    {% for col in row %}
-                      <th>{{ col }}</th>
-                    {% endfor %}
-                  </tr>
-                  <tbody>
-                {% else %}
-                  <tr>
-                    {% for col in row %}
-                      <td>{{ col }}</td>
-                    {% endfor %}
-                  </tr>
-                {% endif %}
-                {% if forloop.last %}
-                  </tbody>
-                {% endif %}
-              {% endfor %}
-            </table>
-          {% else %}
-            <pre>{{ file_context.content }}</pre>
+      {% for content in object.content.all %}
+        <div role="tabpanel" class="tab-pane {% if content.html %}ajax{% endif %}" {% if content.html %}data-uri="{{ content.html.url }}"{% endif %} id="tabs-{{ content.id	}}">
+          {% if content.html %}
+            <pre>Loading data</pre>
+          {% elif content.raw %}
+            <pre class="ajax" data-uri="{{ content.raw.url }}">Loading data</pre>
           {% endif %}
         </div>
       {% endfor %}
     </div>
   </div>
 {% endblock tool_content %}
+
+{% block javascript %}
+  {{ block.super }}
+  <script>
+  $(".ajax").each(function (e) {
+    var dataUri = $(this).attr("data-uri");
+    if (dataUri !== undefined & dataUri != '#' & dataUri.length > 0) {
+      $(this).load(dataUri);
+    }
+  });
+  </script>
+{% endblock javascript %}

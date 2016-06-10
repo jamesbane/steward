@@ -58,18 +58,7 @@ class TagReportForm(SystemProviderGroupForm):
 
 class TagRemovalForm(TypedProviderGroupForm):
     tag_names = forms.CharField(label='Tag Names', max_length=256, required=True)
-
     
-class LabRebuildForm(forms.Form):
-    ACTION_CHOICE_REBUILD = 'Rebuild'
-    ACTION_CHOICE_STATUS = 'Status'
-    ACTION_CHOICES = (
-        ('', '----'),
-        (ACTION_CHOICE_REBUILD, ACTION_CHOICE_REBUILD),
-        (ACTION_CHOICE_STATUS, ACTION_CHOICE_STATUS),
-    )
-    action = forms.ChoiceField(label='Action', choices=ACTION_CHOICES, required=True)
-
 
 class EmptyForm(forms.Form):
     pass

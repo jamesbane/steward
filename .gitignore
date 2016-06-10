@@ -20,3 +20,5 @@ settings.json
 
 # Static files
 static/**
+media/**
+protected/**

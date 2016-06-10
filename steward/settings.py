@@ -189,6 +189,10 @@ USE_TZ = True
 # =====================================
 STATIC_URL = '/static/'
 STATIC_ROOT = '{}/static/'.format(BASE_DIR)
+MEDIA_URL = '/media/'
+MEDIA_ROOT = '{}/media/'.format(BASE_DIR)
+PROTECTED_URL = '/protected/'
+PROTECTED_ROOT = '{}/protected/'.format(BASE_DIR)
 
 
 # =====================================
