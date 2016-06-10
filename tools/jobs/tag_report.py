@@ -183,9 +183,9 @@ def tag_report(process_id):
         # Initial content
         summary_html.write('<table class="table table-striped table-bordered table-hover">\n')
         summary_html.write('\t<thead>\n')
-        summary_html.write('\t\t<tr><th>Provider Id</th><th>Group Id</th><th>Device Name</th><th>Removed Tags</th>')
+        summary_html.write('\t\t<tr><th>Device Type</th><th>Provider Id</th><th>Group Id</th><th>Device Name</th>')
         for tag in tags:
-            summary_raw.write('<th>{}</th>'.format(tag))
+            summary_html.write('<th>{}</th>'.format(tag))
         summary_raw.write('</tr>\n')
         summary_html.write('\t</thead>\n')
         summary_html.write('<tbody>\n')
