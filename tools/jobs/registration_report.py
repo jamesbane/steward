@@ -78,8 +78,10 @@ class RegistrationReport:
                     log.write('{}{} :: '.format('    '*(level+2), user_line_id))
                     registrars = list()
                     registrations = sorted(self._palladion.registrations(user_line_id), key=lambda reg: reg['dev_id'])
-                    user_agents = set([ x['usrdev'] for x in registrations ])
+                    user_agents = set()
                     for registration in registrations:
+                        if 'usrdev' in registration:
+                            user_agents.append(registration['usrdev'])
                         registrar_name = "???"
                         if registration['dev_id'] in self._pl_devices:
                             registrar_name = self._pl_devices[registration['dev_id']]['name']
