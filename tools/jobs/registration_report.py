@@ -78,6 +78,7 @@ class RegistrationReport:
                     log.write('{}{} :: '.format('    '*(level+2), user_line_id))
                     registrars = list()
                     registrations = sorted(self._palladion.registrations(user_line_id), key=lambda reg: reg['dev_id'])
+                    user_agents = set([ x['usrdev'] for x in registrations ])
                     for registration in registrations:
                         registrar_name = "???"
                         if registration['dev_id'] in self._pl_devices:
@@ -85,10 +86,10 @@ class RegistrationReport:
                         registrars.append(registrar_name)
                     if len(registrars) > 0:
                         log.write('{}\n'.format('Registered'))
-                        summary.write('"{}","{}","{}","{}","{}","{}","{}"\n'.format(provider_id, group_id, device_name, device_type, user_line_id, 'Registered', ','.join(registrars)))
+                        summary.write('"{}","{}","{}","{}","{}","{}","{}","{}"\n'.format(provider_id, group_id, device_name, device_type, user_line_id, 'Registered', ','.join(registrars), ','.join(user_agents)))
                     else:
                         log.write('{}\n'.format('Not Registered'))
-                        summary.write('"{}","{}","{}","{}","{}","{}","{}"\n'.format(provider_id, group_id, device_name, device_type, user_line_id, 'Not Registered', ''))
+                        summary.write('"{}","{}","{}","{}","{}","{}","{}","{}"\n'.format(provider_id, group_id, device_name, device_type, user_line_id, 'Not Registered', '', ''))
 
         return {'log': log.getvalue(), 'summary': summary.getvalue()}
 
@@ -136,10 +137,10 @@ def registration_report(process_id):
         # Initial content
         summary_html.write('<table class="table table-striped table-bordered table-hover">\n')
         summary_html.write('<tr>\n')
-        summary_html.write('\t<th>Provider Id</th><th>Group Id</th><th>Device Name</th><th>Device Type</th><th>Line/Port</th><th>Status</th><th>Proxy/Registrar</th>\n')
+        summary_html.write('\t<th>Provider Id</th><th>Group Id</th><th>Device Name</th><th>Device Type</th><th>Line/Port</th><th>Status</th><th>Proxy/Registrar</th><th>User Agents</th>\n')
         summary_html.write('</tr>\n')
         summary_html.write('<tbody>\n')
-        summary_raw.write('"{}","{}","{}","{}","{}","{}","{}"\n'.format('Provider Id', 'Group Id', 'Device Name', 'Device Type', 'Line/Port', 'Status', 'Proxy/Registrar'))
+        summary_raw.write('"{}","{}","{}","{}","{}","{}","{}","{}"\n'.format('Provider Id', 'Group Id', 'Device Name', 'Device Type', 'Line/Port', 'Status', 'Proxy/Registrar', 'User Agents'))
 
         if provider_id and group_id:
             log_raw.write('Group {}::{}\n'.format(provider_id, group_id))
@@ -177,8 +178,6 @@ def registration_report(process_id):
         process.status = process.STATUS_COMPLETED
         process.end_timestamp = timezone.now()
         process.save(update_fields=['status', 'end_timestamp'])
-        log.close()
-        summary.close()
     except Exception:
         process.status = process.STATUS_ERROR
         process.end_timestamp = timezone.now()
