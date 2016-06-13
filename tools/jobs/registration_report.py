@@ -81,7 +81,7 @@ class RegistrationReport:
                     user_agents = set()
                     for registration in registrations:
                         if 'usrdev' in registration:
-                            user_agents.append(registration['usrdev'])
+                            user_agents.update(registration['usrdev'])
                         registrar_name = "???"
                         if registration['dev_id'] in self._pl_devices:
                             registrar_name = self._pl_devices[registration['dev_id']]['name']
