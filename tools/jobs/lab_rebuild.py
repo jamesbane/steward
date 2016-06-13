@@ -775,8 +775,9 @@ def lab_rebuild(process_id):
         bwl = BroadWorksLab(process)
         data = bwl.rebuild(provider, groups, users)
         log_raw.write(data)
+        process.end_timestamp = timezone.now()
         process.status = process.STATUS_COMPLETED
-        process.save(update_fields=['status'])
+        process.save(update_fields=['status', 'end_timestamp'])
     except Exception:
         process.status = process.STATUS_ERROR
         process.end_timestamp = timezone.now()
