@@ -30,15 +30,14 @@ class CallParkPickupConfigurator():
         self._bw = BroadWorks(**settings.PLATFORMS['broadworks'])
         self._bw.LoginRequest14sp4()
 
-    def provider_check(self, provider_id, enterprise=False):
-        if enterprise:
-            resp0 = self._bw.ServiceProviderGetRequest17sp1(provider_id)
-            provider_info = resp0['data']
-            print(provider_info)
-            if 'isEnterprise' in provider_info and provider_info['isEnterprise'] != True:
-                raise Exception('Provider Id is not an Enterprise')
-            elif 'isEnterprise' not in provider_info:
-                raise Exception('Provider Id is not an Enterprise')
+    def provider_check(self, provider_id):
+        resp0 = self._bw.ServiceProviderGetRequest17sp1(provider_id)
+        provider_info = resp0['data']
+        print(provider_info)
+        if 'isEnterprise' in provider_info and provider_info['isEnterprise'] != True:
+            raise Exception('Provider Id is not an Enterprise')
+        elif 'isEnterprise' not in provider_info:
+            raise Exception('Provider Id is not an Enterprise')
 
     def groups(self, provider_id):
         resp0 = self._bw.GroupGetListInServiceProviderRequest(serviceProviderId=provider_id)
@@ -254,7 +253,7 @@ def call_park_pickup_configurator(process_id):
                     summary_html.write('\n</tr>\n')
         elif provider_id:
             log_raw.write('Provider {}\n'.format(provider_id))
-            cpp.provider_check(provider_id, True if provider_type == 'Enterprise' else False)
+            cpp.provider_check(provider_id)
             groups = cpp.groups(provider_id)
             for group in groups:
                 group_id = group['Group Id']

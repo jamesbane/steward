@@ -26,7 +26,7 @@ class TypedProviderGroupForm(forms.Form):
             if not provider_id:
                 raise forms.ValidationError("Provider Id is required")
         elif provider_type == self.PROVIDER_TYPE_CHOICE_SERVICE_PROVIDER:
-            if not provider_id and group_id:
+            if not provider_id or not group_id:
                 raise forms.ValidationError("Provider Id and Group Id is required")
         else:
             raise forms.ValidationError("Invalid provider type")
@@ -58,7 +58,7 @@ class TagReportForm(SystemProviderGroupForm):
 
 class TagRemovalForm(TypedProviderGroupForm):
     tag_names = forms.CharField(label='Tag Names', max_length=256, required=True)
-    
+
 
 class EmptyForm(forms.Form):
     pass
