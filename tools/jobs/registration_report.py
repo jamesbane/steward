@@ -155,7 +155,6 @@ def registration_report(process_id):
                     for d in row:
                         summary_html.write('<td>{}</td>'.format(d))
                     summary_html.write('\n</tr>\n')
-            process.save(update_fields=['content'])
         elif provider_id:
             log_raw.write('Provider {}\n'.format(provider_id))
             groups = rp.groups(provider_id)
