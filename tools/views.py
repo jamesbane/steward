@@ -91,7 +91,7 @@ class CallParkPickupConfiguratorToolView(PermissionRequiredMixin, LoginRequiredM
     process_name = 'Call Park/Pickup Configurator'
     process_function = 'tools.jobs.call_park_pickup_configurator.call_park_pickup_configurator'
     template_name = 'tools/call_park_pickup_configurator.html'
-    form_class = tools.forms.TypedProviderGroupForm
+    form_class = tools.forms.CallParkPickupForm
 
 
 class DeviceSpecificMigrationToolView(PermissionRequiredMixin, LoginRequiredMixin, ToolView):

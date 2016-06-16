@@ -30,7 +30,18 @@ class TypedProviderGroupForm(forms.Form):
                 raise forms.ValidationError("Provider Id and Group Id is required")
         else:
             raise forms.ValidationError("Invalid provider type")
+        return cleaned_data
 
+
+class CallParkPickupForm(TypedProviderGroupForm):
+    park = forms.BooleanField(label="Call Park", required=False, initial=True)
+    retrieve = forms.BooleanField(label="Call Retrieve", required=False, initial=True)
+
+    def clean(self):
+        cleaned_data = super(CallParkPickupForm, self).clean()
+        cleaned_data['park'] = str(cleaned_data.get("park", False))
+        cleaned_data['retrieve'] = str(cleaned_data.get("retrieve", False))
+        return cleaned_data
 
 class ProviderGroupForm(forms.Form):
     provider_id = forms.CharField(label='Provider Id', max_length=256, required=True)

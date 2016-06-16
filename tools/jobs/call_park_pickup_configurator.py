@@ -24,9 +24,13 @@ from lib.pybw.broadworks import BroadWorks, Nil
 class CallParkPickupConfigurator():
     _bw = None
     _process = None
+    _park = False
+    _retrieve = False
 
-    def __init__(self, process):
+    def __init__(self, process, park, retrieve):
         self._process = process
+        self._park = park
+        self._retrieve = retrieve
         self._bw = BroadWorks(**settings.PLATFORMS['broadworks'])
         self._bw.LoginRequest14sp4()
 
@@ -132,16 +136,21 @@ class CallParkPickupConfigurator():
                 devices = devices_unique
 
                 # add tags to devices?
-                tags = [
-                    {'tag_name': '%SK5-Action%', 'tag_value': '!grppark'},
-                    {'tag_name': '%SK5-Active%', 'tag_value': '1'},
-                    {'tag_name': '%SK5-Enable%', 'tag_value': '1'},
-                    {'tag_name': '%SK5-Label%',  'tag_value': 'Park'},
-                    {'tag_name': '%SK6-Action%', 'tag_value': '!retrieve'},
-                    {'tag_name': '%SK6-Enable%', 'tag_value': '1'},
-                    {'tag_name': '%SK6-Idle%',   'tag_value': '1'},
-                    {'tag_name': '%SK6-Label%',  'tag_value': 'Retrieve'},
-                ]
+                tags = []
+                if self._park:
+                    tags += [
+                        {'tag_name': '%SK5-Action%', 'tag_value': '!grppark'},
+                        {'tag_name': '%SK5-Active%', 'tag_value': '1'},
+                        {'tag_name': '%SK5-Enable%', 'tag_value': '1'},
+                        {'tag_name': '%SK5-Label%',  'tag_value': 'Park'},
+                    ]
+                if self._retrieve:
+                    tags += [
+                        {'tag_name': '%SK6-Action%', 'tag_value': '!retrieve'},
+                        {'tag_name': '%SK6-Enable%', 'tag_value': '1'},
+                        {'tag_name': '%SK6-Idle%',   'tag_value': '1'},
+                        {'tag_name': '%SK6-Label%',  'tag_value': 'Retrieve'},
+                    ]
                 for device in devices:
                     device_name = device['device_name']
                     log.write('{}Device: {}\n'.format('    '*(level+3), device_name))
@@ -229,7 +238,9 @@ def call_park_pickup_configurator(process_id):
         provider_type = process.parameters.get('provider_type', None)
         provider_id = process.parameters.get('provider_id', None)
         group_id = process.parameters.get('group_id', None)
-        cpp = CallParkPickupConfigurator(process)
+        park = bool(process.parameters.get('park', 'False'))
+        retrieve = bool(process.parameters.get('retrieve', 'False'))
+        cpp = CallParkPickupConfigurator(process, park, retrieve)
 
         # Initial content
         summary_html.write('<table class="table table-striped table-bordered table-hover">\n')
