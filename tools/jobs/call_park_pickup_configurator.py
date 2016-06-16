@@ -4,6 +4,7 @@ import os
 import csv
 import sys
 import time
+import pprint
 import requests
 import datetime
 import traceback
@@ -136,6 +137,8 @@ class CallParkPickupConfigurator():
                 devices = devices_unique
 
                 # add tags to devices?
+                log.write("{}Park:     {}\n".format('    '*(level+3), self._park))
+                log.write("{}Retrieve: {}\n".format('    '*(level+3), self._retrieve))
                 tags = []
                 if self._park:
                     tags += [
@@ -238,8 +241,8 @@ def call_park_pickup_configurator(process_id):
         provider_type = process.parameters.get('provider_type', None)
         provider_id = process.parameters.get('provider_id', None)
         group_id = process.parameters.get('group_id', None)
-        park = bool(process.parameters.get('park', 'False'))
-        retrieve = bool(process.parameters.get('retrieve', 'False'))
+        park = process.parameters.get('park') in ['True', 'true']
+        retrieve = process.parameters.get('retrieve', 'False') in ['True', 'true']
         cpp = CallParkPickupConfigurator(process, park, retrieve)
 
         # Initial content
