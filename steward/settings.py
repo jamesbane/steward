@@ -66,6 +66,7 @@ INSTALLED_APPS = [
 
     # Third Party
     'django_rq',
+    'rest_framework',
 ]
 MIDDLEWARE_CLASSES = [
     'django.middleware.security.SecurityMiddleware',
@@ -214,6 +215,18 @@ RQ_QUEUES = {
         'PORT': 6379,
         'DB': 0,
     },
+}
+
+
+# =====================================
+# Django REST Framework
+# =====================================
+REST_FRAMEWORK = {
+    # Use Django's standard `django.contrib.auth` permissions,
+    # or allow read-only access for unauthenticated users.
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.DjangoModelPermissions'
+    ]
 }
 
 

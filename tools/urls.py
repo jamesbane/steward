@@ -1,5 +1,9 @@
 from django.conf.urls import url
+
+# Application
 import tools.views
+from steward.routers import common_router as router
+
 
 urlpatterns = [
     url(r'^$', tools.views.IndexView.as_view(), name='index'),
@@ -20,3 +24,6 @@ urlpatterns = [
     url(r'^jobs/$', tools.views.ProcessListView.as_view(), name='process-list'),
     url(r'^results/(?P<pk>\d+)/$', tools.views.ProcessDetailView.as_view(), name='process-detail'),
 ]
+
+router.register(r'tools/processes', tools.views.ProcessDetailAPIViewSet)
+router.register(r'tools/registrations', tools.views.RegistrationAPIViewSet, base_name="registration")

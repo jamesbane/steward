@@ -1,8 +1,10 @@
 # Python
 import csv
+import requests
 import importlib
 
 # Django
+from django.conf import settings
 from django.utils import timezone
 from django.shortcuts import render
 from django.core.urlresolvers import reverse
@@ -13,15 +15,24 @@ from django.core.exceptions import PermissionDenied
 from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 
+
 # Application
 import tools.forms
 from tools.models import Process
+from tools.serializers import ProcessSerializer
 
 # Third Party
 import rq
 import django_rq
 from redis import Redis
+from lib.pybw.broadworks import BroadWorks, Nil
+from lib.pypalladion.palladion import Palladion
 from lib.pyutil.django.mixins import ProcessFormMixin
+from rest_framework.views import APIView
+from rest_framework.mixins import ListModelMixin
+from rest_framework.viewsets import ModelViewSet, ViewSet
+from rest_framework.permissions import IsAdminUser
+from rest_framework.response import Response
 
 
 class IndexView(LoginRequiredMixin, TemplateView):
@@ -52,6 +63,85 @@ class ProcessDetailView(LoginRequiredMixin, DetailView):
         if not self.request.user.has_perm(context['object'].view_permission):
             raise PermissionDenied
         return context
+
+
+class ProcessDetailAPIViewSet(ModelViewSet):
+    queryset = Process.objects.all()
+    serializer_class = ProcessSerializer
+
+
+class RegistrationAPIViewSet(ViewSet):
+    lookup_value_regex = '[^/]+'       #Just add this line & change your Regex if needed
+    permission_classes = [IsAdminUser]
+
+    def list(self, request, format=None):
+        return Response()
+
+    def retrieve(self, request, pk, format=None):
+        user_id = pk
+        palladion = Palladion(**settings.PLATFORMS['palladion'])
+        pl_devices = { x['id']: x for x in palladion.devices() }
+        requests.packages.urllib3.disable_warnings()
+        bw = BroadWorks(**settings.PLATFORMS['broadworks'])
+        bw.LoginRequest14sp4()
+
+        if '@' in user_id:
+            line_port = user_id
+            user_line_id = line_port.split('@')[0]
+            registrars = list()
+            registrations = sorted(palladion.registrations(user_line_id), key=lambda reg: reg['dev_id'])
+            user_agents = set()
+            for registration in registrations:
+                if 'usrdev' in registration:
+                    user_agents.add(registration['usrdev'])
+                registrar_name = "???"
+                if registration['dev_id'] in pl_devices:
+                    registrar_name = pl_devices[registration['dev_id']]['name']
+                registrars.append(registrar_name)
+            if len(registrars) > 0:
+                status = "Registered"
+            else:
+                status = "Not registered"
+            rval = Response({
+                "status": status,
+                "user_agents": user_agents,
+                "registrars": registrars,
+                "line_port": line_port,
+            })
+        else:
+            # Look at BroadWorks to get the Line/Port and then Palladion to get the Registration
+            resp1 = bw.UserGetRequest19(user_id)
+            if resp1['type'] == 'c:ErrorResponse':
+                rval = Response({"status": "User Id not found"})
+            else:
+                if 'accessDeviceEndpoint' in resp1['data']:
+                    line_port = resp1['data']['accessDeviceEndpoint']['linePort']
+                    user_line_id = line_port.split('@')[0]
+                    registrars = list()
+                    registrations = sorted(palladion.registrations(user_line_id), key=lambda reg: reg['dev_id'])
+                    user_agents = set()
+                    for registration in registrations:
+                        if 'usrdev' in registration:
+                            user_agents.add(registration['usrdev'])
+                        registrar_name = "???"
+                        if registration['dev_id'] in pl_devices:
+                            registrar_name = pl_devices[registration['dev_id']]['name']
+                        registrars.append(registrar_name)
+                    if len(registrars) > 0:
+                        status = "Registered"
+                    else:
+                        status = "Not registered"
+                    rval = Response({
+                        "status": status,
+                        "user_agents": user_agents,
+                        "registrars": registrars,
+                        "line_port": line_port,
+                    })
+                else:
+                    rval = Response({"status": "Not found"})
+        bw.LogoutRequest()
+        return rval
+
 
 class ToolView(ProcessFormMixin, TemplateView):
 

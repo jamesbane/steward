@@ -5,19 +5,25 @@ import django.views.static
 
 
 import steward.views
+from steward.routers import common_router
 
 
 urlpatterns = [
     url(r'^$', steward.views.IndexRedirectView.as_view(), name='index'),
 
     url(r'^accounts/', include('django.contrib.auth.urls', namespace='auth')),
-    url(r'^admin/', admin.site.urls),
     url(r'^dashboards/', include('dashboard.urls', namespace='dashboard')),
     url(r'^deploy/', include('deploy.urls', namespace='deploy')),
     url(r'^dms/', include('dms.urls', namespace='dms')),
     url(r'^django-rq/', include('django_rq.urls')),
     url(r'^tools/', include('tools.urls', namespace='tools')),
     url(r'^protected/(?P<path>.*)$', steward.views.ProtectedFileView.as_view()),
+
+    # Django Rest Framework
+    url(r'^api/', include(common_router.urls)),
+    url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+    # Django admin
+    url(r'^admin/', admin.site.urls),
 ]
 
 # Allow serving media content if in debug mode
