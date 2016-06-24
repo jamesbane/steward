@@ -134,7 +134,7 @@ class TrunkUserAudit():
                         resp5 = self._bw.GroupServiceModifyAuthorizationListRequest(provider_id, group_id, servicePackAuthorization=OrderedDict([('servicePackName', 'Trunk Pack'), ('authorizedQuantity', {'unlimited': True})]))
                         log.write(self.parse_response(resp5, (level+1)))
                         self._cache['groups_trunk_assigned'].add('{}::{}'.format(provider_id, group_id))
-                    log.write('{}UserServiceAssignListRequest({}, servicePackName=['Trunk Pack']) '.format('    '*(level+1), user_id))
+                    log.write("{}UserServiceAssignListRequest({}, servicePackName=['Trunk Pack']) ".format('    '*(level+1), user_id))
                     resp6 = self._bw.UserServiceAssignListRequest(user_id, servicePackName=['Trunk Pack'])
                     log.write(self.parse_response(resp6, (level+1)))
                 # remove all assigned services
