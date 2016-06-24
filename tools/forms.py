@@ -71,5 +71,9 @@ class TagRemovalForm(TypedProviderGroupForm):
     tag_names = forms.CharField(label='Tag Names', max_length=256, required=True)
 
 
+class TrunkUserAuditForm(forms.Form):
+    fixup = forms.BooleanField(label="Fixup", required=False, initial=False)
+
+
 class EmptyForm(forms.Form):
     pass

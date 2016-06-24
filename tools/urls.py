@@ -10,6 +10,7 @@ urlpatterns = [
     url(r'^lab-rebuild-tool$', tools.views.LabResetToolView.as_view(), name='lab-rebuild-tool'),
     url(r'^push-to-talk-configurator$', tools.views.PushToTalkConfiguratorToolView.as_view(), name='push-to-talk-configurator'),
     url(r'^tag-removal$', tools.views.TagRemovalToolView.as_view(), name='tag-removal'),
+    url(r'^trunk-user-audit$', tools.views.TrunkAuditToolView.as_view(), name='trunk-user-audit'),
     # Reports
     url(r'^firmware-report$', tools.views.FirmwareReportView.as_view(), name='firmware-report'),
     url(r'^registrations-report$', tools.views.RegistrationReportView.as_view(), name='registrations-report'),

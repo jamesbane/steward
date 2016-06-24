@@ -1,13 +1,20 @@
 -r lib/pybw/requirements.txt
 -r lib/pyutil/requirements.txt
 -r lib/pypalladion/requirements.txt
-Django==1.9.1
-click==6.2
-django-rq==0.9.0
-psycopg2==2.6.1
-redis==2.10.5
-rq==0.5.6
-six==1.10.0
+click==6.6
+Django==1.9.7
 django-auth-ldap==1.2.7
+django-filter==0.13.0
+django-rq==0.9.1
+djangorestframework==3.3.3
+lxml==3.4.2
+Markdown==2.6.6
+psycopg2==2.6.1
 pyldap==2.4.25.1
-pytz>=2016.4
+pytz==2016.4
+redis==2.10.5
+requests==2.7.0
+rq==0.6.0
+six==1.10.0
+suds-jurko==0.6
+

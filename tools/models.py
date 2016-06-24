@@ -51,6 +51,8 @@ class Process(models.Model):
             ("process_tag_report_view", "Tag Report View Results"),
             ("process_tag_removal_exec", "Tag Removal Tool Execute"),
             ("process_tag_removal_view", "Tag Removal Tool View Results"),
+            ("process_trunk_user_audit_exec", "Trunk Audit Execute"),
+            ("process_trunk_user_audit_view", "Trunk Audit View Results"),
         )
 
 

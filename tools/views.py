@@ -173,3 +173,12 @@ class TagRemovalToolView(PermissionRequiredMixin, LoginRequiredMixin, ToolView):
     process_function = 'tools.jobs.tag_removal.tag_removal'
     template_name = 'tools/tag_removal_tool.html'
     form_class = tools.forms.TagRemovalForm
+
+
+class TrunkAuditToolView(PermissionRequiredMixin, LoginRequiredMixin, ToolView):
+    permission_required = 'tools.process_trunk_user_audit_exec'
+    permission_view = 'tools.process_trunk_user_audit_view'
+    process_name = 'Trunk User Audit'
+    process_function = 'tools.jobs.trunk_user_audit.trunk_user_audit'
+    template_name = 'tools/trunk_user_audit.html'
+    form_class = tools.forms.TrunkUserAuditForm
