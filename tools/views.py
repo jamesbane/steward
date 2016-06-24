@@ -88,24 +88,24 @@ class RegistrationAPIViewSet(ViewSet):
         if '@' in user_id:
             line_port = user_id
             user_line_id = line_port.split('@')[0]
-            registrars = list()
+            contacts = list()
             registrations = sorted(palladion.registrations(user_line_id), key=lambda reg: reg['dev_id'])
             user_agents = set()
             for registration in registrations:
                 if 'usrdev' in registration:
                     user_agents.add(registration['usrdev'])
-                registrar_name = "???"
+                contact_name = "???"
                 if registration['dev_id'] in pl_devices:
-                    registrar_name = pl_devices[registration['dev_id']]['name']
-                registrars.append(registrar_name)
-            if len(registrars) > 0:
+                    contact_name = pl_devices[registration['dev_id']]['name']
+                contacts.append(contact_name)
+            if len(contacts) > 0:
                 status = "Registered"
             else:
                 status = "Not registered"
             rval = Response({
                 "status": status,
                 "user_agents": user_agents,
-                "registrars": registrars,
+                "contacts": contacts,
                 "line_port": line_port,
             })
         else:
@@ -117,24 +117,24 @@ class RegistrationAPIViewSet(ViewSet):
                 if 'accessDeviceEndpoint' in resp1['data']:
                     line_port = resp1['data']['accessDeviceEndpoint']['linePort']
                     user_line_id = line_port.split('@')[0]
-                    registrars = list()
+                    contacts = list()
                     registrations = sorted(palladion.registrations(user_line_id), key=lambda reg: reg['dev_id'])
                     user_agents = set()
                     for registration in registrations:
                         if 'usrdev' in registration:
                             user_agents.add(registration['usrdev'])
-                        registrar_name = "???"
+                        contact_name = "???"
                         if registration['dev_id'] in pl_devices:
-                            registrar_name = pl_devices[registration['dev_id']]['name']
-                        registrars.append(registrar_name)
-                    if len(registrars) > 0:
+                            contact_name = pl_devices[registration['dev_id']]['name']
+                        contacts.append(contact_name)
+                    if len(contacts) > 0:
                         status = "Registered"
                     else:
                         status = "Not registered"
                     rval = Response({
                         "status": status,
                         "user_agents": user_agents,
-                        "registrars": registrars,
+                        "contacts": contacts,
                         "line_port": line_port,
                     })
                 else:
