@@ -109,7 +109,7 @@ class TrunkUserAudit():
 
         log.write('{}UserServiceGetAssignmentListRequest({}) '.format('    '*(level+1), user_id))
         resp4 = self._bw.UserServiceGetAssignmentListRequest(user_id)
-        log.write(self.parse_response(resp3, (level+1)))
+        log.write(self.parse_response(resp4, (level+1)))
         assigned_packs = [x['Service Pack Name'] for x in resp4['data']['servicePacksAssignmentTable']]
         assigned_services = [x['Service Name'] for x in resp4['data']['userServicesAssignmentTable']]
 
