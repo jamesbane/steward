@@ -100,7 +100,7 @@ class TrunkUserAudit():
                 self._cache['service_packs'][provider_id][pack_name] = user_services
             # If no 'TrunkPack' create one
             if 'TrunkPack' not in self._cache['service_packs'][provider_id]:
-                log.write('{}ServiceProviderServicePackGetDetailListRequest({}, {}) '.format('    '*(level+1), provider_id, pack_name))
+                log.write("{}ServiceProviderServicePackAddRequest({}, {}, isAvailableForUse=True, servicePackQuantity={'unlimited': True}, serviceName={{...}}) ".format('    '*(level+1), provider_id, 'TrunkPack'))
                 resp3 = self._bw.ServiceProviderServicePackAddRequest(provider_id, 'TrunkPack',
                                                                       isAvailableForUse=True,
                                                                       servicePackQuantity={'unlimited': True},
