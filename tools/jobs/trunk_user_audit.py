@@ -38,7 +38,7 @@ class TrunkUserAudit():
         self._bw.LoginRequest14sp4()
         # Get the services from LokiHelper's 'Trunk Pack'
         resp = self._bw.ServiceProviderServicePackGetDetailListRequest('LokiHelper', 'Trunk Pack')
-        self._services = [ x['Service'] for x in resp2['data']['userServiceTable']]
+        self._services = [ x['Service'] for x in resp['data']['userServiceTable']]
 
     def parse_response(self, response, level):
         content = io.StringIO()
