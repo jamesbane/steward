@@ -36,8 +36,8 @@ class TrunkUserAudit():
         self._fix = fix
         self._bw = BroadWorks(**settings.PLATFORMS['broadworks'])
         self._bw.LoginRequest14sp4()
-        # Get the services from LokiHelper's 'Trunk Pack'
-        resp = self._bw.ServiceProviderServicePackGetDetailListRequest('LokiHelper', 'Trunk Pack')
+        # Get the services from LokiHelper's 'TrunkPack'
+        resp = self._bw.ServiceProviderServicePackGetDetailListRequest('LokiHelper', 'TrunkPack')
         self._services = [ x['Service'] for x in resp['data']['userServiceTable']]
 
     def parse_response(self, response, level):
@@ -98,10 +98,10 @@ class TrunkUserAudit():
                 log.write(self.parse_response(resp2, (level+1)))
                 user_services = [ x['Service'] for x in resp2['data']['userServiceTable']]
                 self._cache['service_packs'][provider_id][pack_name] = user_services
-            # If no 'Trunk Pack' create one
-            if 'Trunk Pack' not in self._cache['service_packs'][provider_id]:
+            # If no 'TrunkPack' create one
+            if 'TrunkPack' not in self._cache['service_packs'][provider_id]:
                 log.write('{}ServiceProviderServicePackGetDetailListRequest({}, {}) '.format('    '*(level+1), provider_id, pack_name))
-                resp3 = self._bw.ServiceProviderServicePackAddRequest(provider_id, 'Trunk Pack',
+                resp3 = self._bw.ServiceProviderServicePackAddRequest(provider_id, 'TrunkPack',
                                                                       isAvailableForUse=True,
                                                                       servicePackQuantity={'unlimited': True},
                                                                       serviceName=self._services)
@@ -128,18 +128,18 @@ class TrunkUserAudit():
         if bad_services or need_services:
             if self._fix:
                 # determine services to remove / add
-                if 'Trunk Pack' not in assigned_packs:
+                if 'TrunkPack' not in assigned_packs:
                     if '{}::{}'.format(provider_id, group_id) not in self._cache['groups_trunk_assigned']:
                         log.write('{}GroupServiceModifyAuthorizationListRequest({}, {}, servicePackAuthorization={{...}}) '.format('    '*(level+1), provider_id, pack_name))
-                        resp5 = self._bw.GroupServiceModifyAuthorizationListRequest(provider_id, group_id, servicePackAuthorization=OrderedDict([('servicePackName', 'Trunk Pack'), ('authorizedQuantity', {'unlimited': True})]))
+                        resp5 = self._bw.GroupServiceModifyAuthorizationListRequest(provider_id, group_id, servicePackAuthorization=OrderedDict([('servicePackName', 'TrunkPack'), ('authorizedQuantity', {'unlimited': True})]))
                         log.write(self.parse_response(resp5, (level+1)))
                         self._cache['groups_trunk_assigned'].add('{}::{}'.format(provider_id, group_id))
-                    log.write("{}UserServiceAssignListRequest({}, servicePackName=['Trunk Pack']) ".format('    '*(level+1), user_id))
-                    resp6 = self._bw.UserServiceAssignListRequest(user_id, servicePackName=['Trunk Pack'])
+                    log.write("{}UserServiceAssignListRequest({}, servicePackName=['TrunkPack']) ".format('    '*(level+1), user_id))
+                    resp6 = self._bw.UserServiceAssignListRequest(user_id, servicePackName=['TrunkPack'])
                     log.write(self.parse_response(resp6, (level+1)))
                 # remove all assigned services
                 remove_service_packs = assigned_packs
-                remove_service_packs.remove('Trunk Pack')
+                remove_service_packs.remove('TrunkPack')
                 log.write('{}UserServiceUnassignListRequest({}, {{...}}) '.format('    '*(level+1), user_id))
                 resp7 = self._bw.UserServiceUnassignListRequest(user_id, serviceName=assigned_services, servicePackName=remove_service_packs)
                 log.write(self.parse_response(resp7, (level+1)))
