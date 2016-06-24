@@ -74,6 +74,11 @@ class TagRemovalForm(TypedProviderGroupForm):
 class TrunkUserAuditForm(forms.Form):
     fixup = forms.BooleanField(label="Fixup", required=False, initial=False)
 
+    def clean(self):
+        cleaned_data = super(TrunkUserAuditForm, self).clean()
+        cleaned_data['fixup'] = str(cleaned_data.get("fixup", False))
+        return cleaned_data
+
 
 class EmptyForm(forms.Form):
     pass
