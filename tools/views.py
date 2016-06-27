@@ -110,25 +110,27 @@ class RegistrationAPIViewSet(ViewSet):
                 "line_port": line_port,
             })
         else:
+            user_id = None
             user_detail = None
             # Retrieve User by User Id
-            resp1 = bw.UserGetRequest19(user_id)
+            resp1 = bw.UserGetRequest19(pk)
             if resp1['type'] != 'c:ErrorResponse':
                 user_detail = resp1['data']
-            if not user_detail:
+                user_id = pk
+            if not user_id:
                 # Retrieve User by DN
                 resp2 = bw.UserGetListInSystemRequest(searchCriteriaDn=OrderedDict([('mode', 'Contains'), ('value', pk), ('isCaseInsensitive', True)]))
                 if resp2['type'] != 'c:ErrorResponse' and 'userTable' in resp2['data'] and len(resp2['data']['userTable']) == 1:
                     user = resp2['data']['userTable'][0]
-
-            if not user_detail and not user:
+                    user_id = user['User Id']
+            if not user_id:
                 # No user could be found :-(
                 rval = Response({"status": "User Id not found"})
                 bw.LogoutRequest()
                 return rval
             else:
                 if not user_detail:
-                    resp3 = bw.UserGetRequest19(user['User Id'])
+                    resp3 = bw.UserGetRequest19(user_id)
                     if resp3['type'] != 'c:ErrorResponse':
                         user_detail = resp3['data']
                     else:
@@ -153,6 +155,11 @@ class RegistrationAPIViewSet(ViewSet):
                     else:
                         status = "Not registered"
                     rval = Response({
+                        "broadworks": {
+                            "provider_id": user_detail['serviceProviderId'],
+                            "group_id": user_detail['groupId'],
+                            "user_id": user_id
+                        },
                         "status": status,
                         "user_agents": user_agents,
                         "contacts": contacts,
