@@ -158,7 +158,9 @@ class RegistrationAPIViewSet(ViewSet):
                         "broadworks": {
                             "provider_id": user_detail['serviceProviderId'],
                             "group_id": user_detail['groupId'],
-                            "user_id": user_id
+                            "user_id": user_id,
+                            "first_name": user_detail['firstName'],
+                            "last_name": user_detail['lastName']
                         },
                         "status": status,
                         "user_agents": user_agents,
