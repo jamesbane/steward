@@ -1,20 +1,21 @@
 # Python
+from collections import OrderedDict
 import csv
 import requests
 import importlib
 
 # Django
 from django.conf import settings
-from django.utils import timezone
-from django.shortcuts import render
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
+from django.forms import formset_factory
+from django.http import HttpResponseRedirect, HttpResponse
+from django.shortcuts import render
+from django.utils import timezone
 from django.views.generic import TemplateView
 from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
-from django.core.exceptions import PermissionDenied
-from django.http import HttpResponseRedirect, HttpResponse
-from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-
 
 # Application
 import tools.forms
@@ -22,17 +23,17 @@ from tools.models import Process
 from tools.serializers import ProcessSerializer
 
 # Third Party
-import rq
 import django_rq
-from redis import Redis
 from lib.pybw.broadworks import BroadWorks, Nil
 from lib.pypalladion.palladion import Palladion
 from lib.pyutil.django.mixins import ProcessFormMixin
-from rest_framework.views import APIView
+from redis import Redis
 from rest_framework.mixins import ListModelMixin
-from rest_framework.viewsets import ModelViewSet, ViewSet
 from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework.viewsets import ModelViewSet, ViewSet
+import rq
 
 
 class IndexView(LoginRequiredMixin, TemplateView):
@@ -109,13 +110,33 @@ class RegistrationAPIViewSet(ViewSet):
                 "line_port": line_port,
             })
         else:
-            # Look at BroadWorks to get the Line/Port and then Palladion to get the Registration
+            user_detail = None
+            # Retrieve User by User Id
             resp1 = bw.UserGetRequest19(user_id)
-            if resp1['type'] == 'c:ErrorResponse':
+            if resp1['type'] != 'c:ErrorResponse':
+                user_detail = resp1['data']
+            if not user_detail:
+                # Retrieve User by DN
+                resp2 = bw.UserGetListInSystemRequest(searchCriteriaDn=OrderedDict([('mode', 'Contains'), ('value', pk), ('isCaseInsensitive', True)]))
+                if resp2['type'] != 'c:ErrorResponse' and 'userTable' in resp2['data'] and len(resp2['data']['userTable']) == 1:
+                    user = resp2['data']['userTable'][0]
+
+            if not user_detail and not user:
+                # No user could be found :-(
                 rval = Response({"status": "User Id not found"})
+                bw.LogoutRequest()
+                return rval
             else:
-                if 'accessDeviceEndpoint' in resp1['data']:
-                    line_port = resp1['data']['accessDeviceEndpoint']['linePort']
+                if not user_detail:
+                    resp3 = bw.UserGetRequest19(user['User Id'])
+                    if resp3['type'] != 'c:ErrorResponse':
+                        user_detail = resp3['data']
+                    else:
+                        rval = Response({"status": "User Id lookup error"})
+                        bw.LogoutRequest()
+                        return rval
+                if 'accessDeviceEndpoint' in user_detail:
+                    line_port = user_detail['accessDeviceEndpoint']['linePort']
                     user_line_id = line_port.split('@')[0]
                     contacts = list()
                     registrations = sorted(palladion.registrations(user_line_id), key=lambda reg: reg['dev_id'])
