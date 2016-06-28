@@ -81,16 +81,16 @@ class RegistrationAPIViewSet(ViewSet):
     def retrieve(self, request, pk, format=None):
         user_id = pk
         public_device_ids = [12,24,25,31,37,40,41,44]
+        requests.packages.urllib3.disable_warnings()
         palladion = Palladion(**settings.PLATFORMS['palladion'])
         pl_devices = { x['id']: x for x in palladion.devices() }
-        requests.packages.urllib3.disable_warnings()
         bw = BroadWorks(**settings.PLATFORMS['broadworks'])
         bw.LoginRequest14sp4()
 
         if '@' in user_id:
             line_port = user_id
             user_line_id = line_port.split('@')[0]
-            regs = sorted([reg for reg in palladion.registrations('polycom_2_VVX600') if reg['dev_id'] in public_device_ids], key=lambda reg: reg['dev_id'])
+            regs = sorted([reg for reg in palladion.registrations(user_line_id) if reg['dev_id'] in public_device_ids], key=lambda reg: reg['dev_id'])
             registrations = list()
             for reg in regs:
                 registration = dict()
