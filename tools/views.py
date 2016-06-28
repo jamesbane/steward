@@ -80,6 +80,7 @@ class RegistrationAPIViewSet(ViewSet):
 
     def retrieve(self, request, pk, format=None):
         user_id = pk
+        public_device_ids = [12,24,25,31,37,40,41,44]
         palladion = Palladion(**settings.PLATFORMS['palladion'])
         pl_devices = { x['id']: x for x in palladion.devices() }
         requests.packages.urllib3.disable_warnings()
@@ -89,24 +90,37 @@ class RegistrationAPIViewSet(ViewSet):
         if '@' in user_id:
             line_port = user_id
             user_line_id = line_port.split('@')[0]
-            contacts = list()
-            registrations = sorted(palladion.registrations(user_line_id), key=lambda reg: reg['dev_id'])
-            user_agents = set()
-            for registration in registrations:
-                if 'usrdev' in registration:
-                    user_agents.add(registration['usrdev'])
-                contact_name = "???"
-                if registration['dev_id'] in pl_devices:
-                    contact_name = pl_devices[registration['dev_id']]['name']
-                contacts.append(contact_name)
-            if len(contacts) > 0:
+            regs = sorted([reg for reg in palladion.registrations('polycom_2_VVX600') if reg['dev_id'] in public_device_ids], key=lambda reg: reg['dev_id'])
+            registrations = list()
+            for reg in regs:
+                registration = dict()
+                if 'dev_id' in reg:
+                    if reg['dev_id'] in pl_devices:
+                        registration['device'] = pl_devices[reg['dev_id']]['name']
+                    else:
+                        registration['device'] = 'Unknown'
+                if 'expires' in reg:
+                    registration['expires'] = reg['expires']
+                if 'expires_in' in reg:
+                    registration['expires_in'] = reg['expires_in']
+                if 'first_seen_ts' in reg:
+                    registration['first_seen'] = reg['first_seen_ts']
+                if 'last_seen_ts' in reg:
+                    registration['last_seen'] = reg['last_seen_ts']
+                if 'last_refreshed_ts' in reg:
+                    registration['last_refreshed'] = reg['last_refreshed_ts']
+                if 'srcip' in reg:
+                    registration['ip_address'] = reg['srcip']
+                if 'usrdev' in reg:
+                    registration['user_agent'] = reg['usrdev']
+                registrations.append(registration)
+            if len(registrations) > 0:
                 status = "Registered"
             else:
                 status = "Not registered"
             rval = Response({
                 "status": status,
-                "user_agents": user_agents,
-                "contacts": contacts,
+                "registrations": registrations,
                 "line_port": line_port,
             })
         else:
@@ -140,17 +154,31 @@ class RegistrationAPIViewSet(ViewSet):
                 if 'accessDeviceEndpoint' in user_detail:
                     line_port = user_detail['accessDeviceEndpoint']['linePort']
                     user_line_id = line_port.split('@')[0]
-                    contacts = list()
-                    registrations = sorted(palladion.registrations(user_line_id), key=lambda reg: reg['dev_id'])
-                    user_agents = set()
-                    for registration in registrations:
-                        if 'usrdev' in registration:
-                            user_agents.add(registration['usrdev'])
-                        contact_name = "???"
-                        if registration['dev_id'] in pl_devices:
-                            contact_name = pl_devices[registration['dev_id']]['name']
-                        contacts.append(contact_name)
-                    if len(contacts) > 0:
+                    regs = sorted([reg for reg in palladion.registrations('polycom_2_VVX600') if reg['dev_id'] in public_device_ids], key=lambda reg: reg['dev_id'])
+                    registrations = list()
+                    for reg in regs:
+                        registration = dict()
+                        if 'dev_id' in reg:
+                            if reg['dev_id'] in pl_devices:
+                                registration['device'] = pl_devices[reg['dev_id']]['name']
+                            else:
+                                registration['device'] = 'Unknown'
+                        if 'expires' in reg:
+                            registration['expires'] = reg['expires']
+                        if 'expires_in' in reg:
+                            registration['expires_in'] = reg['expires_in']
+                        if 'first_seen_ts' in reg:
+                            registration['first_seen'] = reg['first_seen_ts']
+                        if 'last_seen_ts' in reg:
+                            registration['last_seen'] = reg['last_seen_ts']
+                        if 'last_refreshed_ts' in reg:
+                            registration['last_refreshed'] = reg['last_refreshed_ts']
+                        if 'srcip' in reg:
+                            registration['ip_address'] = reg['srcip']
+                        if 'usrdev' in reg:
+                            registration['user_agent'] = reg['usrdev']
+                        registrations.append(registration)
+                    if len(registrations) > 0:
                         status = "Registered"
                     else:
                         status = "Not registered"
@@ -163,8 +191,7 @@ class RegistrationAPIViewSet(ViewSet):
                             "last_name": user_detail['lastName']
                         },
                         "status": status,
-                        "user_agents": user_agents,
-                        "contacts": contacts,
+                        "registrations": registrations,
                         "line_port": line_port,
                     })
                 else:
