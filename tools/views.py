@@ -154,7 +154,7 @@ class RegistrationAPIViewSet(ViewSet):
                 if 'accessDeviceEndpoint' in user_detail:
                     line_port = user_detail['accessDeviceEndpoint']['linePort']
                     user_line_id = line_port.split('@')[0]
-                    regs = sorted([reg for reg in palladion.registrations('polycom_2_VVX600') if reg['dev_id'] in public_device_ids], key=lambda reg: reg['dev_id'])
+                    regs = sorted([reg for reg in palladion.registrations(user_line_id) if reg['dev_id'] in public_device_ids], key=lambda reg: reg['dev_id'])
                     registrations = list()
                     for reg in regs:
                         registration = dict()
