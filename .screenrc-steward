@@ -1,0 +1,13 @@
+source "$HOME/.screenrc"
+chdir "$HOME/Projects/steward"
+
+# Steward tabs
+screen -t steward
+stuff "source venv/bin/activate\n"
+screen -t runserver
+stuff "source venv/bin/activate\n"
+stuff "python manage.py runserver 0.0.0.0:8000\n"
+screen -t rqworker
+stuff "source venv/bin/activate\n"
+stuff "python manage.py rqworker tool deploy\n"
+select 0
