@@ -139,7 +139,7 @@ class TrunkUserAudit():
                     log.write(self.parse_response(resp6, (level+1)))
                 # remove all assigned services
                 remove_service_packs = assigned_packs
-                if 'TrunkPack' not in remove_service_packs:
+                if 'TrunkPack' in remove_service_packs:
                     remove_service_packs.remove('TrunkPack')
                 log.write('{}UserServiceUnassignListRequest({}, {{...}}) '.format('    '*(level+1), user_id))
                 resp7 = self._bw.UserServiceUnassignListRequest(user_id, serviceName=assigned_services, servicePackName=remove_service_packs)
