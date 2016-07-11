@@ -130,7 +130,7 @@ class TrunkUserAudit():
                 # determine services to remove / add
                 if 'TrunkPack' not in assigned_packs:
                     if '{}::{}'.format(provider_id, group_id) not in self._cache['groups_trunk_assigned']:
-                        log.write('{}GroupServiceModifyAuthorizationListRequest({}, {}, servicePackAuthorization={{...}}) '.format('    '*(level+1), provider_id, pack_name))
+                        log.write('{}GroupServiceModifyAuthorizationListRequest({}, {}, servicePackAuthorization={{...}}) '.format('    '*(level+1), provider_id, 'TrunkPack'))
                         resp5 = self._bw.GroupServiceModifyAuthorizationListRequest(provider_id, group_id, servicePackAuthorization=OrderedDict([('servicePackName', 'TrunkPack'), ('authorizedQuantity', {'unlimited': True})]))
                         log.write(self.parse_response(resp5, (level+1)))
                         self._cache['groups_trunk_assigned'].add('{}::{}'.format(provider_id, group_id))
