@@ -215,8 +215,8 @@ class FraudCompliance():
                                    'line_port_type': 'Shared'})
 
             auth_username = '{}_{}'.format(user_id, Util.random_password(length=16, specials=False))
-            auth_password = Util.random_password(length=32)
-            user_password = Util.random_password(length=32)
+            auth_password = Util.random_password(length=16)
+            user_password = Util.random_password(length=16)
 
             # Reset user passwords
             content.write('{}UserModifyRequest17sp4(userId={}, newPassword="...") >> '.format('    '*(level+1), user_id, user_password)),
