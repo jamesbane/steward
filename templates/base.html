@@ -34,13 +34,7 @@
         <div id="navbar" class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
             <li><a href="{% url 'tools:index' %}">Tools</a></li>
-            <li><a href="{% url 'deploy:index' %}">Deploy</a></li>
-            <li class="dropdown">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Dashboards <span class="caret"></span></a>
-              <ul class="dropdown-menu">
-                <li><a href="{% url 'dashboard:voip' %}">VoIP Network</a></li>
-              </ul>
-            </li>
+            <li><a href="{% url 'routing:number-search' %}">Routing</a></li>
           </ul>
           <ul class="nav navbar-nav navbar-right">
             <li class="dropdown">
@@ -64,8 +58,10 @@
 
     {% block javascript %}
       <script src="{% static 'bower/jquery/dist/jquery.min.js' %}"></script>
+      <script src="{% static 'bower/js-cookie/src/js.cookie.js' %}"></script>
       <script src="{% static 'bower/bootstrap/dist/js/bootstrap.min.js' %}"></script>
       <script src="{% static 'js/tabs.js' %}"></script>
+      <script src="{% static 'js/util.js' %}"></script>
     {% endblock javascript %}
   </body>
 </html>

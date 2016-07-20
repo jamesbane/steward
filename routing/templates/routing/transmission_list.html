@@ -1,0 +1,23 @@
+{% extends 'routing/base.html' %}
+
+{% block tool_content %}
+  <h1 class="page-header">Transmissions</h1>
+  <table class="table table-bordered table-striped table-hover">
+    <thead>
+      <tr>
+        <th>Id</th>
+        <th class="col-lg-6">Time</th>
+        <th class="col-lg-6">Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for object in object_list %}
+        <tr>
+          <td><a href="{% url 'routing:transmission-detail' object.id %}">{{ object.id }}</a></td>
+          <td>{{ object.result_timestamp }}</td>
+          <td>{{ object.get_result_state_display }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock tool_content %}

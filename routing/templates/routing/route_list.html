@@ -1,0 +1,31 @@
+{% extends 'routing/base.html' %}
+{% load humanize %}
+
+{% block tool_content %}
+  <h1 class="page-header">
+    <div class="pull-right">
+      <a href="{% url 'routing:route-create' %}" class="number-add btn btn-default"><i class="fa fa-fw fa-plus"></i> Add</a>
+    </div>
+    Routes
+  </h1>
+  <table class="table table-bordered table-striped table-hover">
+    <thead>
+      <tr>
+        <th class="col-lg-6">Name</th>
+        <th class="col-lg-2">Trunkgroup</th>
+        <th class="col-lg-1">Records</th>
+        <th class="col-lg-1">Numbers</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for object in object_list %}
+        <tr>
+          <td><a href="{% url 'routing:route-detail' object.id %}">{{ object.name }}</a></td>
+          <td class="text-right">{{ object.trunkgroup }}</td>
+          <td class="text-right">{{ object.records.count|intcomma }}</td>
+          <td class="text-right">{{ object.numbers.count|intcomma }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock tool_content %}
