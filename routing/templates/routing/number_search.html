@@ -3,9 +3,11 @@
 
 {% block tool_content %}
   <h1 class="page-header">
-    <div class="pull-right">
-      <button class="number-add btn btn-default" data-toggle="modal" data-target="#add_number"><i class="fa fa-fw fa-plus"></i> Add</button>
-    </div>
+    {% if perms.routing.change_number %}
+      <div class="pull-right">
+        <button class="number-add btn btn-default" data-toggle="modal" data-target="#add_number"><i class="fa fa-fw fa-plus"></i> Add</button>
+      </div>
+    {% endif %}
     Numbers <span class="badge"><span id="number_count">0</span> / {{ number_count|intcomma }}</span>
   </h1>
 
