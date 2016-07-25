@@ -29,7 +29,7 @@ class Command(BaseCommand):
     @transaction.non_atomic_requests
     def handle(self, *args, **options):
         User = get_user_model()
-        steward_user,_ = User.objects.get_or_create(username='steward', defaults={first_name:'System', last_name:''})
+        steward_user,_ = User.objects.get_or_create(username='system', defaults={'first_name':'System', 'last_name':''})
         trunks = dict()
         for route in Route.objects.all():
             trunks[str(route.trunkgroup)] = route
