@@ -10,7 +10,7 @@ from django.views.generic import (
 )
 
 # Application
-from routing.models import Number, Record, Route, Transmission
+from routing.models import Number, NumberHistory, Record, Route, Transmission
 
 class UDA6View(LoginRequiredMixin, TemplateView):
     template_name = 'routing/NVFILE.txt'
@@ -57,6 +57,19 @@ class NumberSearchView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super(NumberSearchView, self).get_context_data(**kwargs)
         context['number_count'] = Number.objects.filter(active=True).count()
+        return context
+
+
+class NumberHistoryListView(LoginRequiredMixin, ListView):
+    model = NumberHistory
+
+    def get_queryset(self):
+        return NumberHistory.objects.filter(cc=self.kwargs.get('cc'), number=self.kwargs.get('number'))
+
+    def get_context_data(self, **kwargs):
+        context = super(NumberHistoryListView, self).get_context_data(**kwargs)
+        context['cc'] = self.kwargs.get('cc')
+        context['number'] = self.kwargs.get('number')
         return context
 
 

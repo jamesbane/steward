@@ -2,6 +2,8 @@ from routing import models
 
 from rest_framework import serializers
 from rest_framework.reverse import reverse, reverse_lazy
+from rest_framework.serializers import raise_errors_on_nested_writes
+from rest_framework.utils import model_meta
 
 
 class RecordSerializer(serializers.ModelSerializer):
@@ -24,4 +26,42 @@ class NumberSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Number
-        fields = ('cc', 'number', 'destination', 'route', 'modified', 'active')
+        fields = ('cc', 'number', 'route', 'modified')
+
+    def create(self, validated_data):
+        raise_errors_on_nested_writes('create', self, validated_data)
+        ModelClass = self.Meta.model
+        info = model_meta.get_field_info(ModelClass)
+        many_to_many = {}
+        for field_name, relation_info in info.relations.items():
+            if relation_info.to_many and (field_name in validated_data):
+                many_to_many[field_name] = validated_data.pop(field_name)
+
+        try:
+            cc = validated_data.pop('cc')
+            number = validated_data.pop('number')
+            validated_data['active'] = True
+            instance,created = ModelClass.objects.update_or_create(cc=cc, number=number, defaults=validated_data)
+        except TypeError as exc:
+            msg = (
+                'Got a `TypeError` when calling `%s.objects.create()`. '
+                'This may be because you have a writable field on the '
+                'serializer class that is not a valid argument to '
+                '`%s.objects.create()`. You may need to make the field '
+                'read-only, or override the %s.create() method to handle '
+                'this correctly.\nOriginal exception text was: %s.' %
+                (
+                    ModelClass.__name__,
+                    ModelClass.__name__,
+                    self.__class__.__name__,
+                    exc
+                )
+            )
+            raise TypeError(msg)
+
+        # Save many-to-many relationships after the instance is created.
+        if many_to_many:
+            for field_name, value in many_to_many.items():
+                setattr(instance, field_name, value)
+
+        return instance

@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.template import engines
@@ -33,7 +34,6 @@ class Number(models.Model):
     route = models.ForeignKey('Route', related_name='numbers')
     cc = models.SmallIntegerField(default=1)
     number = models.CharField(max_length=64)
-    destination = models.CharField(max_length=64, blank=True)
     modified = models.DateTimeField(auto_now=True)
     active = models.BooleanField(default=True)
 
@@ -70,6 +70,17 @@ class Number(models.Model):
         for record in self.route.records.all():
             rval.append(django_engine.from_string(record).render(context))
         return rval
+
+
+class NumberHistory(models.Model):
+    cc = models.SmallIntegerField(default=1)
+    number = models.CharField(max_length=64)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='+')
+    modified = models.DateTimeField(auto_now=True)
+    action = models.CharField(max_length=256)
+
+    class Meta:
+        ordering = ('-modified',)
 
 
 class Transmission(models.Model):

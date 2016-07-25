@@ -184,6 +184,8 @@
 {% block javascript %}
   {{ block.super }}
   <script>
+    var permission_number_edit = {% if perms.routing.change_number %}true{% else %}false{% endif %};
+    var permission_number_delete = {% if perms.routing.delete_number %}true{% else %}false{% endif %};
     var routes = {};
     var page = 1;
     var result_count = 0;
@@ -201,10 +203,16 @@
     }
     function buildResultHtml(cc, number, route) {
       var routeName = routes[route];
-      return '<td class="col-number">'+number+'</td><td class="col-route-name">'+routeName+'</td><td style="min-width: 80px" nowrap><div class="btn-group" role="group">'+
-             '<button type="button" class="number-edit btn btn-xs btn-primary" data-for="id_'+cc+'_'+number+'" data-cc="'+cc+'" data-number="'+number+'" data-route="'+route+'"><i class="fa fa-fw fa-edit"></i><span class="sr-only">Edit</span></button>'+
-             '<button type="button" class="number-delete btn btn-xs btn-danger" data-for="id_'+cc+'_'+number+'" data-cc="'+cc+'" data-number="'+number+'" data-route="'+route+'"><i class="fa fa-fw fa-times"></i><span class="sr-only">Delete</span></button>'+
-             '</div></td>';
+      var html = '<td class="col-number">'+number+'</td><td class="col-route-name">'+routeName+'</td><td style="min-width: 100px" nowrap><div class="btn-group" role="group">';
+      html += '<a href="/routing/numbers/'+cc+'/'+number+'/history" class="btn btn-xs btn-default"><i class="fa fa-fw fa-book"></i><span class="sr-only">History</span></a>';
+      if (permission_number_edit) {
+        html += '<button type="button" class="number-edit btn btn-xs btn-primary" data-for="id_'+cc+'_'+number+'" data-cc="'+cc+'" data-number="'+number+'" data-route="'+route+'"><i class="fa fa-fw fa-edit"></i><span class="sr-only">Edit</span></button>';
+      }
+      if (permission_number_delete) {
+        html += '<button type="button" class="number-delete btn btn-xs btn-danger" data-for="id_'+cc+'_'+number+'" data-cc="'+cc+'" data-number="'+number+'" data-route="'+route+'"><i class="fa fa-fw fa-times"></i><span class="sr-only">Delete</span></button>';
+      }
+      html += '</div></td>';
+      return html;
     }
     function insertResult(cc, number, route) {
       var html = '<tr id="id_'+cc+'_'+number+'">';
@@ -214,7 +222,7 @@
     }
     function addNumber(cc, number, route) {
       $.getJSON({
-        method: "POST",
+        method: "PUT",
         data: JSON.stringify(({cc: cc, number: number, route: route})),
         url: "{% url 'api:routing-number-list' %}",
         contentType: 'application/json',

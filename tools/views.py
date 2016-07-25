@@ -164,6 +164,15 @@ class RegistrationReportView(PermissionRequiredMixin, LoginRequiredMixin, ToolVi
     form_class = tools.forms.ProviderGroupForm
 
 
+class SpeedDialConfiguratorToolView(PermissionRequiredMixin, LoginRequiredMixin, ToolView):
+    permission_required = 'tools.process_speed_dial_configurator_exec'
+    permission_view = 'tools.process_speed_dial_configurator_view'
+    process_name = 'Speed Dial Configurator'
+    process_function = 'tools.jobs.speed_dial_configurator.speed_dial_configurator'
+    template_name = 'tools/speed_dial_configurator.html'
+    form_class = formset_factory(tools.forms.SpeedDialLineForm, extra=5)
+
+
 class TagReportView(PermissionRequiredMixin, LoginRequiredMixin, ToolView):
     permission_required = 'tools.process_tag_report_exec'
     permission_view = 'tools.process_tag_report_view'

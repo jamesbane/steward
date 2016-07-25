@@ -47,6 +47,8 @@ class Process(models.Model):
             ("process_registration_by_type_view", "Registration by Type Report View Results"),
             ("process_registration_report_exec", "Registration Report Execute"),
             ("process_registration_report_view", "Registration Report View Results"),
+            ("process_speed_dial_configurator_exec", "Speed Dial Configurator Execute"),
+            ("process_speed_dial_configurator_view", "Speed Dial Configurator View Results"),
             ("process_tag_report_exec", "Tag Report Execute"),
             ("process_tag_report_view", "Tag Report View Results"),
             ("process_tag_removal_exec", "Tag Removal Tool Execute"),
