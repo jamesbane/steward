@@ -204,7 +204,7 @@
     function buildResultHtml(cc, number, route) {
       var routeName = routes[route];
       var html = '<td class="col-number">'+number+'</td><td class="col-route-name">'+routeName+'</td><td style="min-width: 100px" nowrap><div class="btn-group" role="group">';
-      html += '<a href="/routing/numbers/'+cc+'/'+number+'/history" class="btn btn-xs btn-default"><i class="fa fa-fw fa-book"></i><span class="sr-only">History</span></a>';
+      html += '<a href="/routing/numbers/'+cc+'/'+number+'/" class="btn btn-xs btn-default"><i class="fa fa-fw fa-book"></i><span class="sr-only">History</span></a>';
       if (permission_number_edit) {
         html += '<button type="button" class="number-edit btn btn-xs btn-primary" data-for="id_'+cc+'_'+number+'" data-cc="'+cc+'" data-number="'+number+'" data-route="'+route+'"><i class="fa fa-fw fa-edit"></i><span class="sr-only">Edit</span></button>';
       }

@@ -60,16 +60,21 @@ class NumberSearchView(LoginRequiredMixin, TemplateView):
         return context
 
 
-class NumberHistoryListView(LoginRequiredMixin, ListView):
-    model = NumberHistory
-
-    def get_queryset(self):
-        return NumberHistory.objects.filter(cc=self.kwargs.get('cc'), number=self.kwargs.get('number'))
+class NumberDetailView(LoginRequiredMixin, TemplateView):
+    template_name = 'routing/number_detail.html'
+    
+    def get_object(self):
+        try:
+            return Number.objects.get(cc=self.kwargs.get('cc'), number=self.kwargs.get('number'))
+        except Number.DoesNotExist:
+            return None
 
     def get_context_data(self, **kwargs):
-        context = super(NumberHistoryListView, self).get_context_data(**kwargs)
+        context = super(NumberDetailView, self).get_context_data(**kwargs)
+        context['object'] = self.get_object()
         context['cc'] = self.kwargs.get('cc')
         context['number'] = self.kwargs.get('number')
+        context['history_list'] = NumberHistory.objects.filter(cc=self.kwargs.get('cc'), number=self.kwargs.get('number'))
         return context
 
 

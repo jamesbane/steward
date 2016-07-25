@@ -143,6 +143,15 @@ class NumberDetailView(RetrieveUpdateDestroyAPIView):
     def put(self, request, *args, **kwargs):
         return self.update(request, *args, **kwargs)
 
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        models.NumberHistory.objects.create(cc=instance.cc, number=instance.number, user=request.user, action='Routes to {}'.format(instance.route.name))
+        return Response(serializer.data)
+
     def delete(self, request, *args, **kwargs):
         instance = self.get_object()
         instance.active = False
