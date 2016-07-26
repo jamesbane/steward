@@ -95,7 +95,7 @@ class CallParkPickupConfigurator():
         log.write('{}UserGetListInGroupRequest({}, {}) '.format('    '*(level+1), provider_id, group_id))
         resp3 = self._bw.UserGetListInGroupRequest(provider_id, group_id)
         log.write(self.parse_response(resp3, level))
-        users = resp3['data']['userTable']
+        users = resp3['data'].get('userTable', [])
         for user in users:
             user_id = user['User Id']
             # Test if we can retrieve data about this user
