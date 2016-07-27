@@ -22,7 +22,7 @@ class NVFileView(LoginRequiredMixin, TemplateView):
         return context
 
     def render_to_response(self, context, **response_kwargs):
-        response = super(UDA6View,self).render_to_response( context, **response_kwargs)
+        response = super(UDA6View, self).render_to_response( context, **response_kwargs)
         response['Content-Type'] = 'text/text'
         return response
 
