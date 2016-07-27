@@ -7,6 +7,7 @@ import routing.views
 urlpatterns = [
     url(r'^numbers/search$', routing.views.NumberSearchView.as_view(), name='number-search'),
     url(r'^numbers/(?P<cc>\d+)/(?P<number>\d+)/$', routing.views.NumberDetailView.as_view(), name='number-detail'),
+    url(r'^number-history/$', routing.views.NumberHistoryListView.as_view(), name='number-history'),
     url(r'^routes$', routing.views.RouteListView.as_view(), name='route-list'),
     url(r'^routes/add$', routing.views.RouteCreateView.as_view(), name='route-create'),
     url(r'^routes/(?P<pk>\d+)/$', routing.views.RouteDetailView.as_view(), name='route-detail'),

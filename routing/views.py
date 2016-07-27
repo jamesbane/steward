@@ -62,7 +62,7 @@ class NumberSearchView(LoginRequiredMixin, TemplateView):
 
 class NumberDetailView(LoginRequiredMixin, TemplateView):
     template_name = 'routing/number_detail.html'
-    
+
     def get_object(self):
         try:
             return Number.objects.get(cc=self.kwargs.get('cc'), number=self.kwargs.get('number'))
@@ -76,6 +76,11 @@ class NumberDetailView(LoginRequiredMixin, TemplateView):
         context['number'] = self.kwargs.get('number')
         context['history_list'] = NumberHistory.objects.filter(cc=self.kwargs.get('cc'), number=self.kwargs.get('number'))
         return context
+
+
+class NumberHistoryListView(LoginRequiredMixin, ListView):
+    model = NumberHistory
+    paginate_by = 100
 
 
 class RecordCreateView(LoginRequiredMixin, CreateView):
