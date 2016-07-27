@@ -40,6 +40,7 @@ class Command(BaseCommand):
 
         create_count = 0
         update_count = 0
+        error_count = 0
         with open(options['uda_file'].name) as f:
             csv_file = csv.reader(f, delimiter=',')
             for row in csv_file:
@@ -54,8 +55,9 @@ class Command(BaseCommand):
                         NumberHistory.objects.create(cc=obj.cc, number=obj.number, user=steward_user, action='Imported to {}'.format(obj.route.name))
                         if created:
                             create_count += 1
-                            print('Created {} => {}'.format(number, route))
                         else:
                             update_count += 1
-                            print('Updated {} => {}'.format(number, route))
-        self.stdout.write(self.style.SUCCESS('Successfully imported UDA6 file >> Created: {} Updated: {}'.format(create_count, update_count)))
+                    else:
+                        error_count += 1
+                        print('ERROR: Trunkgroup {} was not found for {}'.format(row[1], number))
+        self.stdout.write(self.style.SUCCESS('Successfully imported UDA6 file >> Created: {} Updated: {} Error: {}'.format(create_count, update_count, error_count)))
