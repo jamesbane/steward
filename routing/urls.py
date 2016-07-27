@@ -15,5 +15,5 @@ urlpatterns = [
     url(r'^routes/(?P<pk>\d+)/delete$', routing.views.RouteDeleteView.as_view(), name='route-delete'),
     url(r'^transmissions$', routing.views.TransmissionListView.as_view(), name='transmission-list'),
     url(r'^transmissions/(?P<pk>\d+)/$', routing.views.TransmissionDetailView.as_view(), name='transmission-detail'),
-    url(r'^UDA6.txt$', routing.views.UDA6View.as_view(), name='UDA6.txt'),
+    url(r'^UDA6.txt$', routing.views.NVFileView.as_view(), name='UDA6.txt'),
 ]

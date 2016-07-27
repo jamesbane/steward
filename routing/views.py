@@ -12,7 +12,7 @@ from django.views.generic import (
 # Application
 from routing.models import Number, NumberHistory, Record, Route, Transmission
 
-class UDA6View(LoginRequiredMixin, TemplateView):
+class NVFileView(LoginRequiredMixin, TemplateView):
     template_name = 'routing/NVFILE.txt'
 
     def get_context_data(self, **kwargs):
