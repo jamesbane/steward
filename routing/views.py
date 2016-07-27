@@ -29,6 +29,7 @@ class UDA6View(LoginRequiredMixin, TemplateView):
 
 class TransmissionListView(LoginRequiredMixin, ListView):
     model = Transmission
+    paginate_by = 100
 
 
 class TransmissionDetailView(LoginRequiredMixin, DetailView):
