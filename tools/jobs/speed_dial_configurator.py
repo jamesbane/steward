@@ -81,7 +81,11 @@ class SpeedDialConfigurator():
             log.write('{}UserSpeedDial100GetListRequest17sp1(user_id={}) >> '.format('    '*(level+1), user_id)),
             resp2 = self._bw.UserSpeedDial100GetListRequest17sp1(user_id)
             log.write(self.parse_response(resp2, (level+1)))
-            entries = {x['speedCode']: x for x in resp2['data']['speedDialEntry']}
+            data = resp2['data']
+            if 'speedDialEntry' in data:
+                entries = {x['speedCode']: x for x in resp2['data']['speedDialEntry']}
+            else:
+                entries = {}
 
             # Build add/modify lists
             speed_dial_add_entries = [OrderedDict([('speedCode', e['code']), ('phoneNumber', e['destination_number']), ('description', e['description'])]) for e in self._speed_dials if e['code'] not in entries]
