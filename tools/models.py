@@ -1,7 +1,7 @@
 from django.db import models
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.contrib.postgres.fields import ArrayField, HStoreField
+from django.contrib.postgres.fields import ArrayField, HStoreField, JSONField
 
 from steward.storage import ProtectedFileStorage
 
@@ -21,7 +21,7 @@ class Process(models.Model):
     )
     user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='processes', verbose_name=('user'), null=False)
     method = models.CharField(max_length=256, null=False)
-    parameters = HStoreField()
+    parameters = JSONField()
     start_timestamp = models.DateTimeField(null=False)
     end_timestamp = models.DateTimeField(null=True)
     status = models.PositiveSmallIntegerField(null=False, default=STATUS_SCHEDULED, choices=CHOICES_STATUS)

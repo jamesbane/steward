@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib.staticfiles.templatetags.staticfiles import static
+from django.core.validators import MinLengthValidator, RegexValidator
 
 
 class TypedProviderGroupForm(forms.Form):
@@ -79,16 +80,19 @@ class TrunkUserAuditForm(forms.Form):
         cleaned_data['fixup'] = str(cleaned_data.get("fixup", False))
         return cleaned_data
 
-from django.core.validators import RegexValidator
 
 class SpeedDialLineForm(forms.Form):
     code = forms.CharField(max_length=2,
-                           validators=[RegexValidator(r'^\d{2}$', 'Enter a valid speed dial code.'),],
+                           validators=[
+                                RegexValidator(r'^\d{2}$', 'Enter a valid speed dial code.'),
+                           ],
                            widget=forms.TextInput(attrs={'placeholder': 'Code', 'class': 'col-lg-1'}))
     description = forms.CharField(max_length=64,
                                   widget=forms.TextInput(attrs={'placeholder': 'Description', 'class': 'col-lg-4'}))
     destination_number = forms.CharField(max_length=64,
-                                         validators=[RegexValidator(r'^\d{4,}$', 'Enter a valid speed dial destination number.'),],
+                                         validators=[
+                                            RegexValidator(r'^\d{4,}$', 'Enter a valid speed dial destination number.'),
+                                         ],
                                          widget=forms.TextInput(attrs={'placeholder': 'Destination Number', 'class': 'col-lg-6'}))
 
 

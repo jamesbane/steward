@@ -9,7 +9,6 @@ from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
-from django.forms import formset_factory
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render
 from django.utils import timezone
@@ -62,13 +61,17 @@ class ProcessDetailView(LoginRequiredMixin, DetailView):
 
 class ToolView(ProcessFormMixin, TemplateView):
 
-    def form_valid(self, form):
+    def form_valid(self, form, formset):
         """
         If the form is valid, redirect to the supplied URL.
         """
+        parameters = form.cleaned_data
+        if formset:
+            # Handle all our formset
+            parameters['data'] = [ f.cleaned_data for f in formset if f.cleaned_data != {}]
         self.object = Process.objects.create(user=self.request.user,
                                              method=self.process_name,
-                                             parameters=form.cleaned_data,
+                                             parameters=parameters,
                                              start_timestamp=timezone.now(),
                                              end_timestamp=None,
                                              view_permission=self.permission_view)
@@ -170,7 +173,9 @@ class SpeedDialConfiguratorToolView(PermissionRequiredMixin, LoginRequiredMixin,
     process_name = 'Speed Dial Configurator'
     process_function = 'tools.jobs.speed_dial_configurator.speed_dial_configurator'
     template_name = 'tools/speed_dial_configurator.html'
-    form_class = formset_factory(tools.forms.SpeedDialLineForm, extra=5)
+    form_class = tools.forms.TypedProviderGroupForm
+    formset_class = tools.forms.SpeedDialLineForm
+    formset_extra = 5
 
 
 class TagReportView(PermissionRequiredMixin, LoginRequiredMixin, ToolView):

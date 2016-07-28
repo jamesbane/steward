@@ -61,6 +61,17 @@
             </a>
           </li>
         {% endif %}
+        {% if perms.tools.process_speed_dial_configurator_exec %}
+          {% url 'tools:speed-dial-configurator' as the_url %}
+          <li {% if request.get_full_path == the_url %}class="active"{% endif %}>
+            <a href="{{ the_url }}">
+              Speed Dial 100 Configurator
+              {% if request.get_full_path == the_url %}
+                <span class="sr-only">(current)</span>
+              {% endif %}
+            </a>
+          </li>
+        {% endif %}
         {% if perms.tools.process_trunk_user_audit_exec %}
           {% url 'tools:trunk-user-audit' as the_url %}
           <li {% if request.get_full_path == the_url %}class="active"{% endif %}>
