@@ -84,26 +84,6 @@ class NumberHistoryListView(LoginRequiredMixin, ListView):
     paginate_by = 100
 
 
-class RecordCreateView(LoginRequiredMixin, CreateView):
-    model = Record
-
-
-class RecordDeleteView(LoginRequiredMixin, DeleteView):
-    model = Record
-
-
-class RecordDetailView(LoginRequiredMixin, DetailView):
-    model = Record
-
-
-class RecordListView(LoginRequiredMixin, ListView):
-    model = Record
-
-
-class RecordUpdateView(LoginRequiredMixin, UpdateView):
-    model = Record
-
-
 class RouteCreateView(LoginRequiredMixin, CreateView):
     model = Route
     fields = ('name', 'trunkgroup',)
