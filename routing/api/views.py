@@ -94,8 +94,6 @@ class NumberListView(UpdateModelMixin, ListModelMixin, CreateModelMixin, Generic
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
-        print(serializer)
-        print(serializer.data)
         models.NumberHistory.objects.create(cc=instance.cc, number=instance.number, user=request.user, action='Routes to {}'.format(instance.route.name))
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
