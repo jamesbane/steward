@@ -123,6 +123,7 @@ class RouteDetailView(LoginRequiredMixin, DetailView):
 
 class RouteListView(LoginRequiredMixin, ListView):
     model = Route
+    paginate_by = 100
 
 
 class RouteUpdateView(LoginRequiredMixin, UpdateView):
