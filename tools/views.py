@@ -35,6 +35,7 @@ class IndexView(LoginRequiredMixin, TemplateView):
 
 class ProcessListView(LoginRequiredMixin, ListView):
     model = Process
+    paginate_by = 100
 
     def get_queryset(self):
         queryset = super(ProcessListView, self).get_queryset()
