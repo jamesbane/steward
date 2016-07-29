@@ -1,6 +1,7 @@
 # Python
 from collections import OrderedDict
 import csv
+import json
 import requests
 import importlib
 
@@ -55,6 +56,7 @@ class ProcessDetailView(LoginRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(ProcessDetailView, self).get_context_data(**kwargs)
+        context['parameters'] = json.dumps(context['object'].parameters)
         if not self.request.user.has_perm(context['object'].view_permission):
             raise PermissionDenied
         return context
