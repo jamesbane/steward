@@ -127,8 +127,6 @@
 
     function import_data() {
       var parameters = JSON.parse($('#id_parameters').val());
-      console.log(parameters);
-      console.log(parameters.provider_type);
       $('#id_provider_type').val(parameters.provider_type);
       $('#id_provider_id').val(parameters.provider_id);
       $('#id_group_id').val(parameters.group_id);
