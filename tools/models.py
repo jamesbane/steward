@@ -33,6 +33,8 @@ class Process(models.Model):
         permissions = (
             ("process_call_park_pickup_configurator_exec", "Call Park/Pickup Configurator Execute"),
             ("process_call_park_pickup_configurator_view", "Call Park/Pickup Configurator View Results"),
+            ("process_dect_configurator_exec", "DECT Configurator Execute"),
+            ("process_dect_configurator_view", "DECT Configurator View Results"),
             ("process_device_specific_migration_exec", "Device Specific Migration Execute"),
             ("process_device_specific_migration_view", "Device Specific Migration View Results"),
             ("process_firmware_report_exec", "Firmware Report Execute"),

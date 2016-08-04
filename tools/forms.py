@@ -96,5 +96,18 @@ class SpeedDialLineForm(forms.Form):
                                          widget=forms.TextInput(attrs={'placeholder': 'Destination Number', 'class': 'col-lg-6'}))
 
 
+class DeviceForm(forms.Form):
+    provider_id = forms.CharField(label='Provider Id', max_length=256, required=True)
+    group_id = forms.CharField(label='Group Id', max_length=256, required=True)
+    device_name = forms.CharField(label='Device Name', max_length=256, required=True)
+
+
+class DectLineForm(forms.Form):
+    handset = forms.IntegerField(required=True, widget=forms.NumberInput(attrs={'placeholder': 'Handset', 'class': 'col-lg-1'}))
+    line = forms.IntegerField(required=True, widget=forms.NumberInput(attrs={'placeholder': 'Line', 'class': 'col-lg-1'}))
+    user_id = forms.CharField(max_length=64, required=True, widget=forms.TextInput(attrs={'placeholder': 'User Id', 'class': 'col-lg-5'}))
+    lineport = forms.CharField(max_length=128, required=False, widget=forms.TextInput(attrs={'placeholder': 'Line Port', 'class': 'col-lg-4', 'disabled': True}))
+
+
 class EmptyForm(forms.Form):
     pass

@@ -107,6 +107,17 @@ class CallParkPickupConfiguratorToolView(PermissionRequiredMixin, LoginRequiredM
     form_class = tools.forms.CallParkPickupForm
 
 
+class DectConfiguratorToolView(PermissionRequiredMixin, LoginRequiredMixin, ToolView):
+    permission_required = 'tools.process_dect_configurator_exec'
+    permission_view = 'tools.process_dect_configurator_view'
+    process_name = 'DECT Configurator'
+    process_function = 'tools.jobs.dect_configurator.dect_configurator'
+    template_name = 'tools/dect_configurator.html'
+    form_class = tools.forms.DeviceForm
+    formset_class = tools.forms.DectLineForm
+    formset_extra = 2
+
+
 class DeviceSpecificMigrationToolView(PermissionRequiredMixin, LoginRequiredMixin, ToolView):
     permission_required = 'tools.process_device_specific_migration_exec'
     permission_view = 'tools.process_device_specific_migration_view'

@@ -8,6 +8,7 @@ urlpatterns = [
     url(r'^$', tools.views.IndexView.as_view(), name='index'),
     # Tools
     url(r'^call-park-pickup-configurator$', tools.views.CallParkPickupConfiguratorToolView.as_view(), name='call-park-pickup-configurator'),
+    url(r'^dect-configurator$', tools.views.DectConfiguratorToolView.as_view(), name='dect-configurator'),
     url(r'^device-specific-migration-tool$', tools.views.DeviceSpecificMigrationToolView.as_view(), name='device-specific-migration-tool'),
     url(r'^fraud-compliance-reset-tool$', tools.views.FraudComplianceResetToolView.as_view(), name='fraud-compliance-reset-tool'),
     url(r'^lab-rebuild-tool$', tools.views.LabResetToolView.as_view(), name='lab-rebuild-tool'),

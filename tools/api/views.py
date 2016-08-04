@@ -1,5 +1,6 @@
 # Python
 from collections import OrderedDict
+import re
 import requests
 
 # Django
@@ -28,6 +29,7 @@ class ToolsRootView(APIView):
         context = dict()
         context['processes'] = reverse('api:tools-process-list', request=request, format=format)
         context['registrations'] = reverse('api:tools-registration-list', request=request, format=format)
+        context['dect'] = reverse('api:tools-dect-lookup', request=request, format=format)
         return Response(context)
 
 class ProcessDetailAPIViewSet(ModelViewSet):
@@ -160,5 +162,31 @@ class RegistrationAPIViewSet(ViewSet):
                     })
                 else:
                     rval = Response({"status": "Not found"})
+        bw.LogoutRequest()
+        return rval
+
+
+class DeviceDectLookupAPIView(APIView):
+    permission_classes = [IsAdminUser]
+
+    def post(self, request):
+        provider_id = request.data.get('provider_id')
+        group_id = request.data.get('group_id')
+        device_name = request.data.get('device_name')
+        bw = BroadWorks(**settings.PLATFORMS['broadworks'])
+        bw.LoginRequest14sp4()
+
+        # Get Device Tags
+        resp1 = bw.GroupAccessDeviceCustomTagGetListRequest(provider_id, group_id, device_name)
+        tags = {x['Tag Name']: x['Tag Value'] for x in resp1['data']['deviceCustomTagsTable']}
+        data = list()
+        for name,value in tags.items():
+            m = re.search('^%HANDSET(?P<handset>\d+)LINE(?P<line>\d+)_LINEPORT%$', name)
+            if m:
+                gp = m.groupdict()
+                user_id = tags.get('%HANDSET{}LINE{}_USERID%'.format(gp['handset'], gp['line']))
+                data.append({'handset': gp['handset'], 'line': gp['line'], 'lineport': value, 'user_id': user_id})
+
+        rval = Response(data)
         bw.LogoutRequest()
         return rval

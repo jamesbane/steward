@@ -21,7 +21,7 @@
 
 {% block _field %}
   {% nested_widget ':_group' %}
-    <input name="{{ html_name }}" type="{{ type|default:'text' }}" id="{{ id_for_label }}" class="form-control" value="{{ form_field.value|default_if_none:'' }}" placeholder="{{ widget.attrs.placeholder|default:label }}" {% if field.max_length %}maxlength="{{ field.max_length }}"{% endif %} />
+    <input name="{{ html_name }}" type="{{ type|default:'text' }}" id="{{ id_for_label }}" class="form-control" value="{{ form_field.value|default_if_none:'' }}" placeholder="{{ widget.attrs.placeholder|default:label }}" {% if field.max_length %}maxlength="{{ field.max_length }}"{% endif %} {% if widget.attrs.disabled %}disabled{% endif %} />
   {% endnested %}
 {% endblock _field %}
 

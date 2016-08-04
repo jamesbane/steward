@@ -6,14 +6,11 @@
   {% load_widgets form="widgets/form.html" %}
   {% load_widgets formset="tools/form_widget_configurator.html" %}
   <h1 class="page-header">
-    <div class="pull-right">
-      <button class="number-add btn btn-default" data-toggle="modal" data-target="#import_parameters"><i class="fa fa-fw fa-code"></i> Import</button>
-    </div>
-    Speed Dial Configurator
+    DECT Configurator
   </h1>
   <div>
     <h2 class="text-primary"><i class="fa fa-info"></i> Documentation</h2>
-    <p>Configures SpeedDial100 for users in an Enterprise or Group (individually per user) and overwrites the values.</p>
+    <p>Configures a Polycom device for a DECT add-on phone.</p>
 
     <h2 class="text-danger"><i class="fa fa-warning"></i> Invoke</h2>
     <div class=" well">
@@ -45,8 +42,9 @@
           {% endfor %}
         </div>
         <div class="pull-right">
+          {% widget "formset:button" text="Sync" icon="fa-refresh" class="btn-info sync" %}
           {% widget "formset:button" text="Add Row" icon="fa-plus" class="btn-info add-row" %}
-          {% widget "formset:button" text="Run" icon="fa-fighter-jet" class="btn-primary" type="submit" %}
+          {% widget "formset:button" text="Run" icon="fa-fighter-jet" class="btn-primary submit" type="submit" %}
         </div>
         <div class="clearfix"/>
       </form>
@@ -112,8 +110,8 @@
     }
 
     function remove_row() {
+      console.log('remove row');
       $(this).parent('.form-row').remove();
-
       var forms = $('.form-row').not('.formset-template');
       var totalForms = $('#id_form-TOTAL_FORMS');
       var maxForms = $('#id_form-MAX_NUM_FORMS');
@@ -125,27 +123,37 @@
       });
     }
 
-    function import_data() {
-      var parameters = JSON.parse($('#id_parameters').val());
-      $('#id_provider_type').val(parameters.provider_type);
-      $('#id_provider_id').val(parameters.provider_id);
-      $('#id_group_id').val(parameters.group_id);
-      $('.formset-rows').html('');
-      for (i in parameters.data) {
-        var item = parameters.data[i];
-        add_row();
-        $("form > .formset-rows > .form-row:last input").eq(0).val(item.code);
-        $("form > .formset-rows > .form-row:last input").eq(1).val(item.description);
-        $("form > .formset-rows > .form-row:last input").eq(2).val(item.destination_number);
-      }
-      update_fields();
-      $('#import_parameters').modal('hide');
+    function sync_handsets() {
+      var dectLookupUrl = "{% url 'api:tools-dect-lookup' %}";
+      $.getJSON({
+        method: "POST",
+        url: dectLookupUrl,
+        data: JSON.stringify({provider_id: $('#id_provider_id').val(), group_id: $('#id_group_id').val(), device_name: $('#id_device_name').val()}),
+        contentType: 'application/json',
+        processData: false,
+        success: function(data) {
+          console.log(JSON.stringify(data));
+          $('.formset-rows').html('');
+          for (i in data) {
+            var item = data[i];
+            add_row();
+            $("form > .formset-rows > .form-row:last input").eq(0).val(item.handset);
+            $("form > .formset-rows > .form-row:last input").eq(1).val(item.line);
+            $("form > .formset-rows > .form-row:last input").eq(2).val(item.user_id);
+            $("form > .formset-rows > .form-row:last input").eq(3).val(item.lineport);
+          }
+        }
+      });
     }
 
     $().ready(function() {
+      $(document.body).on('click', '.submit', function() {
+        $("input").prop("disabled", false);
+      });
       $(document.body).on('click', '.add-row', add_row);
       $(document.body).on('click', '.remove-row', remove_row);
-      $(document.body).on('click', '.btn-import', import_data);
+      $('.sync').on('click', sync_handsets);
+      $('#id_device_name').on('focusout', sync_handsets);
     });
   </script>
   {% if form.javascript %}

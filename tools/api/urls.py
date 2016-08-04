@@ -16,5 +16,6 @@ router.register(r'registrations', views.RegistrationAPIViewSet, base_name='tools
 
 urlpatterns = [
     url(r'^$', views.ToolsRootView.as_view(), name='tools-root'),
+    url(r'^dect-lookup$', views.DeviceDectLookupAPIView.as_view(), name='tools-dect-lookup'),
     url(r'^', include(router.urls)),
 ]
