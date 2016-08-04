@@ -51,8 +51,10 @@ class DectConfigurator():
     def get_lineports(self, provider_id, group_id, device_name):
         # Get line ports
         resp0 = self._bw.GroupAccessDeviceGetUserListRequest(provider_id, group_id, device_name)
-        lineports = { x['Line/Port']: x for x in sorted(resp0['data']['deviceUserTable'], key=lambda k: k['Order']) }
-        return lineports
+        if 'deviceUserTable' in resp0['data']:
+            return { x['Line/Port']: x for x in sorted(resp0['data']['deviceUserTable'], key=lambda k: k['Order']) }
+        else:
+            return {}
 
     def process(self, provider_id, group_id, device_name, handsets, level=0):
         log = io.StringIO()
