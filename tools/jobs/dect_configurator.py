@@ -61,7 +61,10 @@ class DectConfigurator():
         log.write('{}GroupAccessDeviceCustomTagGetListRequest({}, {}, {}) >> '.format('    '*level, provider_id, group_id, device_name)),
         resp1 = self._bw.GroupAccessDeviceCustomTagGetListRequest(provider_id, group_id, device_name)
         log.write(self.parse_response(resp1, level))
-        tags = {x['Tag Name']: x['Tag Value'] for x in resp1['data']['deviceCustomTagsTable']}
+        if 'deviceCustomTagsTable' in resp1['data']:
+            tags = {x['Tag Name']: x['Tag Value'] for x in resp1['data']['deviceCustomTagsTable']}
+        else:
+            tags = {}
 
         for name,value in tags.items():
             m = re.search(r'^%REG\d+TERMINATIONTYPE%$', name)
