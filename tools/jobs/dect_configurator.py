@@ -171,7 +171,10 @@ class DectConfigurator():
         for item in handsets:
             if not item['lineport'] or item['lineport'] == '' or item['lineport'] not in lineports:
                 # lineport doesn't exist or is empty, create a SCA!
-                lineport = '{}_{}@telapexinc.com'.format(item['user_id'], Util.random_passcode(length=6, repeating_limit=6, sequential_limit=6))
+                if item['lineport']:
+                    lineport = item['lineport']
+                else:
+                    lineport = '{}_{}@telapexinc.com'.format(item['user_id'], Util.random_passcode(length=6, repeating_limit=6, sequential_limit=6))
                 endpoint = OrderedDict()
                 endpoint['accessDevice'] = OrderedDict()
                 endpoint['accessDevice']['deviceLevel'] = 'Group'
