@@ -59,6 +59,41 @@ class DectConfigurator():
     def process(self, provider_id, group_id, device_name, handsets, level=0):
         log = io.StringIO()
 
+        # Check that provider exists
+        log.write('{}ServiceProviderGetRequest17sp1({}) >> '.format('    '*level, provider_id)),
+        resp = self._bw.ServiceProviderGetRequest17sp1(provider_id)
+        log.write(self.parse_response(resp, level))
+        if resp['type'] == 'ServiceProviderGetResponse17sp1':
+            provider_data = resp['data']
+        else:
+            log.write('ERROR: Service Provider "{}" could not be found :-(\n'.format(provider_id))
+            rval = {'log': log.getvalue()}
+            log.close()
+            return rval
+        # Check that group exists
+        log.write('{}GroupGetRequest14sp7({}, {}) >> '.format('    '*level, provider_id, group_id)),
+        resp = self._bw.GroupGetRequest14sp7(provider_id, group_id)
+        log.write(self.parse_response(resp, level))
+        if resp['type'] == 'GroupGetResponse14sp7':
+            group_data = resp['data']
+        else:
+            log.write('ERROR: Group "{}" in Provider "{}" could not be found :-(\n'.format(group_id, provider_id))
+            rval = {'log': log.getvalue()}
+            log.close()
+            return rval
+        # Check that device exists
+        log.write('{}GroupAccessDeviceGetRequest18sp1({}, {}, {}) >> '.format('    '*level, provider_id, group_id, device_name)),
+        resp = self._bw.GroupAccessDeviceGetRequest18sp1(provider_id, group_id, device_name)
+        log.write(self.parse_response(resp, level))
+        if resp['type'] == 'GroupAccessDeviceGetResponse18sp1':
+            group_data = resp['data']
+        else:
+            log.write('ERROR: Device "{}" in Group "{}" in Provider "{}" could not be found :-(\n'.format(device_name, group_id, provider_id))
+            rval = {'log': log.getvalue()}
+            log.close()
+            return rval
+
+
         # Get device tags
         log.write('{}GroupAccessDeviceCustomTagGetListRequest({}, {}, {}) >> '.format('    '*level, provider_id, group_id, device_name)),
         resp1 = self._bw.GroupAccessDeviceCustomTagGetListRequest(provider_id, group_id, device_name)
