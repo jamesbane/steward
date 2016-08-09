@@ -119,7 +119,10 @@ class NumberListView(UpdateModelMixin, ListModelMixin, CreateModelMixin, Generic
             models.NumberHistory.objects.create(cc=instance.cc, number=instance.number, user=request.user, action='Routes to {}'.format(instance.route.name))
             return Response(data)
         except models.Number.DoesNotExist:
-            return self.create(request, *args, **kwargs)
+            resp = self.create(request, *args, **kwargs)
+            route = models.Route.objects.get(id=resp.data.get('route'))
+            models.NumberHistory.objects.create(cc=resp.data.get('cc'), number=resp.data.get('number'), user=request.user, action='Routes to {}'.format(route.name))
+            return resp
 
 
 class NumberDetailView(RetrieveUpdateDestroyAPIView):
