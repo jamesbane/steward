@@ -3,5 +3,5 @@
 ; {{ route.trunkgroup }} => {{ route.name }}{% endfor %}
 ;
 DN,UDA6{% for number in numbers %}
-{{ number.number }},{{ number.route.trunkgroup }}{% endfor %}
+{% if number.active %}{{ number.number }},{{ number.route.trunkgroup }}{% endif %}{% endfor %}
 ;NVFILE END
