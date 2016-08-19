@@ -3,11 +3,14 @@
 
 {% block tool_content %}
   <h1 class="page-header">
-    {% if perms.routing.change_number %}
-      <div class="pull-right">
-        <button class="number-add btn btn-default" data-toggle="modal" data-target="#add_number"><i class="fa fa-fw fa-plus"></i> Add</button>
+    <div class="pull-right">
+      <div class="btn-group" role="group">
+        <a href="{% url 'routing:number-history' %}" class="number-add btn btn-default"><i class="fa fa-fw fa-book"></i> History</a>
+        {% if perms.routing.change_number %}
+          <button class="number-add btn btn-default" data-toggle="modal" data-target="#add_number"><i class="fa fa-fw fa-plus"></i> Add</button>
+        {% endif %}
       </div>
-    {% endif %}
+    </div>
     Numbers <span class="badge"><span id="number_count">0</span> / {{ number_count|intcomma }}</span>
   </h1>
 

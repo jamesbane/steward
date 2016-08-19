@@ -5,6 +5,13 @@ from django.template import engines
 
 
 class Route(models.Model):
+    TYPE_CHOICE_INTERNAL = 0
+    TYPE_CHOICE_OUTBOUND = 1
+    TYPE_CHOICES = (
+        (TYPE_CHOICE_INTERNAL, 'Internal'),
+        (TYPE_CHOICE_OUTBOUND, 'Outbound'),
+    )
+    type = models.SmallIntegerField(choices=TYPE_CHOICES)
     name = models.CharField(max_length=32, unique=True)
     trunkgroup = models.PositiveIntegerField(null=True, default=None)
 
@@ -28,6 +35,39 @@ class Record(models.Model):
         return '{} {} "{}" "{}" "{}" "{}"'.format(self.order, self.preference,
                                                   self.flags, self.service,
                                                   self.regex, self.replacement)
+
+
+class Transmission(models.Model):
+    TYPE_CHOICE_ROUTE = 0
+    TYPE_CHOICE_FRAUD_BYPASS = 1
+    TYPE_CHOICE_OUTBOUND_ROUTE = 2
+    TYPE_CHOICES = (
+        (TYPE_CHOICE_ROUTE, 'Route'),
+        (TYPE_CHOICE_FRAUD_BYPASS, 'Fraud Bypass'),
+        (TYPE_CHOICE_OUTBOUND_ROUTE, 'Outbound Route'),
+    )
+    RESULT_CHOICE_PENDING = 0
+    RESULT_CHOICE_TRANSFERING = 1
+    RESULT_CHOICE_SUCCESS = 2
+    RESULT_CHOICE_FAILURE = 3
+    RESULT_CHOICES = (
+        (RESULT_CHOICE_PENDING, 'Pending'),
+        (RESULT_CHOICE_TRANSFERING, 'Transfering'),
+        (RESULT_CHOICE_SUCCESS, 'Success'),
+        (RESULT_CHOICE_FAILURE, 'Failure'),
+    )
+    type = models.SmallIntegerField(choices=TYPE_CHOICES)
+    checksum = models.CharField(max_length=32, blank=True)
+    last_modified = models.DateTimeField(null=True, default=None)
+    result_state = models.SmallIntegerField(choices=RESULT_CHOICES)
+    result_data = models.TextField()
+    result_timestamp = models.DateTimeField(null=True, default=None)
+
+    class Meta:
+        ordering = ('-id',)
+
+    def __str__(self):
+        return "{} for last modified number at {}".format(self.get_result_state_display(), self.last_modified)
 
 
 class Number(models.Model):
@@ -83,25 +123,43 @@ class NumberHistory(models.Model):
         ordering = ('-modified',)
 
 
-class Transmission(models.Model):
-    RESULT_CHOICE_PENDING = 0
-    RESULT_CHOICE_TRANSFERING = 1
-    RESULT_CHOICE_SUCCESS = 2
-    RESULT_CHOICE_FAILURE = 3
-    RESULT_CHOICES = (
-        (RESULT_CHOICE_PENDING, 'Pending'),
-        (RESULT_CHOICE_TRANSFERING, 'Transfering'),
-        (RESULT_CHOICE_SUCCESS, 'Success'),
-        (RESULT_CHOICE_FAILURE, 'Failure'),
-    )
-    checksum = models.CharField(max_length=32, blank=True)
-    last_modified = models.DateTimeField(null=True, default=None)
-    result_state = models.SmallIntegerField(choices=RESULT_CHOICES)
-    result_data = models.TextField()
-    result_timestamp = models.DateTimeField(null=True, default=None)
+class FraudBypass(models.Model):
+    cc = models.SmallIntegerField(default=1)
+    number = models.CharField(max_length=64)
+    modified = models.DateTimeField(auto_now=True)
 
     class Meta:
-        ordering = ('-result_timestamp',)
+        unique_together = ('cc', 'number')
+        ordering = ('number',)
 
-    def __str__(self):
-        return "{} for last modified number at {}".format(self.get_result_state_display(), self.last_modified)
+
+class FraudBypassHistory(models.Model):
+    cc = models.SmallIntegerField(default=1)
+    number = models.CharField(max_length=64)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='+')
+    modified = models.DateTimeField(auto_now=True)
+    action = models.CharField(max_length=256)
+
+    class Meta:
+        ordering = ('-modified',)
+
+
+class OutboundRoute(models.Model):
+    number = models.CharField(max_length=128, unique=True)
+    end_office_route = models.ForeignKey('Route', related_name='+',  limit_choices_to={'type': Route.TYPE_CHOICE_OUTBOUND})
+    long_distance_route = models.ForeignKey('Route', related_name='+', limit_choices_to={'type': Route.TYPE_CHOICE_OUTBOUND})
+    comment = models.CharField(max_length=128, blank=True)
+    modified = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ('number',)
+
+
+class OutboundRouteHistory(models.Model):
+    number = models.CharField(max_length=128)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='+')
+    modified = models.DateTimeField(auto_now=True)
+    action = models.CharField(max_length=256)
+
+    class Meta:
+        ordering = ('-modified',)

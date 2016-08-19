@@ -1,0 +1,53 @@
+{% extends 'routing/base.html' %}
+{% load humanize %}
+
+{% block tool_content %}
+  <h1 class="page-header">
+    <div class="pull-right">
+      <div class="btn-group" role="group">
+        <a href="{% url 'routing:outbound-route-history' %}" class="number-add btn btn-default"><i class="fa fa-fw fa-book"></i> History</a>
+        <a href="{% url 'routing:outbound-route-create' %}" class="number-add btn btn-default"><i class="fa fa-fw fa-plus"></i> Add</a>
+      </div>
+    </div>
+    Fraud Bypass List
+  </h1>
+  <table class="table table-bordered table-striped table-hover">
+    <thead>
+      <tr>
+        <th class="col-lg-2">Number</th>
+        <th class="col-lg-2">End Office</th>
+        <th class="col-lg-2">Long Distance</th>
+        <th class="col-lg-2">Last Modified</th>
+        <th class="col-lg-4">Comment</th>
+        <th/>
+      </tr>
+    </thead>
+    <tbody>
+      {% for object in object_list %}
+        <tr>
+          <td>{{ object.number }}</td>
+          <td>{{ object.end_office_route.name }}</td>
+          <td>{{ object.long_distance_route.name }}</td>
+          <td>{{ object.modified }}</td>
+          <td>{{ object.comment }}</td>
+          <td style="min-width: 80px" nowrap>
+            <div class="btn-group" role="group">
+              <a href="{% url 'routing:outbound-route-update' object.id %}" class="btn btn-xs btn-default"><i class="fa fa-fw fa-edit"></i><span class="sr-only">Edit</span></a>
+              <a href="{% url 'routing:outbound-route-delete' object.id %}" class="btn btn-xs btn-danger"><i class="fa fa-fw fa-times"></i><span class="sr-only">Delete</span></a>
+            </div>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {% if is_paginated %}
+    <nav>
+      <ul class="pager">
+        <li class="previous {% if not page_obj.has_previous %}disabled{% endif %}"><a href="{% if page_obj.has_previous %}?page={{ page_obj.previous_page_number }}{% else %}#{% endif %}"><span aria-hidden="true">&larr;</span> Previous</a></li>
+        <li>{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</li>
+        <li class="next {% if not page_obj.has_next %}disabled{% endif %}"><a href="?page={{ page_obj.next_page_number }}">Next <span aria-hidden="true">&rarr;</span></a></li>
+      </ul>
+    </nav>
+  {% endif %}
+{% endblock tool_content %}

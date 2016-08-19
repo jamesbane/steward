@@ -1,5 +1,6 @@
 ;NVFILE 2.0
-;{% for route in routes %}
+; Valid Routes:
+; ============={% for route in routes %}
 ; {{ route.trunkgroup }} => {{ route.name }}{% endfor %}
 ;
 DN,UDA6{% for number in numbers %}

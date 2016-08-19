@@ -7,6 +7,7 @@
   <div>
     <p>
       Process Id: {{ object.id }}<br/>
+      Type: {{ object.get_type_display }}<br/>
       Checksum (MD5): {{ object.checksum }}<br/>
       Result: {{ object.get_result_state_display }}<br/>
       Completed: {{ object.result_timestamp }}<br/

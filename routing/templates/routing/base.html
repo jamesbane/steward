@@ -15,28 +15,43 @@
             {% endif %}
             </a>
         </li>
-        {% url 'routing:route-list' as the_url %}
-        <li {% if request.get_full_path == the_url %}class="active"{% endif %}>
-          <a href="{{ the_url }}">
-            Routes
-            {% if request.get_full_path == the_url %}
-              <span class="sr-only">(current)</span>
-            {% endif %}
-            </a>
-        </li>
+        {% if perms.routing.change_fraudbypass %}
+          {% url 'routing:fraud-bypass-list' as the_url %}
+          <li {% if request.get_full_path == the_url %}class="active"{% endif %}>
+            <a href="{{ the_url }}">
+              Fraud Bypass
+              {% if request.get_full_path == the_url %}
+                <span class="sr-only">(current)</span>
+              {% endif %}
+              </a>
+          </li>
+        {% endif %}
+        {% if perms.routing.change_outboundroute %}
+          {% url 'routing:outbound-route-list' as the_url %}
+          <li {% if request.get_full_path == the_url %}class="active"{% endif %}>
+            <a href="{{ the_url }}">
+              Outbound
+              {% if request.get_full_path == the_url %}
+                <span class="sr-only">(current)</span>
+              {% endif %}
+              </a>
+          </li>
+        {% endif %}
+        {% if perms.routing.change_route %}
+          {% url 'routing:route-list' as the_url %}
+          <li {% if request.get_full_path == the_url %}class="active"{% endif %}>
+            <a href="{{ the_url }}">
+              Routes
+              {% if request.get_full_path == the_url %}
+                <span class="sr-only">(current)</span>
+              {% endif %}
+              </a>
+          </li>
+        {% endif %}
         {% url 'routing:transmission-list' as the_url %}
         <li {% if request.get_full_path == the_url %}class="active"{% endif %}>
           <a href="{{ the_url }}">
             Transmissions
-            {% if request.get_full_path == the_url %}
-              <span class="sr-only">(current)</span>
-            {% endif %}
-            </a>
-        </li>
-        {% url 'routing:number-history' as the_url %}
-        <li {% if request.get_full_path == the_url %}class="active"{% endif %}>
-          <a href="{{ the_url }}">
-            History
             {% if request.get_full_path == the_url %}
               <span class="sr-only">(current)</span>
             {% endif %}
