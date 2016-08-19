@@ -1,7 +1,7 @@
 {% extends 'routing/base.html' %}
 
 {% block tool_content %}
-  <h1 class="page-header">{% if object %}Edit Outbound Route {{ object.number }}{% else %}New Outbound Route{% endif %}</h1>
+  <h1 class="page-header">{% if object %}Edit Outbound Carrier Override {{ object.number }}{% else %}New Outbound Carrier Override{% endif %}</h1>
   <form method="POST">
     {% csrf_token %}
     {{ form.as_p }}
