@@ -164,7 +164,8 @@ class Command(BaseCommand):
 
             count = 0
             ok_filename = '{}@ok'.format(remote_filename)
-            error_filename = '{}@error'.format(remote_filename)
+            error_filename = '{}@fail'.format(remote_filename)
+            file_list = sftp.listdir()
             while ok_filename not in file_list and error_filename not in file_list:
                 if count * 5 >= 90:
                     raise Exception('File not processed by remote server, aborting after {} seconds'.format(count*5))
@@ -191,7 +192,7 @@ class Command(BaseCommand):
                 transmission.result_timestamp = timezone.now()
                 f = tempfile.NamedTemporaryFile(delete=False)
                 f.close()
-                sftp.get(ok_filename, f.name)
+                sftp.get(error_filename, f.name)
                 with open(f.name) as r:
                     content = r.read()
                     transmission.result_data = content
