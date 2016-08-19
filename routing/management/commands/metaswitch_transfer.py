@@ -43,7 +43,7 @@ class Command(BaseCommand):
             last_modified = FraudBypassHistory.objects.latest('modified').modified
         except FraudBypassHistory.DoesNotExist:
             last_modified = None
-        if last_transmission and last_modified and last_transmission.last_modified >= last_modified:
+        if last_transmission and last_transmission.last_modified and last_modified and last_transmission.last_modified >= last_modified:
             self.stdout.write(self.style.SUCCESS('No modifications since last transmission'))
             return
         transmission = Transmission.objects.create(result_state=Transmission.RESULT_CHOICE_PENDING, type=Transmission.TYPE_CHOICE_FRAUD_BYPASS, last_modified=last_modified)
@@ -77,7 +77,7 @@ class Command(BaseCommand):
             last_modified = Number.objects.latest('modified').modified
         except Number.DoesNotExist:
             last_modified = None
-        if last_transmission and last_modified and last_transmission.last_modified >= last_modified:
+        if last_transmission and last_transmission.last_modified and last_modified and last_transmission.last_modified >= last_modified:
             self.stdout.write(self.style.SUCCESS('No modifications since last transmission'))
             return
         transmission = Transmission.objects.create(result_state=Transmission.RESULT_CHOICE_PENDING, type=Transmission.TYPE_CHOICE_ROUTE, last_modified=last_modified)
@@ -113,7 +113,7 @@ class Command(BaseCommand):
             last_modified = OutboundRouteHistory.objects.latest('modified').modified
         except OutboundRouteHistory.DoesNotExist:
             last_modified = None
-        if last_transmission and last_modified and last_transmission.last_modified >= last_modified:
+        if last_transmission and last_transmission.last_modified and last_transmission.last_modified >= last_modified:
             self.stdout.write(self.style.SUCCESS('No modifications since last transmission'))
             return
         transmission = Transmission.objects.create(result_state=Transmission.RESULT_CHOICE_PENDING, type=Transmission.TYPE_CHOICE_OUTBOUND_ROUTE, last_modified=last_modified)
