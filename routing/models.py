@@ -126,7 +126,7 @@ class NumberHistory(models.Model):
 
 class FraudBypass(models.Model):
     cc = models.SmallIntegerField(default=1)
-    number = models.CharField(max_length=64)
+    number = models.CharField(max_length=64, validators=[RegexValidator(regex='^\d{10}$', message='Must be 10 digits', code='nomatch')])
     modified = models.DateTimeField(auto_now=True)
 
     class Meta:
@@ -136,7 +136,7 @@ class FraudBypass(models.Model):
 
 class FraudBypassHistory(models.Model):
     cc = models.SmallIntegerField(default=1)
-    number = models.CharField(max_length=64, validators=[RegexValidator(regex='^\d{10}$', message='Must be 10 digits', code='nomatch')])
+    number = models.CharField(max_length=64)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='+')
     modified = models.DateTimeField(auto_now=True)
     action = models.CharField(max_length=256)

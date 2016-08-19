@@ -50,7 +50,7 @@ class Command(BaseCommand):
 
         if truncate:
             FraudBypass.objects.all().delete()
-            FraudBypassHistoyr.objects.all().delete()
+            FraudBypassHistory.objects.all().delete()
 
         with open(input_file.name) as f:
             csv_file = csv.reader(f, delimiter=',')
@@ -59,6 +59,10 @@ class Command(BaseCommand):
                     if row[0].startswith(';') or row[0].startswith(' ') or row[0] == 'DN':
                         continue
                     number = row[0].strip()
+                    if not re.match('^\d{10}$', number):
+                        error_count += 1
+                        self.stdout.write(self.style.ERROR('ERROR: Number {} is not 10 digits'.format(number)))
+                        continue
                     trunk_number = row[1].strip()
                     if trunk_number == '999999':
                         obj, created = FraudBypass.objects.update_or_create(cc=1, number=number)
