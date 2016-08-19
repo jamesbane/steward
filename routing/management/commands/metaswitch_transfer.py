@@ -123,7 +123,7 @@ class Command(BaseCommand):
         # generate file
         context = dict()
         context['routes'] = Route.objects.filter(type=Route.TYPE_CHOICE_OUTBOUND)
-        context['object_list'] = OutboundRoute.objects.all().select_related('route')
+        context['object_list'] = OutboundRoute.objects.all().select_related('end_office_route', 'long_distance_route')
         f = tempfile.NamedTemporaryFile(delete=False)
         f.write(loader.render_to_string('routing/NVFILE_outbound_route.txt', context).encode())
         f.close()
