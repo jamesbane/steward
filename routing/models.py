@@ -2,6 +2,7 @@ from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.template import engines
+from django.core.validators import RegexValidator
 
 
 class Route(models.Model):
@@ -135,7 +136,7 @@ class FraudBypass(models.Model):
 
 class FraudBypassHistory(models.Model):
     cc = models.SmallIntegerField(default=1)
-    number = models.CharField(max_length=64)
+    number = models.CharField(max_length=64, validators=[RegexValidator(regex='^\d{10}$', message='Must be 10 digits', code='nomatch')])
     user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='+')
     modified = models.DateTimeField(auto_now=True)
     action = models.CharField(max_length=256)
