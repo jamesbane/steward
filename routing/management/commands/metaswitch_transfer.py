@@ -41,7 +41,7 @@ class Command(BaseCommand):
             last_transmission = None
         try:
             last_modified = FraudBypassHistory.objects.latest('modified').modified
-        except Number.DoesNotExist:
+        except FraudBypassHistory.DoesNotExist:
             last_modified = None
         if last_transmission and last_modified and last_transmission.last_modified >= last_modified:
             self.stdout.write(self.style.SUCCESS('No modifications since last transmission'))
@@ -111,7 +111,7 @@ class Command(BaseCommand):
             last_transmission = None
         try:
             last_modified = OutboundRouteHistory.objects.latest('modified').modified
-        except Number.DoesNotExist:
+        except OutboundRouteHistory.DoesNotExist:
             last_modified = None
         if last_transmission and last_modified and last_transmission.last_modified >= last_modified:
             self.stdout.write(self.style.SUCCESS('No modifications since last transmission'))
