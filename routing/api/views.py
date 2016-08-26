@@ -40,6 +40,7 @@ class RouteViewSet(ModelViewSet):
     queryset = models.Route.objects.all()
     permission_classes = (DjangoModelPermissionsOrAnonReadOnly, IsAuthenticated,)
     serializer_class = serializers.RouteSerializer
+    filter_fields = ('type',)
 
 class RecordViewSet(ModelViewSet):
     queryset = models.Record.objects.all()

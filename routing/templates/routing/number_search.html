@@ -197,7 +197,7 @@
     var limit = 50;
     function cacheRoutes() {
       $.ajax({
-        url: "{% url 'api:routing-route-list' %}",
+        url: "{% url 'api:routing-route-list' %}?type=0",
         success: function(data) {
           $(data.results).each(function(idx, item) {
             routes[item.id] = item.name;

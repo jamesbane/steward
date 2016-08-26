@@ -19,7 +19,7 @@ class RouteSerializer(serializers.ModelSerializer):
     records = RecordSerializer(many=True, read_only=True)
     class Meta:
         model = models.Route
-        fields = ('url', 'id', 'name', 'trunkgroup', 'records')
+        fields = ('url', 'id', 'name', 'trunkgroup', 'records', 'type')
 
 
 class NumberSerializer(serializers.ModelSerializer):
