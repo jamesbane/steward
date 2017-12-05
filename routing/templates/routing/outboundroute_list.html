@@ -46,7 +46,7 @@
       <ul class="pager">
         <li class="previous {% if not page_obj.has_previous %}disabled{% endif %}"><a href="{% if page_obj.has_previous %}?page={{ page_obj.previous_page_number }}{% else %}#{% endif %}"><span aria-hidden="true">&larr;</span> Previous</a></li>
         <li>{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</li>
-        <li class="next {% if not page_obj.has_next %}disabled{% endif %}"><a href="?page={{ page_obj.next_page_number }}">Next <span aria-hidden="true">&rarr;</span></a></li>
+        <li class="next {% if not page_obj.has_next %}disabled{% endif %}"><a href="{% if page_obj.has_next %}?page={{ page_obj.next_page_number }}{% else %}#{% endif %}">Next <span aria-hidden="true">&rarr;</span></a></li>
       </ul>
     </nav>
   {% endif %}
