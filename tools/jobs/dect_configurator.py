@@ -29,7 +29,9 @@ class DectConfigurator():
 
     def __init__(self, process):
         self._process = process
-        self._bw = BroadWorks(**settings.PLATFORMS['broadworks'])
+        self._bw = BroadWorks(url=self._process.platform.uri,
+                              username=self._process.platform.username,
+                              password=self._process.platform.password)
         self._bw.LoginRequest14sp4()
 
     def parse_response(self, response, level):

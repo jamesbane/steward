@@ -69,7 +69,9 @@ def registration_by_type(process_id):
         summary_html.write('<tbody>\n')
         summary_raw.write('"{}","{}","{}","{}"\n'.format('Device Type', 'Device Count', 'Registration Count', 'Perc Registered'))
 
-        bw = BroadWorks(**settings.PLATFORMS['broadworks'])
+        bw = BroadWorks(url=process.platform.uri,
+                        username=process.platform.username,
+                        password=process.platform.password)
         bw.LoginRequest14sp4()
         device_types = ['Polycom Soundpoint IP 300', 'Polycom Soundpoint IP 320 330',
                         'Polycom Soundpoint IP 335', 'Polycom Soundpoint IP 4000',

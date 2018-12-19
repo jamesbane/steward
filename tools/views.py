@@ -69,11 +69,14 @@ class ToolView(ProcessFormMixin, TemplateView):
         If the form is valid, redirect to the supplied URL.
         """
         parameters = form.cleaned_data
+        platform = parameters.pop('platform')
         if formset:
             # Handle all our formset
             parameters['data'] = [ f.cleaned_data for f in formset if f.cleaned_data != {}]
         self.object = Process.objects.create(user=self.request.user,
                                              method=self.process_name,
+                                             platform_type=Process.PLATFORM_BROADWORKS,
+                                             platform_id=platform.id,
                                              parameters=parameters,
                                              start_timestamp=timezone.now(),
                                              end_timestamp=None,
@@ -82,7 +85,9 @@ class ToolView(ProcessFormMixin, TemplateView):
         method = self.process_function.split('.')[-1]
         importlib.import_module(module)
         process_function = eval(self.process_function)
-        q = rq.Queue('tool', connection=Redis(), default_timeout=10800)
+        q = rq.Queue('tool', connection=Redis(host=settings.RQ_QUEUES['tool']['HOST'],
+                                              port=settings.RQ_QUEUES['tool']['PORT'],
+                                              db=settings.RQ_QUEUES['tool']['DB']), default_timeout=10800)
         q.enqueue_call(process_function, args=(self.object.pk,))
         return HttpResponseRedirect(self.get_success_url())
 

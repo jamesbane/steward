@@ -34,7 +34,9 @@ class TrunkUserAudit():
         self._cache = {'service_packs': dict(), 'groups_trunk_assigned': set()}
         self._process = process
         self._fix = fix
-        self._bw = BroadWorks(**settings.PLATFORMS['broadworks'])
+        self._bw = BroadWorks(url=self._process.platform.uri,
+                              username=self._process.platform.username,
+                              password=self._process.platform.password)
         self._bw.LoginRequest14sp4()
         # Get the services from LokiHelper's 'TrunkPack'
         resp = self._bw.ServiceProviderServicePackGetDetailListRequest('LokiHelper', 'TrunkPack')

@@ -33,7 +33,9 @@ class RegistrationReport:
         self._palladion = Palladion(**settings.PLATFORMS['palladion'])
         self._pl_devices = { x['id']: x for x in self._palladion.devices() }
         requests.packages.urllib3.disable_warnings()
-        self._bw = BroadWorks(**settings.PLATFORMS['broadworks'])
+        self._bw = BroadWorks(url=self._process.platform.uri,
+                              username=self._process.platform.username,
+                              password=self._process.platform.password)
         self._bw.LoginRequest14sp4()
 
     def parse_response(self, response, level):

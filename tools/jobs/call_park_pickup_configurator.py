@@ -32,7 +32,9 @@ class CallParkPickupConfigurator():
         self._process = process
         self._park = park
         self._retrieve = retrieve
-        self._bw = BroadWorks(**settings.PLATFORMS['broadworks'])
+        self._bw = BroadWorks(url=self._process.platform.uri,
+                              username=self._process.platform.username,
+                              password=self._process.platform.password)
         self._bw.LoginRequest14sp4()
 
     def provider_check(self, provider_id):

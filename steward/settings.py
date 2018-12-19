@@ -62,6 +62,7 @@ INSTALLED_APPS = [
     'dashboard',
     'deploy',
     'dms',
+    'platforms',
     'routing',
     'steward',
     'tools',
@@ -206,19 +207,19 @@ PROTECTED_ROOT = '{}/protected/'.format(BASE_DIR)
 # =====================================
 RQ_QUEUES = {
     'default': {
-        'HOST': 'localhost',
-        'PORT': 6379,
-        'DB': 0,
+        'HOST': env['redis']['host'],
+        'PORT': env['redis']['port'],
+        'DB': env['redis']['db'],
     },
     'tool': {
-        'HOST': 'localhost',
-        'PORT': 6379,
-        'DB': 0,
+        'HOST': env['redis']['host'],
+        'PORT': env['redis']['port'],
+        'DB': env['redis']['db'],
     },
     'deploy': {
-        'HOST': 'localhost',
-        'PORT': 6379,
-        'DB': 0,
+        'HOST': env['redis']['host'],
+        'PORT': env['redis']['port'],
+        'DB': env['redis']['db'],
     },
 }
 

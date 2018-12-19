@@ -13,7 +13,7 @@
     },
     "django": {
         "allowed_hosts": [],
-        "debug": true,
+        "debug": true
     },
     "email": {
         "from_address": "system@example.com",
@@ -41,5 +41,10 @@
             "uri": "https://palladion.example.com/me",
             "api_key": ""
         }
+    },
+    "redis": {
+        "host": "localhost",
+        "port": 6379,
+        "db": 0
     }
 }

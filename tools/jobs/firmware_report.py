@@ -47,7 +47,9 @@ def firmware_report(process_id):
         group_id = process.parameters.get('group_id', None)
 
         # Login to BroadWorks
-        bw = BroadWorks(**settings.PLATFORMS['broadworks'])
+        bw = BroadWorks(url=process.platform.uri,
+                        username=process.platform.username,
+                        password=process.platform.password)
         bw.LoginRequest14sp4()
 
         user_agent_regex = re.compile('^(?P<device_type>PolycomVVX-VVX_\d{3}|PolycomSoundStationIP-SSIP_\d{4}|PolycomSoundPointIP-SPIP_\d{3})-UA\/(?P<version>[\d\.]+)$')

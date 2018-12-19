@@ -5,8 +5,9 @@
   <table class="table table-bordered table-striped table-hover">
     <thead>
       <tr>
-        <th class="col-lg-4" colspan="2">Process</th>
-        <th class="col-lg-2" rowspan="2">User</th>
+        <th class="col-lg-3" colspan="2">Process</th>
+        <th class="col-lg-2" rowspan="2">Platform</th>
+        <th class="col-lg-1" rowspan="2">User</th>
         <th class="col-lg-2" rowspan="2">Start</th>
         <th class="col-lg-2" rowspan="2">End</th>
         <th class="col-lg-2" rowspan="2">Status</th>
@@ -22,6 +23,7 @@
         <tr>
           <td><a href="{% url 'tools:process-detail' object.id %}">{{ object.id }}</a></td>
           <td><a href="{% url 'tools:process-detail' object.id %}">{{ object.method }}</a></td>
+          <td>{{ object.platform }}</td>
           <td>{{ object.user.get_full_name }}</td>
           <td>{{ object.start_timestamp }}</td>
           <td>{{ object.end_timestamp }}</td>

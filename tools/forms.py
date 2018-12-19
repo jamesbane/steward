@@ -1,9 +1,16 @@
+# django
 from django import forms
 from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.core.validators import MinLengthValidator, RegexValidator
+# local
+from platforms.models import BroadworksPlatform
 
 
-class TypedProviderGroupForm(forms.Form):
+class BroadworksPlatformForm(forms.Form):
+    platform = forms.ModelChoiceField(label="Platform", queryset=BroadworksPlatform.objects.all())
+
+
+class TypedProviderGroupForm(BroadworksPlatformForm):
     PROVIDER_TYPE_CHOICE_ENTERPRISE = 'Enterprise'
     PROVIDER_TYPE_CHOICE_SERVICE_PROVIDER = 'Service Provider'
     PROVIDER_TYPE_CHOICES = (
@@ -44,12 +51,12 @@ class CallParkPickupForm(TypedProviderGroupForm):
         cleaned_data['retrieve'] = str(cleaned_data.get("retrieve", False))
         return cleaned_data
 
-class ProviderGroupForm(forms.Form):
+class ProviderGroupForm(BroadworksPlatformForm):
     provider_id = forms.CharField(label='Provider Id', max_length=256, required=True)
     group_id = forms.CharField(label='Group Id', max_length=256, required=False)
 
 
-class SystemProviderGroupForm(forms.Form):
+class SystemProviderGroupForm(BroadworksPlatformForm):
     ACTION_TYPE_CHOICE_SYSTEM = 'System'
     ACTION_TYPE_CHOICE_PROVIDER = 'Provider/Group'
     ACTION_TYPE_CHOICES = (
@@ -72,7 +79,7 @@ class TagRemovalForm(TypedProviderGroupForm):
     tag_names = forms.CharField(label='Tag Names', max_length=256, required=True)
 
 
-class TrunkUserAuditForm(forms.Form):
+class TrunkUserAuditForm(BroadworksPlatformForm):
     fixup = forms.BooleanField(label="Fixup", required=False, initial=False)
 
     def clean(self):
@@ -96,7 +103,7 @@ class SpeedDialLineForm(forms.Form):
                                          widget=forms.TextInput(attrs={'placeholder': 'Destination Number', 'class': 'col-lg-6'}))
 
 
-class DeviceForm(forms.Form):
+class DeviceForm(BroadworksPlatformForm):
     provider_id = forms.CharField(label='Provider Id', max_length=256, required=True)
     group_id = forms.CharField(label='Group Id', max_length=256, required=True)
     device_name = forms.CharField(label='Device Name', max_length=256, required=True)
@@ -109,5 +116,5 @@ class DectLineForm(forms.Form):
     lineport = forms.CharField(max_length=128, required=False, widget=forms.TextInput(attrs={'placeholder': 'Line Port', 'class': 'col-lg-4', 'disabled': True}))
 
 
-class EmptyForm(forms.Form):
+class EmptyForm(BroadworksPlatformForm):
     pass

@@ -1,8 +1,10 @@
-from django.db import models
+# django
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.postgres.fields import ArrayField, HStoreField, JSONField
-
+from django.db import models
+# local
+from platforms.models import BroadworksPlatform
 from steward.storage import ProtectedFileStorage
 
 
@@ -19,14 +21,28 @@ class Process(models.Model):
         (STATUS_ERROR, 'Error'),
         (STATUS_RUNNING, 'Running'),
     )
+    PLATFORM_BROADWORKS = 0
     user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='processes', verbose_name=('user'), null=False)
     method = models.CharField(max_length=256, null=False)
+    platform_type = models.SmallIntegerField(null=False)
+    platform_id = models.IntegerField(null=False)
     parameters = JSONField()
     start_timestamp = models.DateTimeField(null=False)
     end_timestamp = models.DateTimeField(null=True)
     status = models.PositiveSmallIntegerField(null=False, default=STATUS_SCHEDULED, choices=CHOICES_STATUS)
     exception = models.TextField()
     view_permission = models.CharField(max_length=64, db_index=True)
+
+    @property
+    def platform(self):
+        if self.platform_type == Process.PLATFORM_BROADWORKS:
+            return BroadworksPlatform.objects.get(pk=self.platform_id)
+        return None
+
+    def get_platform_type_display(self):
+        if self.platform_type == Process.PLATFORM_BROADWORKS:
+            return "Broadworks"
+        return "Unknown"
 
     class Meta:
         ordering = ['-start_timestamp', '-end_timestamp']
