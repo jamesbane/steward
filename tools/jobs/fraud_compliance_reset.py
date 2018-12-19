@@ -161,7 +161,7 @@ class FraudCompliance():
             content.write(self.parse_response(resp3, (level+1)))
 
             # Disable Call Forwarding
-            content.write('{}UserCallForwardingAlwaysModifyRequest(isActive=False) >> 'format('    '*(level+1))),
+            content.write('{}UserCallForwardingAlwaysModifyRequest(isActive=False) >> '.format('    '*(level+1))),
             resp4 = self._bw.UserCallForwardingAlwaysModifyRequest(userId=user_id, isActive=False)
             content.write(self.parse_response(resp4, (level+1)))
 
