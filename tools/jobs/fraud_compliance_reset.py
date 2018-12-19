@@ -154,16 +154,23 @@ class FraudCompliance():
         for user in users:
             user_id = user['User Id']
             content.write('{}  User {}\n'.format('    '*level, user_id))
+
             # Outbound calling plan set to group
             content.write('{}UserOutgoingCallingPlanOriginatingModifyRequest(useCustomSettings=False) >> '.format('    '*(level+1))),
             resp3 = self._bw.UserOutgoingCallingPlanOriginatingModifyRequest(userId=user_id, useCustomSettings=False)
             content.write(self.parse_response(resp3, (level+1)))
+
+            # Disable Call Forwarding
+            content.write('{}UserCallForwardingAlwaysModifyRequest(isActive=False) >> 'format('    '*(level+1))),
+            resp4 = self._bw.UserCallForwardingAlwaysModifyRequest(userId=user_id, isActive=False)
+            content.write(self.parse_response(resp4, (level+1)))
+
             # Get devices
             line_ports = list()
             content.write('{}UserGetRequest19(userId={}) >> '.format('    '*(level+1), user_id)),
-            resp4 = self._bw.UserGetRequest19(userId=user_id)
-            content.write(self.parse_response(resp4, (level+1)))
-            user_info = resp4['data']
+            resp5 = self._bw.UserGetRequest19(userId=user_id)
+            content.write(self.parse_response(resp5, (level+1)))
+            user_info = resp5['data']
 
             # primary device
             if 'accessDeviceEndpoint' in user_info:
@@ -171,14 +178,14 @@ class FraudCompliance():
                 device_level = user_info['accessDeviceEndpoint']['accessDevice']['deviceLevel']
                 line_port = user_info['accessDeviceEndpoint']['linePort']
                 if device_level == 'Group':
-                    resp5 = self._bw.GroupAccessDeviceGetRequest18sp1(provider_id, group_id, device_name)
-                    device_type = resp5['data']['deviceType']
+                    resp6 = self._bw.GroupAccessDeviceGetRequest18sp1(provider_id, group_id, device_name)
+                    device_type = resp6['data']['deviceType']
                 elif device_level == 'Service Provider':
-                    resp5 = self._bw.ServiceProviderAccessDeviceGetRequest18sp1(provider_id, device_name)
-                    device_type = resp5['data']['deviceType']
+                    resp6 = self._bw.ServiceProviderAccessDeviceGetRequest18sp1(provider_id, device_name)
+                    device_type = resp6['data']['deviceType']
                 if device_type not in self._device_type_cache:
-                    resp5 = self._bw.SystemDeviceTypeGetRequest19(device_type)
-                    if resp5['data']['deviceTypeConfigurationOption'] in ('Device Management', 'Legacy'):
+                    resp6 = self._bw.SystemDeviceTypeGetRequest19(device_type)
+                    if resp6['data']['deviceTypeConfigurationOption'] in ('Device Management', 'Legacy'):
                         self._device_type_cache[device_type] = True
                     else:
                         self._device_type_cache[device_type] = False
@@ -193,17 +200,17 @@ class FraudCompliance():
 
             # shared call appearances
             content.write('{}UserSharedCallAppearanceGetRequest16sp2(userId={}) >> '.format('    '*(level+1), user_id)),
-            resp6 = self._bw.UserSharedCallAppearanceGetRequest16sp2(userId=user_id)
-            content.write(self.parse_response(resp4, (level+1)))
-            appearances = resp6['data']['endpointTable']
+            resp7 = self._bw.UserSharedCallAppearanceGetRequest16sp2(userId=user_id)
+            content.write(self.parse_response(resp7, (level+1)))
+            appearances = resp7['data']['endpointTable']
             for appearance in appearances:
                 device_name = appearance['Device Name']
                 device_level = appearance['Device Level']
                 device_type = appearance['Device Type']
                 line_port = appearance['Line/Port']
                 if device_type not in self._device_type_cache:
-                    resp7 = self._bw.SystemDeviceTypeGetRequest19(device_type)
-                    if resp7['data']['deviceTypeConfigurationOption'] in ('Device Management', 'Legacy'):
+                    resp8 = self._bw.SystemDeviceTypeGetRequest19(device_type)
+                    if resp8['data']['deviceTypeConfigurationOption'] in ('Device Management', 'Legacy'):
                         self._device_type_cache[device_type] = True
                     else:
                         self._device_type_cache[device_type] = False
@@ -227,8 +234,8 @@ class FraudCompliance():
 
             # Reset sip passwords
             content.write('{}UserAuthenticationModifyRequest(userId={}, userName={}, newPassword="...") >> '.format('    '*(level+1), user_id, auth_username, auth_password)),
-            resp9 = self._bw.UserAuthenticationModifyRequest(userId=user_id, userName=auth_username, newPassword=auth_password)
-            content.write(self.parse_response(resp9, (level+1)))
+            resp10 = self._bw.UserAuthenticationModifyRequest(userId=user_id, userName=auth_username, newPassword=auth_password)
+            content.write(self.parse_response(resp10, (level+1)))
 
             # Line/Port Passwords
             for line_port in line_ports:
@@ -239,23 +246,23 @@ class FraudCompliance():
             for line_port in line_ports:
                 if line_port['device_level'] == 'Group':
                     content.write('{}GroupCPEConfigRebuildDeviceConfigFileRequest(serviceProviderId={}, groupId={}, deviceName={}) >> '.format('    '*(level+1), provider_id, group_id, line_port['device_name'])),
-                    resp10 = self._bw.GroupCPEConfigRebuildDeviceConfigFileRequest(serviceProviderId=provider_id, groupId=group_id, deviceName=line_port['device_name'])
-                    content.write(self.parse_response(resp10, (level+1)))
+                    resp11 = self._bw.GroupCPEConfigRebuildDeviceConfigFileRequest(serviceProviderId=provider_id, groupId=group_id, deviceName=line_port['device_name'])
+                    content.write(self.parse_response(resp11, (level+1)))
                 elif device['device_level'] == 'Service Provider':
                     content.write('{}ServiceProviderCPEConfigRebuildDeviceConfigFileRequest(serviceProviderId={}, deviceName={}) >> '.format('    '*(level+1), provider_id, line_port['device_name'])),
-                    resp10 = self._bw.ServiceProviderCPEConfigRebuildDeviceConfigFileRequest(serviceProviderId=provider_id, deviceName=line_port['device_name'])
-                    content.write(self.parse_response(resp10, (level+1)))
+                    resp11 = self._bw.ServiceProviderCPEConfigRebuildDeviceConfigFileRequest(serviceProviderId=provider_id, deviceName=line_port['device_name'])
+                    content.write(self.parse_response(resp11, (level+1)))
 
             # Deactivate intercept user
             content.write('{}UserInterceptUserModifyRequest16(userId={}, isActive=False) >> '.format('    '*(level+1), user_id)),
-            resp11 = self._bw.UserInterceptUserModifyRequest16(userId=user_id, isActive=False)
-            content.write(self.parse_response(resp11, (level+1)))
+            resp12 = self._bw.UserInterceptUserModifyRequest16(userId=user_id, isActive=False)
+            content.write(self.parse_response(resp12, (level+1)))
 
         # Deactivate intercept group
         content.write('{}Post Process Group {}::{}\n'.format('    '*level, provider_id, group_id))
         content.write('{}GroupInterceptGroupModifyRequest16(serviceProviderId={}, groupId={}, isActive=False) >> '.format('    '*(level+1), provider_id, group_id)),
-        resp12 = self._bw.GroupInterceptGroupModifyRequest16(serviceProviderId=provider_id, groupId=group_id, isActive=False)
-        content.write(self.parse_response(resp12, (level+1)))
+        resp13 = self._bw.GroupInterceptGroupModifyRequest16(serviceProviderId=provider_id, groupId=group_id, isActive=False)
+        content.write(self.parse_response(resp13, (level+1)))
 
         rval = {
             'content': content.getvalue(),
