@@ -30,6 +30,7 @@ from routing.api import serializers
 class RouteRootView(APIView):
     def get(self, request, format=None):
         context = dict()
+        context['fraud-bypass'] = reverse('api:routing-fraud-bypass-list', request=request, format=format)
         context['numbers'] = reverse('api:routing-number-list', request=request, format=format)
         context['records'] = reverse('api:routing-record-list', request=request, format=format)
         context['routes'] = reverse('api:routing-route-list', request=request, format=format)
@@ -46,6 +47,7 @@ class RecordViewSet(ModelViewSet):
     queryset = models.Record.objects.all()
     permission_classes = (DjangoModelPermissionsOrAnonReadOnly, IsAuthenticated,)
     serializer_class = serializers.RecordSerializer
+
 
 class NumberFilter(FilterSet):
     modified_gt = django_filters.IsoDateTimeFilter(name='modified', lookup_type='gt')
@@ -160,4 +162,90 @@ class NumberDetailView(RetrieveUpdateDestroyAPIView):
         instance.active = False
         instance.save()
         models.NumberHistory.objects.create(cc=instance.cc, number=instance.number, user=request.user, action='Deleted')
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class FraudBypassFilter(FilterSet):
+    modified_gt = django_filters.IsoDateTimeFilter(name='modified', lookup_type='gt')
+    modified_lte = django_filters.IsoDateTimeFilter(name='modified', lookup_type='lte')
+    class Meta:
+        model = models.FraudBypass
+        fields = ['cc', 'number', 'modified_gt', 'modified_lte']
+
+
+class FraudBypassListView(ListModelMixin, CreateModelMixin, GenericAPIView):
+    queryset = models.FraudBypass.objects.all()
+    permission_classe = (DjangoModelPermissionsOrAnonReadOnly, IsAuthenticated,)
+    serializer_class = serializers.FraudBypassSerializer
+    filter_class = FraudBypassFilter
+
+    def get_queryset(self):
+        queryset = super(FraudBypassListView, self).get_queryset()
+        q = self.request.query_params.get('q', None)
+        if q is not None:
+            if q.startswith('^'):
+                queryset = queryset.filter(number__startswith=q[1:])
+            elif q.endswith('$'):
+                queryset = queryset.filter(number__endswith=q[:-1])
+            else:
+                queryset = queryset.filter(number__contains=q)
+        return queryset
+
+    def get(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            data = serializer.data
+            for item in data:
+                item['url'] = '{}://{}{}'.format(request.scheme, request.META.get('HTTP_HOST'), reverse('api:routing-number-detail', args=(item.get('cc'), item.get('number'))))
+            return self.get_paginated_response(data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        data = serializer.data
+        for item in data:
+            item['url'] = '{}://{}{}'.format(request.scheme, request.META.get('HTTP_HOST'), reverse('api:routing-number-detail', args=(item.get('cc'), item.get('number'))))
+        return Response(data)
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        models.FraudBypassHistory.objects.create(cc=serializer.data['cc'], number=serializer.data['number'], user=request.user, action='Created')
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+
+class FraudBypassDetailView(RetrieveUpdateDestroyAPIView):
+    queryset = models.FraudBypass.objects.all()
+    permission_classes = (DjangoModelPermissionsOrAnonReadOnly, IsAuthenticated,)
+    serializer_class = serializers.FraudBypassSerializer
+
+    def get_object(self):
+        queryset = self.get_queryset()
+        return queryset.get(cc=self.kwargs['cc'], number=self.kwargs['number'])
+
+    def get(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        data = serializer.data
+        data['url'] = '{}://{}{}'.format(request.scheme, request.META.get('HTTP_HOST'), reverse('api:routing-fraud-bypass-detail', args=(instance.cc, instance.number)))
+        return Response(data)
+
+    def put(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        models.FraudBypassHistory.objects.create(cc=instance.cc, number=instance.number, user=request.user, action='Updated')
+        return Response(serializer.data)
+
+    def delete(self, request, *args, **kwargs):
+        instance = self.get_object()
+        instance.delete()
+        models.FraudBypassHistory.objects.create(cc=instance.cc, number=instance.number, user=request.user, action='Deleted')
         return Response(status=status.HTTP_204_NO_CONTENT)
