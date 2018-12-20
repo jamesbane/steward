@@ -32,6 +32,7 @@ class RouteRootView(APIView):
         context = dict()
         context['fraud-bypass'] = reverse('api:routing-fraud-bypass-list', request=request, format=format)
         context['numbers'] = reverse('api:routing-number-list', request=request, format=format)
+        context['outbound-routes'] = reverse('api:routing-outbound-route-list', request=request, format=format)
         context['records'] = reverse('api:routing-record-list', request=request, format=format)
         context['routes'] = reverse('api:routing-route-list', request=request, format=format)
         return Response(context)
@@ -198,13 +199,13 @@ class FraudBypassListView(ListModelMixin, CreateModelMixin, GenericAPIView):
             serializer = self.get_serializer(page, many=True)
             data = serializer.data
             for item in data:
-                item['url'] = '{}://{}{}'.format(request.scheme, request.META.get('HTTP_HOST'), reverse('api:routing-number-detail', args=(item.get('cc'), item.get('number'))))
+                item['url'] = '{}://{}{}'.format(request.scheme, request.META.get('HTTP_HOST'), reverse('api:routing-fraud-bypass-detail', args=(item.get('cc'), item.get('number'))))
             return self.get_paginated_response(data)
 
         serializer = self.get_serializer(queryset, many=True)
         data = serializer.data
         for item in data:
-            item['url'] = '{}://{}{}'.format(request.scheme, request.META.get('HTTP_HOST'), reverse('api:routing-number-detail', args=(item.get('cc'), item.get('number'))))
+            item['url'] = '{}://{}{}'.format(request.scheme, request.META.get('HTTP_HOST'), reverse('api:routing-fraud-bypass-detail', args=(item.get('cc'), item.get('number'))))
         return Response(data)
 
     def post(self, request, *args, **kwargs):
@@ -248,4 +249,90 @@ class FraudBypassDetailView(RetrieveUpdateDestroyAPIView):
         instance = self.get_object()
         instance.delete()
         models.FraudBypassHistory.objects.create(cc=instance.cc, number=instance.number, user=request.user, action='Deleted')
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class OutboundRouteFilter(FilterSet):
+    modified_gt = django_filters.IsoDateTimeFilter(name='modified', lookup_type='gt')
+    modified_lte = django_filters.IsoDateTimeFilter(name='modified', lookup_type='lte')
+    class Meta:
+        model = models.OutboundRoute
+        fields = ['number', 'end_office_route', 'long_distance_route', 'modified_gt', 'modified_lte']
+
+
+class OutboundRouteListView(ListModelMixin, CreateModelMixin, GenericAPIView):
+    queryset = models.OutboundRoute.objects.all()
+    permission_classe = (DjangoModelPermissionsOrAnonReadOnly, IsAuthenticated,)
+    serializer_class = serializers.OutboundRouteSerializer
+    filter_class = OutboundRouteFilter
+
+    def get_queryset(self):
+        queryset = super(OutboundRouteListView, self).get_queryset()
+        q = self.request.query_params.get('q', None)
+        if q is not None:
+            if q.startswith('^'):
+                queryset = queryset.filter(number__startswith=q[1:])
+            elif q.endswith('$'):
+                queryset = queryset.filter(number__endswith=q[:-1])
+            else:
+                queryset = queryset.filter(number__contains=q)
+        return queryset
+
+    def get(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            data = serializer.data
+            for item in data:
+                item['url'] = '{}://{}{}'.format(request.scheme, request.META.get('HTTP_HOST'), reverse('api:routing-outbound-route-detail', args=(item.get('number'),)))
+            return self.get_paginated_response(data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        data = serializer.data
+        for item in data:
+            item['url'] = '{}://{}{}'.format(request.scheme, request.META.get('HTTP_HOST'), reverse('api:routing-outbound-route-detail', args=(item.get('number'),)))
+        return Response(data)
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        models.OutboundRouteHistory.objects.create(number=serializer.data['number'], user=request.user, action='Created')
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+
+class OutboundRouteDetailView(RetrieveUpdateDestroyAPIView):
+    queryset = models.OutboundRoute.objects.all()
+    permission_classes = (DjangoModelPermissionsOrAnonReadOnly, IsAuthenticated,)
+    serializer_class = serializers.OutboundRouteSerializer
+
+    def get_object(self):
+        queryset = self.get_queryset()
+        return queryset.get(number=self.kwargs['number'])
+
+    def get(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        data = serializer.data
+        data['url'] = '{}://{}{}'.format(request.scheme, request.META.get('HTTP_HOST'), reverse('api:routing-outbound-route-detail', args=(instance.number,)))
+        return Response(data)
+
+    def put(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        models.OutboundRouteHistory.objects.create(number=instance.number, user=request.user, action='Updated')
+        return Response(serializer.data)
+
+    def delete(self, request, *args, **kwargs):
+        instance = self.get_object()
+        instance.delete()
+        models.OutboundRouteHistory.objects.create(number=instance.number, user=request.user, action='Deleted')
         return Response(status=status.HTTP_204_NO_CONTENT)

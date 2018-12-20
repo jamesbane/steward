@@ -195,17 +195,6 @@
     var page = 1;
     var result_count = 0;
     var limit = 50;
-    function cacheRoutes() {
-      $.ajax({
-        url: "{% url 'api:routing-route-list' %}?type=0",
-        success: function(data) {
-          $(data.results).each(function(idx, item) {
-            routes[item.id] = item.name;
-            $('.route_choices').append('<option value="'+item.id+'">'+item.name+'</option>');
-          });
-        }
-      });
-    }
     function buildResultHtml(cc, number, route) {
       var routeName = routes[route];
       var html = '<td class="col-number">'+number+'</td><td class="col-route-name">'+routeName+'</td><td style="min-width: 100px" nowrap><div class="btn-group" role="group">';
@@ -342,8 +331,7 @@
       }
       return numbers;
     }
-    $().ready(function() {
-      cacheRoutes();
+    function doTheThings() {
       query = qs['q'] || "";
       page = parseInt(qs['p']) || 1;
       $('#id_query').val(query);
@@ -420,6 +408,18 @@
         $('#id_delete_routes_choice').val('');
         $('#id_delete_number').val('');
       });
+    }
+
+    $.ajax({
+      url: "{% url 'api:routing-route-list' %}?type=0",
+      success: function(data) {
+        console.log("cacheRoutes success");
+        $(data.results).each(function(idx, item) {
+          routes[item.id] = item.name;
+          $('.route_choices').append('<option value="'+item.id+'">'+item.name+'</option>');
+        });
+        doTheThings();
+      }
     });
   </script>
 {% endblock javascript %}
