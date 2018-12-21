@@ -11,7 +11,7 @@ from django.template import loader
 from django.utils import timezone
 
 # Application
-from routing.models import FraudBypass, FraudBypassHistory, Number, OutboundRoute, OutboundRouteHistory, Route, Transmission
+from routing.models import FraudBypass, FraudBypassHistory, Number, OutboundRoute, OutboundRouteHistory, RemoteCallForward, RemoteCallForwardHistory, Route, Transmission
 
 # Third Party
 import paramiko
@@ -21,16 +21,22 @@ from lib.pyutil.util import Util
 class Command(BaseCommand):
     help = 'Upload files to MetaSwitch'
 
+    def __init__(self, *args, **kwargs):
+        super(Command, self).__init__(*args, **kwargs)
+        self._funcs = {
+            'fraud-bypass': self.transfer_fraud_bypass,
+            'outbound-route': self.transfer_outbound_route,
+            'remote-call-forward': self.transfer_remote_call_forward,
+            'route': self.transfer_route,
+        }
+
     def add_arguments(self, parser):
-        parser.add_argument('--type', dest='type', choices=['fraud-bypass', 'route', 'outbound-route'], required=True)
+        parser.add_argument('--type', dest='type', choices=self._funcs.keys(), required=True)
 
     def handle(self, *args, **options):
-        if options['type'] == 'fraud-bypass':
-            self.transfer_fraud_bypass()
-        elif options['type'] == 'route':
-            self.transfer_route()
-        elif options['type'] == 'outbound-route':
-            self.transfer_outbound_route()
+        # Call function from self._funcs dict
+        func = self._funcs[options['type']]
+        func()
 
     @transaction.non_atomic_requests
     def transfer_fraud_bypass(self):
@@ -62,6 +68,40 @@ class Command(BaseCommand):
             self.stdout.write(self.style.SUCCESS('Successfully transfered Fraud Bypass file'))
         else:
             self.stdout.write(self.style.ERROR('Failed to transfer Fraud Bypass file'))
+
+        # Cleanup
+        os.remove(f.name)
+
+    @transaction.non_atomic_requests
+    def transfer_remote_call_forward(self):
+        self.stdout.write(self.style.SUCCESS('Transfering Remote Call Forward File'))
+        try:
+            last_transmission = Transmission.objects.filter(result_state=Transmission.RESULT_CHOICE_SUCCESS, type=Transmission.TYPE_CHOICE_REMOTE_CALL_FORWARD).latest('last_modified')
+        except Transmission.DoesNotExist:
+            last_transmission = None
+        try:
+            last_modified = RemoteCallForwardHistory.objects.latest('modified').modified
+        except RemoteCallForwardHistory.DoesNotExist:
+            last_modified = None
+        if last_transmission and last_transmission.last_modified and last_modified and last_transmission.last_modified >= last_modified:
+            self.stdout.write(self.style.SUCCESS('No modifications since last transmission'))
+            return
+        transmission = Transmission.objects.create(result_state=Transmission.RESULT_CHOICE_PENDING, type=Transmission.TYPE_CHOICE_REMOTE_CALL_FORWARD, last_modified=last_modified)
+        meta_settings = settings.PLATFORMS['metaswitch']
+        dest_filename = meta_settings['filenames']['remote-call-forward']
+
+        # generate file
+        context = dict()
+        context['object_list'] = RemoteCallForward.objects.all()
+        f = tempfile.NamedTemporaryFile(delete=False)
+        f.write(loader.render_to_string('routing/NVFILE_remote_call_forward.txt', context).encode())
+        f.close()
+
+        # transfer file
+        if self._transfer_file(transmission, f, dest_filename):
+            self.stdout.write(self.style.SUCCESS('Successfully transfered Remote Call Forward file'))
+        else:
+            self.stdout.write(self.style.ERROR('Failed to transfer Remote Call Forward file'))
 
         # Cleanup
         os.remove(f.name)

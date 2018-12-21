@@ -19,6 +19,8 @@ urlpatterns = [
     url(r'^numbers/(?P<cc>\d+)/(?P<number>\d+)/$', views.NumberDetailView.as_view(), name='routing-number-detail'),
     url(r'^fraud-bypass/$', views.FraudBypassListView.as_view(), name='routing-fraud-bypass-list'),
     url(r'^fraud-bypass/(?P<cc>\d+)/(?P<number>\d+)/$', views.FraudBypassDetailView.as_view(), name='routing-fraud-bypass-detail'),
+    url(r'^remote-call-forward/$', views.RemoteCallForwardListView.as_view(), name='routing-remote-call-forward-list'),
+    url(r'^remote-call-forward/(?P<called_number>\d+)/$', views.RemoteCallForwardDetailView.as_view(), name='routing-remote-call-forward-detail'),
     url(r'^outbound-route/$', views.OutboundRouteListView.as_view(), name='routing-outbound-route-list'),
     url(r'^outbound-route/(?P<number>\d+)/$', views.OutboundRouteDetailView.as_view(), name='routing-outbound-route-detail'),
     url(r'^', include(router.urls)),

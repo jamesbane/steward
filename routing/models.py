@@ -4,6 +4,8 @@ from django.db import models
 from django.template import engines
 from django.core.validators import RegexValidator
 
+NANPA_VALIDATOR = RegexValidator(regex='^\d{10}$', message='Must be 10 digits', code='nomatch')
+
 
 class Route(models.Model):
     TYPE_CHOICE_INTERNAL = 0
@@ -42,10 +44,12 @@ class Transmission(models.Model):
     TYPE_CHOICE_ROUTE = 0
     TYPE_CHOICE_FRAUD_BYPASS = 1
     TYPE_CHOICE_OUTBOUND_ROUTE = 2
+    TYPE_CHOICE_REMOTE_CALL_FORWARD = 3
     TYPE_CHOICES = (
         (TYPE_CHOICE_ROUTE, 'Route'),
         (TYPE_CHOICE_FRAUD_BYPASS, 'Fraud Bypass'),
         (TYPE_CHOICE_OUTBOUND_ROUTE, 'Outbound Route'),
+        (TYPE_CHOICE_REMOTE_CALL_FORWARD, 'Remote Call Forward'),
     )
     RESULT_CHOICE_PENDING = 0
     RESULT_CHOICE_TRANSFERING = 1
@@ -126,7 +130,7 @@ class NumberHistory(models.Model):
 
 class FraudBypass(models.Model):
     cc = models.SmallIntegerField(default=1)
-    number = models.CharField(max_length=64, validators=[RegexValidator(regex='^\d{10}$', message='Must be 10 digits', code='nomatch')])
+    number = models.CharField(max_length=64, validators=[NANPA_VALIDATOR])
     modified = models.DateTimeField(auto_now=True)
 
     class Meta:
@@ -158,6 +162,25 @@ class OutboundRoute(models.Model):
 
 class OutboundRouteHistory(models.Model):
     number = models.CharField(max_length=128)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='+')
+    modified = models.DateTimeField(auto_now=True)
+    action = models.CharField(max_length=256)
+
+    class Meta:
+        ordering = ('-modified',)
+
+
+class RemoteCallForward(models.Model):
+    called_number = models.CharField(max_length=128, unique=True, validators=[NANPA_VALIDATOR])
+    forward_number = models.CharField(max_length=128, validators=[NANPA_VALIDATOR])
+    modified = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ('called_number',)
+
+
+class RemoteCallForwardHistory(models.Model):
+    called_number = models.CharField(max_length=128)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='+')
     modified = models.DateTimeField(auto_now=True)
     action = models.CharField(max_length=256)

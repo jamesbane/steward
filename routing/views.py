@@ -11,8 +11,8 @@ from django.views.generic import (
 
 # Application
 from routing.models import (
-    FraudBypass, FraudBypassHistory, Number, NumberHistory,
-    OutboundRoute, OutboundRouteHistory, Record, Route, Transmission,
+    FraudBypass, FraudBypassHistory, Number, NumberHistory, OutboundRoute, OutboundRouteHistory, Record,
+    RemoteCallForward, RemoteCallForwardHistory, Route, Transmission,
 )
 
 
@@ -194,3 +194,28 @@ class OutboundRouteHistoryListView(LoginRequiredMixin, PermissionRequiredMixin, 
     model = OutboundRouteHistory
     paginate_by = 100
     permission_required = 'routing.change_outboundroute'
+
+
+class RemoteCallForwardSearchView(LoginRequiredMixin, TemplateView):
+    template_name = 'routing/remotecallforward_search.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(RemoteCallForwardSearchView, self).get_context_data(**kwargs)
+        context['number_count'] = RemoteCallForward.objects.count()
+        return context
+
+
+class RemoteCallForwardHistoryListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
+    model = RemoteCallForwardHistory
+    paginate_by = 100
+    permission_required = 'routing.change_remotecallforward'
+
+
+class RemoteCallForwardHistoryDetailView(LoginRequiredMixin, TemplateView):
+    template_name = 'routing/remotecallforwardhistory_detail.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(RemoteCallForwardHistoryDetailView, self).get_context_data(**kwargs)
+        context['called_number'] = self.kwargs.get('called_number')
+        context['history_list'] = RemoteCallForwardHistory.objects.filter(called_number=self.kwargs.get('called_number'))
+        return context

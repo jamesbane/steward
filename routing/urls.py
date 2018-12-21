@@ -21,6 +21,10 @@ urlpatterns = [
     url(r'^outbound-route/(?P<pk>\d+)/edit$', routing.views.OutboundRouteUpdateView.as_view(), name='outbound-route-update'),
     url(r'^outbound-route/(?P<pk>\d+)/delete$', routing.views.OutboundRouteDeleteView.as_view(), name='outbound-route-delete'),
 
+    url(r'^remote-call-forward$', routing.views.RemoteCallForwardSearchView.as_view(), name='remote-call-forward-search'),
+    url(r'^remote-call-forward/history$', routing.views.RemoteCallForwardHistoryListView.as_view(), name='remote-call-forward-history'),
+    url(r'^remote-call-forward/(?P<called_number>\d+)/$', routing.views.RemoteCallForwardHistoryDetailView.as_view(), name='remote-call-forward-history-detail'),
+
     url(r'^routes$', routing.views.RouteListView.as_view(), name='route-list'),
     url(r'^routes/add$', routing.views.RouteCreateView.as_view(), name='route-create'),
     url(r'^routes/(?P<pk>\d+)/$', routing.views.RouteDetailView.as_view(), name='route-detail'),

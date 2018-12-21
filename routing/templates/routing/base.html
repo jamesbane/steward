@@ -37,6 +37,17 @@
               </a>
           </li>
         {% endif %}
+        {% if perms.routing.change_remotecallforward %}
+          {% url 'routing:remote-call-forward-search' as the_url %}
+          <li {% if request.get_full_path == the_url %}class="active"{% endif %}>
+            <a href="{{ the_url }}">
+              Remote Call Forward
+              {% if request.get_full_path == the_url %}
+                <span class="sr-only">(current)</span>
+              {% endif %}
+            </a>
+          </li>
+        {% endif %}
         {% if perms.routing.change_route %}
           {% url 'routing:route-list' as the_url %}
           <li {% if request.get_full_path == the_url %}class="active"{% endif %}>

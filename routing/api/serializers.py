@@ -149,3 +149,9 @@ class OutboundRouteSerializer(serializers.ModelSerializer):
                 setattr(instance, field_name, value)
 
         return instance
+
+
+class RemoteCallForwardSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.RemoteCallForward
+        fields = ('called_number', 'forward_number', 'modified')
