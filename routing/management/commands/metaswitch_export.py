@@ -67,7 +67,7 @@ class Command(BaseCommand):
         # generate file
         context = dict()
         context['routes'] = Route.objects.filter(type=Route.TYPE_CHOICE_INTERNAL)
-        context['numbers'] = Number.objects.all().select_related('route')
+        context['numbers'] = Number.objects.filter(active=True).select_related('route')
         f.write(str(loader.render_to_string('routing/NVFILE_route.txt', context)))
         f.close()
         self.stdout.write(self.style.SUCCESS('Successfully exported Route file to {}'.format(f.name)))
