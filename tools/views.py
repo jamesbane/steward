@@ -222,3 +222,12 @@ class TrunkAuditToolView(PermissionRequiredMixin, LoginRequiredMixin, ToolView):
     process_function = 'tools.jobs.trunk_user_audit.trunk_user_audit'
     template_name = 'tools/trunk_user_audit.html'
     form_class = tools.forms.TrunkUserAuditForm
+
+
+class BusyLampFieldFixupToolView(PermissionRequiredMixin, LoginRequiredMixin, ToolView):
+    permission_required = 'tools.process_busy_lamp_field_fixup_exec'
+    permission_view = 'tools.process_busy_lamp_field_fixup_view'
+    process_name = 'Busy Lamp Field (BLF) Fixup'
+    process_function = 'tools.jobs.busy_lamp_field_fixup.blf_fixup'
+    template_name = 'tools/busy_lamp_field_fixup.html'
+    form_class = tools.forms.BusyLampFieldFixupForm

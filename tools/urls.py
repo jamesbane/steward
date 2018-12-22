@@ -16,6 +16,7 @@ urlpatterns = [
     url(r'^tag-removal$', tools.views.TagRemovalToolView.as_view(), name='tag-removal'),
     url(r'^speed-dial-configurator$', tools.views.SpeedDialConfiguratorToolView.as_view(), name='speed-dial-configurator'),
     url(r'^trunk-user-audit$', tools.views.TrunkAuditToolView.as_view(), name='trunk-user-audit'),
+    url(r'^blf-fixup$', tools.views.BusyLampFieldFixupToolView.as_view(), name='busy-lamp-field-fixup'),
     # Reports
     url(r'^firmware-report$', tools.views.FirmwareReportView.as_view(), name='firmware-report'),
     url(r'^registrations-report$', tools.views.RegistrationReportView.as_view(), name='registrations-report'),

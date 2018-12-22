@@ -116,5 +116,9 @@ class DectLineForm(forms.Form):
     lineport = forms.CharField(max_length=128, required=False, widget=forms.TextInput(attrs={'placeholder': 'Line Port', 'class': 'col-lg-4', 'disabled': True}))
 
 
+class BusyLampFieldFixupForm(ProviderGroupForm):
+    pass
+
+
 class EmptyForm(BroadworksPlatformForm):
     pass
