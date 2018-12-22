@@ -33,9 +33,13 @@
             "filenames": {
               "route": "bob.txt",
               "fraud-bypass": "bob2.txt",
-              "outbound-route": "bob3.txt"
+              "outbound-route": "bob3.txt",
+              "remote-call-forward" "bob4.txt"
             },
-            "pathname": "/ftp/nvfiles/"
+            "pathnames": {
+              "local": "/backup/",
+              "remote": "/ftp/nvfiles/"
+            }
         },
         "palladion": {
             "uri": "https://palladion.example.com/me",

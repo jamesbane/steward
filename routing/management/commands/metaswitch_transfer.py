@@ -1,4 +1,5 @@
 # Python
+from shutil import copyfile
 import os
 import tempfile
 import time
@@ -42,7 +43,9 @@ class Command(BaseCommand):
     def transfer_fraud_bypass(self):
         self.stdout.write(self.style.SUCCESS('Transfering Fraud Bypass File'))
         try:
-            last_transmission = Transmission.objects.filter(result_state=Transmission.RESULT_CHOICE_SUCCESS, type=Transmission.TYPE_CHOICE_FRAUD_BYPASS).latest('last_modified')
+            last_transmission = Transmission.objects.filter(
+                result_state=Transmission.RESULT_CHOICE_SUCCESS,
+                type=Transmission.TYPE_CHOICE_FRAUD_BYPASS).latest('last_modified')
         except Transmission.DoesNotExist:
             last_transmission = None
         try:
@@ -68,6 +71,9 @@ class Command(BaseCommand):
             self.stdout.write(self.style.SUCCESS('Successfully transfered Fraud Bypass file'))
         else:
             self.stdout.write(self.style.ERROR('Failed to transfer Fraud Bypass file'))
+
+        # Make local backup file
+        self._copy_to_meta_backup_path(f, dest_filename)
 
         # Cleanup
         os.remove(f.name)
@@ -102,6 +108,9 @@ class Command(BaseCommand):
             self.stdout.write(self.style.SUCCESS('Successfully transfered Remote Call Forward file'))
         else:
             self.stdout.write(self.style.ERROR('Failed to transfer Remote Call Forward file'))
+
+        # Make local backup file
+        self._copy_to_meta_backup_path(f, dest_filename)
 
         # Cleanup
         os.remove(f.name)
@@ -138,9 +147,11 @@ class Command(BaseCommand):
         else:
             self.stdout.write(self.style.ERROR('Failed to transfer Route file'))
 
+        # Make local backup file
+        self._copy_to_meta_backup_path(f, dest_filename)
+
         # Cleanup
         os.remove(f.name)
-
 
     @transaction.non_atomic_requests
     def transfer_outbound_route(self):
@@ -174,9 +185,23 @@ class Command(BaseCommand):
         else:
             self.stdout.write(self.style.ERROR('Failed to transfer Outbound Route file'))
 
+        # Make local backup file
+        self._copy_to_meta_backup_path(f, dest_filename)
+
         # Cleanup
         os.remove(f.name)
 
+    def _copy_to_meta_backup_path(self, local_file, dest_filename):
+        """Copy given local file to metaswitch backup directory.
+
+        Args:
+            local_file (NamedTemporaryFile): Source file
+            dest_filename (str): Destination filename
+        """
+        meta_settings = settings.PLATFORMS['metaswitch']
+        local_pathname = meta_settings['pathnames']['local']
+        local_filename = os.path.join(local_pathname, dest_filename)
+        copyfile(f.name, local_filename)
 
     def _transfer_file(self, transmission, local_file, remote_filename):
         rval = None
@@ -190,7 +215,7 @@ class Command(BaseCommand):
             transport = paramiko.Transport((meta_settings['host'], meta_settings['port']))
             transport.connect(username=meta_settings['username'], password=meta_settings['password'])
             sftp = paramiko.sftp_client.SFTPClient.from_transport(transport)
-            sftp.chdir(path=meta_settings['pathname'])
+            sftp.chdir(path=meta_settings['pathnames']['remote'])
             sftp.put(local_file.name, remote_filename)
 
             count = 0
