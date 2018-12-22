@@ -68,12 +68,10 @@ class Command(BaseCommand):
 
         # transfer file
         if self._transfer_file(transmission, f, dest_filename):
+            self._copy_to_meta_backup_path(f, dest_filename)
             self.stdout.write(self.style.SUCCESS('Successfully transfered Fraud Bypass file'))
         else:
             self.stdout.write(self.style.ERROR('Failed to transfer Fraud Bypass file'))
-
-        # Make local backup file
-        self._copy_to_meta_backup_path(f, dest_filename)
 
         # Cleanup
         os.remove(f.name)
@@ -105,12 +103,10 @@ class Command(BaseCommand):
 
         # transfer file
         if self._transfer_file(transmission, f, dest_filename):
+            self._copy_to_meta_backup_path(f, dest_filename)
             self.stdout.write(self.style.SUCCESS('Successfully transfered Remote Call Forward file'))
         else:
             self.stdout.write(self.style.ERROR('Failed to transfer Remote Call Forward file'))
-
-        # Make local backup file
-        self._copy_to_meta_backup_path(f, dest_filename)
 
         # Cleanup
         os.remove(f.name)
@@ -136,19 +132,17 @@ class Command(BaseCommand):
         # generate file
         context = dict()
         context['routes'] = Route.objects.filter(type=Route.TYPE_CHOICE_INTERNAL)
-        context['numbers'] = Number.objects.all().select_related('route')
+        context['numbers'] = Number.objects.filter(active=True).select_related('route')
         f = tempfile.NamedTemporaryFile(delete=False)
         f.write(loader.render_to_string('routing/NVFILE_route.txt', context).encode())
         f.close()
 
         # transfer file
         if self._transfer_file(transmission, f, dest_filename):
+            self._copy_to_meta_backup_path(f, dest_filename)
             self.stdout.write(self.style.SUCCESS('Successfully transfered Route file'))
         else:
             self.stdout.write(self.style.ERROR('Failed to transfer Route file'))
-
-        # Make local backup file
-        self._copy_to_meta_backup_path(f, dest_filename)
 
         # Cleanup
         os.remove(f.name)
@@ -181,12 +175,10 @@ class Command(BaseCommand):
 
         # transfer file
         if self._transfer_file(transmission, f, dest_filename):
+            self._copy_to_meta_backup_path(f, dest_filename)
             self.stdout.write(self.style.SUCCESS('Successfully transfered Outbound Route file'))
         else:
             self.stdout.write(self.style.ERROR('Failed to transfer Outbound Route file'))
-
-        # Make local backup file
-        self._copy_to_meta_backup_path(f, dest_filename)
 
         # Cleanup
         os.remove(f.name)
@@ -201,7 +193,7 @@ class Command(BaseCommand):
         meta_settings = settings.PLATFORMS['metaswitch']
         local_pathname = meta_settings['pathnames']['local']
         local_filename = os.path.join(local_pathname, dest_filename)
-        copyfile(f.name, local_filename)
+        copyfile(local_file.name, local_filename)
 
     def _transfer_file(self, transmission, local_file, remote_filename):
         rval = None
