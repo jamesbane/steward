@@ -47,6 +47,8 @@ class Process(models.Model):
     class Meta:
         ordering = ['-start_timestamp', '-end_timestamp']
         permissions = (
+            ("process_busy_lamp_field_fixup_exec", "Busy Lamp Field Fixup Execute"),
+            ("process_busy_lamp_field_fixup_view", "Busy Lamp Field Fixup View Results"),
             ("process_call_park_pickup_configurator_exec", "Call Park/Pickup Configurator Execute"),
             ("process_call_park_pickup_configurator_view", "Call Park/Pickup Configurator View Results"),
             ("process_dect_configurator_exec", "DECT Configurator Execute"),
@@ -67,10 +69,10 @@ class Process(models.Model):
             ("process_registration_report_view", "Registration Report View Results"),
             ("process_speed_dial_configurator_exec", "Speed Dial Configurator Execute"),
             ("process_speed_dial_configurator_view", "Speed Dial Configurator View Results"),
-            ("process_tag_report_exec", "Tag Report Execute"),
-            ("process_tag_report_view", "Tag Report View Results"),
             ("process_tag_removal_exec", "Tag Removal Tool Execute"),
             ("process_tag_removal_view", "Tag Removal Tool View Results"),
+            ("process_tag_report_exec", "Tag Report Execute"),
+            ("process_tag_report_view", "Tag Report View Results"),
             ("process_trunk_user_audit_exec", "Trunk Audit Execute"),
             ("process_trunk_user_audit_view", "Trunk Audit View Results"),
         )
