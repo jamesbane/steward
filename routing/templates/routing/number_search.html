@@ -216,7 +216,7 @@
     }
     function addNumber(cc, number, route) {
       $.getJSON({
-        method: "POST",
+        method: "PUT",
         data: JSON.stringify(({cc: cc, number: number, route: route})),
         url: "{% url 'api:routing-number-list' %}",
         contentType: 'application/json',
