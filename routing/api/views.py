@@ -178,7 +178,7 @@ class FraudBypassFilter(FilterSet):
 
 class FraudBypassListView(ListModelMixin, CreateModelMixin, GenericAPIView):
     queryset = models.FraudBypass.objects.all()
-    permission_classe = (DjangoModelPermissionsOrAnonReadOnly, IsAuthenticated,)
+    permission_class = (DjangoModelPermissionsOrAnonReadOnly, IsAuthenticated,)
     serializer_class = serializers.FraudBypassSerializer
     filter_class = FraudBypassFilter
 
