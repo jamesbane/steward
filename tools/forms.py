@@ -119,6 +119,11 @@ class DectLineForm(forms.Form):
 class BusyLampFieldFixupForm(ProviderGroupForm):
     pass
 
+class UserLocationLookupForm(BroadworksPlatformForm):
+    url = forms.CharField(label='URL', widget=forms.TextInput(attrs={'placeholder': '<user@domain>'}))
+    line_port = forms.CharField(label='Line Port', widget=forms.TextInput(attrs={'placeholder': '<linePortAddress@linePortDomain>'}))
+    dn = forms.IntegerField(label='DN', widget=forms.NumberInput(attrs={'placeholder': '10 digit directory number'}))
+    group_id = forms.CharField(label='Group ID')
 
 class EmptyForm(BroadworksPlatformForm):
     pass
