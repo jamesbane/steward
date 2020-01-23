@@ -236,8 +236,6 @@ class BusyLampFieldFixupToolView(PermissionRequiredMixin, LoginRequiredMixin, To
 class UserLocationLookupToolView(ProcessFormMixin, PermissionRequiredMixin, LoginRequiredMixin, TemplateView):
     permission_required = 'tools.process_user_location_lookup_exec'
     permission_view = 'tools.process_user_location_lookup_view'
-    #process_name = 'Customer/User Location Lookup'
-    #process_function = 'tools.jobs.user_location_lookup.loc_lookup'
     template_name = 'tools/user_location_lookup.html'
     form_class = tools.forms.UserLocationLookupForm
 
@@ -247,8 +245,11 @@ class UserLocationLookupToolView(ProcessFormMixin, PermissionRequiredMixin, Logi
 
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST)
-        tool = UserLocationLookup(form)
-        result = tool.run()
-        return render(request, self.template_name, {'lookup_output': result})
+        if form.is_valid():
+            tool = UserLocationLookup(form.cleaned_data)
+            result = tool.run()
+            return render(request, self.template_name, {'form': form, 'lookup_output': result})
+        else:
+            return render(request, self.template_name, {'form': form, 'lookup_output': 'error'})
 
 

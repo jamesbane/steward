@@ -1,5 +1,9 @@
 # Python
 import requests
+from io import BytesIO
+
+# Third party
+from lxml import etree
 
 class UserLocationLookup():
     def __init__(self, parameters):
@@ -8,15 +12,23 @@ class UserLocationLookup():
     def run(self):
 
         # parameters
-        url = self.parameters['url']
-        #line_port = self.parameters.get('line_port', None)
-        #dn = self.parameters.get('dn', None)
-        #group_id = self.parameters.get('group_id', None)
+        url = self.parameters.get('url', '')
+        line_port = self.parameters.get('line_port', '')
+        dn = self.parameters.get('dn', '')
+        group_id = self.parameters.get('group_id', '')
+
+        if url == '' and line_port == '' and dn == '':
+            raise Exception("You must enter either a URL, LinePort, or DN")
+        
 
         response = requests.get(
             'http://10.200.5.20/servlet/LocateUser',
-            params={'url': '2056082081@tekvoice.net', 'callPRequest': 'false'}
+            params={'url': url, 'callPRequest': 'false'}
         )
 
-        return response.text
-
+        #return response.text
+        tree = etree.parse(BytesIO(bytes(response.text, 'utf-8')))
+        servers = tree.find('applicationServerArray')
+        for ele in servers:
+            print(ele.get('address'))
+        return etree.tostring(tree, pretty_print=True) 

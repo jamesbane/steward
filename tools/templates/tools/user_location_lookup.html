@@ -17,15 +17,16 @@ for each user:
 
     <h2 class="text-danger"><i class="fa fa-warning"></i> Invoke</h2>
     <div class="well">
-      <form method="POST">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <p><label></label><input id="submit" type="submit" value="Run"/></p>
-      </form>
-    </div>
-    <div class="well mt-3">
-    	<h3>Output</h3>
-	{{ lookup_output }}
+	<div class="col-4">
+          <form method="POST">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <p><label></label><input id="submit" type="submit" value="Run"/></p>
+          </form>
+	</div>
+	<div class="col-8">
+	  {{ lookup_output }}
+	</div>
     </div>
   </div>
 {% endblock tool_content %}
