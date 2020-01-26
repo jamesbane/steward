@@ -6,6 +6,8 @@ class BroadworksPlatform(models.Model):
     uri = models.CharField(max_length=1024)
     username = models.CharField(max_length=256)
     password = models.CharField(max_length=256)
+    ip = models.CharField(max_length=15, default='', blank=True)
+    hostname = models.CharField(max_length=256, default='', blank=True)
 
     class Meta:
         ordering = ('name',)
