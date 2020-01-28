@@ -41,11 +41,13 @@ class UserLocationLookup():
         tree = etree.parse(BytesIO(bytes(response.text, 'utf-8')))
         servers = tree.find('applicationServerArray')
         if servers is not None:
+            bws = []
             for ele in servers:
                 addr = ele.get('address')
-                platform = BroadworksPlatform.objects.filter(ip__contains=addr)
-                print(platform.Name)
+                platform = BroadworksPlatform.objects.filter(ip__contains=addr).values()
+                bws.append(platform[0])
 
-            return etree.tostring(tree, pretty_print=True) 
+            #return etree.tostring(tree, pretty_print=True)
+            return bws
         else:
             return 'Not Found'

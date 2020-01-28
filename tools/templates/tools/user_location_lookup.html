@@ -7,27 +7,22 @@
     <p>
       This tool uses the BW NS Location API to determine which AS a user is built on. 
     </p>
-    <h4>Summary of actions:</h4>
-    <pre>
-for each user:
-    UserBusyLampFieldGetRequest16sp2
-    if listUri exists and monitoredUserTable is empty then:
-        Clear listUri with UserBusyLampFieldModifyRequest
-    </pre>
 
     <h2 class="text-danger"><i class="fa fa-warning"></i> Invoke</h2>
-    <div class="well">
-	<div class="col-4">
+      <div class="well">
           <form method="POST">
             {% csrf_token %}
             {{ form.as_p }}
             <p><label></label><input id="submit" type="submit" value="Run"/></p>
           </form>
-	</div>
-	<div class="col-8">
-	  {{ lookup_output }}
-	</div>
-    </div>
+      </div>
+      <div class="well">
+	  <div>
+	      {% for platform in lookup_output %}
+	      <p>{{ platform.name }}</p>
+	      {% endfor %}
+	  </div>
+      </div>
   </div>
 {% endblock tool_content %}
 
