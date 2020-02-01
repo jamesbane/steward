@@ -4,6 +4,7 @@ from io import BytesIO
 
 # Application
 from platforms.models import BroadworksPlatform 
+from django.conf import settings
 
 # Third party
 from lxml import etree
@@ -33,8 +34,9 @@ class UserLocationLookup():
         if group_id != '':
             toolParams['groupId'] = group_id
 
+        lookup_ns = settings.PLATFORMS['locate_user_ns']
         response = requests.get(
-            'http://10.200.5.20/servlet/LocateUser',
+            lookup_ns['url'],
             params=toolParams
         )
 
