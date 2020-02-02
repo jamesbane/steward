@@ -44,6 +44,9 @@
         "palladion": {
             "uri": "https://palladion.example.com/me",
             "api_key": ""
+        },
+	"locate_user_ns": {
+            "url": "http://10.200.5.20/servlet/LocateUser"
         }
     },
     "redis": {
