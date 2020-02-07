@@ -75,6 +75,8 @@ class Process(models.Model):
             ("process_tag_report_view", "Tag Report View Results"),
             ("process_trunk_user_audit_exec", "Trunk Audit Execute"),
             ("process_trunk_user_audit_view", "Trunk Audit View Results"),
+            ("process_user_location_lookup_exec", "Customer/User Location Lookup Execute"),
+            ("process_user_location_lookup_view", "Custerom/User Location Lookup View Results"),
         )
 
 

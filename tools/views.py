@@ -20,6 +20,7 @@ from django.views.generic.detail import DetailView
 # Application
 import tools.forms
 from tools.models import Process
+from tools.user_lookup import UserLocationLookup
 
 # Third Party
 import django_rq
@@ -231,3 +232,24 @@ class BusyLampFieldFixupToolView(PermissionRequiredMixin, LoginRequiredMixin, To
     process_function = 'tools.jobs.busy_lamp_field_fixup.blf_fixup'
     template_name = 'tools/busy_lamp_field_fixup.html'
     form_class = tools.forms.BusyLampFieldFixupForm
+
+class UserLocationLookupToolView(ProcessFormMixin, PermissionRequiredMixin, LoginRequiredMixin, TemplateView):
+    permission_required = 'tools.process_user_location_lookup_exec'
+    permission_view = 'tools.process_user_location_lookup_view'
+    template_name = 'tools/user_location_lookup.html'
+    form_class = tools.forms.UserLocationLookupForm
+
+    def get(self, request, *args, **kwargs):
+        form = self.form_class()
+        return render(request, self.template_name, {'form': form})
+
+    def post(self, request, *args, **kwargs):
+        form = self.form_class(request.POST)
+        if form.is_valid():
+            tool = UserLocationLookup(form.cleaned_data)
+            result = tool.run()
+            return render(request, self.template_name, {'form': form, 'lookup_output': result})
+        else:
+            return render(request, self.template_name, {'form': form, 'lookup_output': 'error'})
+
+

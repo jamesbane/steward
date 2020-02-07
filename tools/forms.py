@@ -119,6 +119,17 @@ class DectLineForm(forms.Form):
 class BusyLampFieldFixupForm(ProviderGroupForm):
     pass
 
+class UserLocationLookupForm(forms.Form):
+    url = forms.CharField(label='Userid', required=False, widget=forms.TextInput(attrs={'placeholder': '<user@domain>'}))
+    line_port = forms.CharField(label='Line Port', required=False, widget=forms.TextInput(attrs={'placeholder': '<linePortAddress@linePortDomain>'}))
+    dn = forms.IntegerField(label='DN', required=False, widget=forms.NumberInput(attrs={'placeholder': '10 digit directory number'}))
+    group_id = forms.CharField(label='Group ID', required=False)
+
+    def clean(self):
+        data = super(UserLocationLookupForm, self).clean()
+        if not data['url'] and not data['line_port'] and not data['dn']:
+            raise forms.ValidationError("You must enter a URL, Line Port, or a DN.")
+        return data
 
 class EmptyForm(BroadworksPlatformForm):
     pass
