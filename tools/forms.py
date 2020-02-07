@@ -120,7 +120,7 @@ class BusyLampFieldFixupForm(ProviderGroupForm):
     pass
 
 class UserLocationLookupForm(forms.Form):
-    url = forms.CharField(label='URL', required=False, widget=forms.TextInput(attrs={'placeholder': '<user@domain>'}))
+    url = forms.CharField(label='Userid', required=False, widget=forms.TextInput(attrs={'placeholder': '<user@domain>'}))
     line_port = forms.CharField(label='Line Port', required=False, widget=forms.TextInput(attrs={'placeholder': '<linePortAddress@linePortDomain>'}))
     dn = forms.IntegerField(label='DN', required=False, widget=forms.NumberInput(attrs={'placeholder': '10 digit directory number'}))
     group_id = forms.CharField(label='Group ID', required=False)
