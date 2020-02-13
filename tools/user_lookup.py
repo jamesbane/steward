@@ -5,6 +5,7 @@ from io import BytesIO
 # Application
 from platforms.models import BroadworksPlatform 
 from django.conf import settings
+from django.db.models import Q
 
 # Third party
 from lxml import etree
@@ -41,15 +42,13 @@ class UserLocationLookup():
         )
 
         tree = etree.parse(BytesIO(bytes(response.text, 'utf-8')))
+        bws = []
         servers = tree.find('applicationServerArray')
         if servers is not None:
-            bws = []
             for ele in servers:
                 addr = ele.get('address')
-                platform = BroadworksPlatform.objects.filter(ip__contains=addr).values()
-                bws.append(platform[0])
+                platform = BroadworksPlatform.objects.filter(Q(ip__contains=addr)|Q(hostname__contains=addr)).values()
+                if len(platform) > 0:
+                    bws.append(platform[0])
 
-            #return etree.tostring(tree, pretty_print=True)
-            return bws
-        else:
-            return 'Not Found'
+        return bws

@@ -20,6 +20,8 @@
 	  <div>
 	      {% for platform in lookup_output %}
 	      <p>{{ platform.name }}</p>
+	      {% empty %}
+	      <p>Search returned 0 results</p>
 	      {% endfor %}
 	  </div>
       </div>
