@@ -4,6 +4,7 @@ from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.core.validators import MinLengthValidator, RegexValidator
 # local
 from platforms.models import BroadworksPlatform
+from tools.models import DeviceType
 
 
 class BroadworksPlatformForm(forms.Form):
@@ -108,6 +109,19 @@ class DeviceForm(BroadworksPlatformForm):
     group_id = forms.CharField(label='Group Id', max_length=256, required=True)
     device_name = forms.CharField(label='Device Name', max_length=256, required=True)
 
+class DeviceTypeForm(BroadworksPlatformForm):
+    DEVICE_TYPE_CHOICES = (
+        ('all', 'All Polycom'),
+        ('Polycom_VVX300', 'Polycom_VVX300'),
+        ('Polycom_VVX400', 'Polycom_VVX400'),
+        ('Polycom_VVX500', 'Polycom_VVX500'),
+    )
+
+    provider_id = forms.CharField(label='Provider Id', max_length=256, required=True)
+    group_id = forms.CharField(label='Group Id', max_length=256, required=True)
+    #device_type = forms.CharField(label='Device Type', max_length=256, required=True)
+    #device_type = forms.ChoiceField(label='Device Type', choices=DEVICE_TYPE_CHOICES, required=True)
+    device_type = forms.ModelChoiceField(label='Device Type', queryset=DeviceType.objects.all())
 
 class DectLineForm(forms.Form):
     handset = forms.IntegerField(required=True, widget=forms.NumberInput(attrs={'placeholder': 'Handset', 'class': 'col-lg-1'}))

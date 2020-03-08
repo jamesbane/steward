@@ -1,0 +1,50 @@
+{% extends 'tools/base.html' %}
+
+{% block tool_content %}
+  <h1 class="page-header">Modify Device Credentials</h1>
+  <div>
+    <h2 class="text-primary"><i class="fa fa-info"></i> Documentation</h2>
+    <p>This tool modifies BroadWorks Polycom Device Credentials.
+       When run on a Service Provider, a Group is required. When running on an Enterprise, a group is optional. <strong>If no group is provided, it is assumed that all groups
+       within the Enterprise will be migrated.</strong><br/><br/>
+       This process involves rebuilding Devices. <strong>This is service impacting for the respective customer.</strong>
+     </p>
+    <h4>Summary of actions:</h4>
+    <pre>
+for each group:
+    GroupAccessDeviceGetListRequest
+    for device in devices:
+        if device_type contains 'Polycom':
+	    <strong>GroupAccessDeviceGetUserListRequest
+            for user in users:
+                UserGetRegistrationListRequest
+            # Match device type based upon registered User Agent
+	    # Fail if not registered or no User Agent</strong>
+            GroupAccessDeviceGetRequest18sp1
+            # Generate new device info
+            GroupAccessDeviceGetUserListRequest
+            GroupAccessDeviceModifyUserRequest
+            # Send existing device a new config file to redirect to the new device &amp; reboot
+            GroupAccessDeviceFileModifyRequest14sp8
+            GroupCPEConfigRebuildDeviceConfigFileRequest
+            GroupAccessDeviceResetRequest
+            # Success!</pre>
+
+    <h2 class="text-danger"><i class="fa fa-warning"></i> Invoke</h2>
+    <p><strong class="text-danger">WARNING This will disrupt service.</strong></p>
+    <div class="well">
+      <form method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <p><label></label><input id="submit" type="submit" value="Run"/></p>
+      </form>
+    </div>
+  </div>
+{% endblock tool_content %}
+
+{% block javascript %}
+  {{ block.super }}
+  {% if form.javascript %}
+    <script src="{{ form.javascript }}"></script>
+  {% endif %}
+{% endblock javascript %}

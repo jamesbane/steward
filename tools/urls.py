@@ -17,7 +17,8 @@ urlpatterns = [
     url(r'^speed-dial-configurator$', tools.views.SpeedDialConfiguratorToolView.as_view(), name='speed-dial-configurator'),
     url(r'^trunk-user-audit$', tools.views.TrunkAuditToolView.as_view(), name='trunk-user-audit'),
     url(r'^blf-fixup$', tools.views.BusyLampFieldFixupToolView.as_view(), name='busy-lamp-field-fixup'),
-    url(r'^user-loc-lookup', tools.views.UserLocationLookupToolView.as_view(), name='user-location-lookup'),
+    url(r'^user-loc-lookup$', tools.views.UserLocationLookupToolView.as_view(), name='user-location-lookup'),
+    url(r'^device-creds-modify-tool$', tools.views.DeviceCredentialsModifyToolView.as_view(), name='device-creds-modify-tool'),
     # Reports
     url(r'^firmware-report$', tools.views.FirmwareReportView.as_view(), name='firmware-report'),
     url(r'^registrations-report$', tools.views.RegistrationReportView.as_view(), name='registrations-report'),

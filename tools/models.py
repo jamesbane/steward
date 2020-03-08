@@ -55,6 +55,8 @@ class Process(models.Model):
             ("process_dect_configurator_view", "DECT Configurator View Results"),
             ("process_device_specific_migration_exec", "Device Specific Migration Execute"),
             ("process_device_specific_migration_view", "Device Specific Migration View Results"),
+            ("process_device_creds_modify_exec", "Device Modify Credentials Execute"),
+            ("process_device_creds_modify_view", "Device Modify Credentials View Results"),
             ("process_firmware_report_exec", "Firmware Report Execute"),
             ("process_firmware_report_view", "Firmware Report View Results"),
             ("process_fraud_compliance_reset_exec", "Fraud Compliance Reset Tool Execute"),
@@ -89,3 +91,14 @@ class ProcessContent(models.Model):
 
     class Meta:
         ordering = ['priority', 'tab']
+
+
+class DeviceType(models.Model):
+    manufacturer = models.CharField(max_length=256)
+    model = models.CharField(max_length=256)
+
+    def get_name(self):
+        return '{}_{}'.format(self.manufacturer, self.model)
+
+    def __str__(self):
+        return '{}_{}'.format(self.manufacturer, self.model)
