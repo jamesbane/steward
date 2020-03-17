@@ -8,8 +8,9 @@ import base64
 import datetime
 import traceback
 import string
+from io import BytesIO
 from collections import OrderedDict
-from random import randint, choices
+from random import randint, choices, seed
 
 # Django
 from django.utils import timezone
@@ -21,6 +22,7 @@ from tools.models import Process, ProcessContent
 # Third Party
 from lib.pyutil.util import Util
 from lib.pybw.broadworks import BroadWorks, Nil
+from lxml import etree
 
 
 class BroadWorksDeviceCreds:
@@ -83,6 +85,7 @@ class BroadWorksDeviceCreds:
     def modify_group_device_creds(self, provider_id, group_id, device_type, **kwargs):
         log = io.StringIO()
         summary = io.StringIO()
+        action = kwargs.get('tool_action', 'auth_change')
         level = kwargs.get('level', 0)
         log.write("{}Modify Group Device Credentials: {}::{}::{}\n".format('    '*level, provider_id, group_id, device_type))
 
@@ -97,19 +100,15 @@ class BroadWorksDeviceCreds:
                 
             if device['Device Type'] == device_type:
                 log.write('    {}Device {}::{}::{})\n'.format('    '*(level+1), provider_id, group_id, device_name))
-                #log.write('    {}GroupAccessDeviceGetUserListRequest({}, {}, {}) '.format('    '*(level+2), provider_id, group_id, device_name))
-                #resp4 = self._bw.GroupAccessDeviceGetUserListRequest(provider_id, group_id, device_name)
-                #log.write(self.parse_response(resp4, level))
-                #line_ports = sorted(resp4['data']['deviceUserTable'], key=lambda k: k['Order'])
-                #if len(line_ports):
-                rdata = self.modify_polycom_credentials(provider_id=provider_id, group_id=group_id, device_name=device_name, device_type=device_type, level=(level+3))
+                rdata = self.modify_polycom_credentials(provider_id=provider_id, group_id=group_id, device_name=device_name, device_type=device_type, action=action, level=(level+3))
+
                 log.write(rdata['log'])
                 summary.write(rdata['summary'])
             else:
                 summary.write('"{}","{}","{}","{}","{}"\n'.format(provider_id, group_id, device_type, device_name, 'Pass'))
         return {'log': log.getvalue(), 'summary': summary.getvalue()}
 
-    def modify_polycom_credentials(self, provider_id, group_id, device_name, device_type, **kwargs):
+    def modify_polycom_credentials(self, provider_id, group_id, device_name, device_type, action, **kwargs):
         log = io.StringIO()
         summary = io.StringIO()
         level = kwargs.get('level', 0)
@@ -131,20 +130,59 @@ class BroadWorksDeviceCreds:
             summary.write('"{}","{}","{}","{}","{}","{}","{}"\n'.format(provider_id, group_id, device_type, device_name, '', '', 'Could not retrieve device details'))
             return {'log': log.getvalue(), 'summary': summary.getvalue()}
 
-        # New device info
-        #device_name = '{}_{}'.format(device_name, device_type)
-        size = (16 - (len(device_info['userName']) + 1))
-        device_username = device_info['userName'] + '_' + ''.join(choices(string.ascii_uppercase + string.digits, k=size))
-        device_password = randint(10000000, 99999999) 
+        if action == 'auth_change':
+            # New device info if action = auth_change
+            size = (16 - (len(device_info['userName']) + 1))
+            device_username = device_info['userName'] + '_' + ''.join(choices(string.ascii_uppercase + string.digits, k=size))
+            # seed with the username so we can generate the same pw later 
+            seed(device_username)
+            device_password = randint(10000000, 99999999) 
 
-        # Build Configuration Files
-        redirect_file_contents = '<change device.set="1" device.dhcp.bootSrvUseOpt.set="1" device.dhcp.bootSrvUseOpt="Static" device.prov.user.set="1" device.prov.user="{username}" device.prov.password.set="1" device.prov.password="{password}" device.prov.serverType.set="1" device.prov.serverType="HTTP" device.prov.serverName.set="1" device.prov.serverName="bwdms.cspirefiber.com/dms/PolycomVVX" />'.format(username=device_username, password=device_password)
-        custom_redirect_file_base64 = base64.b64encode(redirect_file_contents.encode('utf-8')).decode('utf-8')
+            # Load template config file 
+            tmpl = etree.parse(settings.BASE_DIR + '/tools/static/phone.cfg.template')
+            changeEl = tmpl.find('change')
 
-        # Send existing device a new config file to redirect to the new device provisioning url + credentials
-        log.write('{}GroupAccessDeviceFileModifyRequest14sp8({}, {}, {}, {}, {}, {}) '.format('    '*(level+1), provider_id, group_id, device_name, 'phone%BWDEVICEID%.cfg', 'Custom', '{...}'))
-        resp4 = self._bw.GroupAccessDeviceFileModifyRequest14sp8(serviceProviderId=provider_id, groupId=group_id, deviceName=device_name, fileFormat='phone%BWDEVICEID%.cfg', fileSource='Custom', uploadFile={'fileContent': custom_redirect_file_base64})
-        log.write(self.parse_response(resp4, level))
+            # Build Configuration Files
+            config_change = '<change device.set="1" device.dhcp.bootSrvUseOpt.set="1" device.dhcp.bootSrvUseOpt="Static" device.prov.user.set="1" device.prov.user="{username}" device.prov.password.set="1" device.prov.password="{password}" device.prov.serverType.set="1" device.prov.serverType="HTTP" device.prov.serverName.set="1" device.prov.serverName="bwdms.cspirefiber.com/dms/PolycomVVX" />'.format(username=device_username, password=device_password)
+
+            newChangeEl = etree.fromstring(config_change)
+            # Add attributes from changeEl to the new <change> element
+            for key, val in changeEl.attrib.items():
+                newChangeEl.set(key, val)
+
+            for i in tmpl.xpath("//phone1"):
+                i.replace(changeEl, newChangeEl)
+
+            config_contents = etree.tostring(tmpl)
+            custom_redirect_file_base64 = base64.b64encode(config_contents).decode('utf-8')
+
+            # Update device profile description with the new username
+            log.write('{}GroupAccessDeviceModifyRequest14({},{},{},{}) '.format('   '*(level+1), provider_id, group_id, device_name, device_username))
+            resp3 = self._bw.GroupAccessDeviceModifyRequest14(serviceProviderId=provider_id, groupId=group_id, deviceName=device_name, description=device_username)
+            log.write(self.parse_response(resp3, level))
+
+            # Send existing device a new config file to redirect to the new device provisioning url + credentials
+            log.write('{}GroupAccessDeviceFileModifyRequest14sp8({}, {}, {}, {}, {}, {}) '.format('    '*(level+1), provider_id, group_id, device_name, 'phone%BWDEVICEID%.cfg', 'Custom', '{...}'))
+            resp4 = self._bw.GroupAccessDeviceFileModifyRequest14sp8(serviceProviderId=provider_id, groupId=group_id, deviceName=device_name, fileFormat='phone%BWDEVICEID%.cfg', fileSource='Custom', uploadFile={'fileContent': custom_redirect_file_base64})
+            log.write(self.parse_response(resp4, level))
+
+        else:
+            if "description" not in device_info:
+                return { 'log': '', 'summary': '' }
+
+            device_username = device_info['description']
+            seed(device_username)
+            device_password = randint(10000000, 99999999)
+
+            # Update device profile description and remove device username
+            log.write('{}GroupAccessDeviceModifyRequest14({},{},{}) '.format('   '*(level+1), provider_id, group_id, device_name))
+            resp3 = self._bw.GroupAccessDeviceModifyRequest14(serviceProviderId=provider_id, groupId=group_id, deviceName=device_name, description='', username=device_username, password=device_password)
+            log.write(self.parse_response(resp3, level))
+            
+            log.write('{}GroupAccessDeviceFileModifyRequest14sp8({}, {}, {}, {}, {}, {}) '.format('    '*(level+1), provider_id, group_id, device_name, 'phone%BWDEVICEID%.cfg', 'Default', '{...}'))
+            resp4 = self._bw.GroupAccessDeviceFileModifyRequest14sp8(serviceProviderId=provider_id, groupId=group_id, deviceName=device_name,fileFormat='phone%BWDEVICEID%.cfg', fileSource='Default')
+            log.write(self.parse_response(resp4, level))
+
         log.write('{}GroupCPEConfigRebuildDeviceConfigFileRequest({}, {}, {}) '.format('    '*(level+1), provider_id, group_id, device_name))
         resp5 = self._bw.GroupCPEConfigRebuildDeviceConfigFileRequest(serviceProviderId=provider_id, groupId=group_id, deviceName=device_name)
         log.write(self.parse_response(resp5, level))
@@ -200,6 +238,7 @@ def device_creds_modify(process_id):
         provider_id = process.parameters.get('provider_id', None)
         group_id = process.parameters.get('group_id', None)
         device_type = process.parameters.get('device_type', None)
+        tool_action = process.parameters.get('tool_action', 'auth_change')
 
 
         # Initial content
@@ -212,7 +251,7 @@ def device_creds_modify(process_id):
 
         if provider_id and group_id:
             log_raw.write('Group {}::{}\n'.format(provider_id, group_id))
-            data = dm.modify_group_device_creds(provider_id=provider_id, group_id=group_id, device_type=device_type)
+            data = dm.modify_group_device_creds(provider_id=provider_id, group_id=group_id, device_type=device_type, tool_action=tool_action)
             log_raw.write(data['log'])
             summary_raw.write(data['summary'])
             for row in csv.reader(data['summary'].split('\n')):
@@ -221,8 +260,8 @@ def device_creds_modify(process_id):
                     for d in row:
                         summary_html.write('<td>{}</td>'.format(d))
                     summary_html.write('\n</tr>\n')
-        elif
-            raise Exception('Provider Id and Group Id must be supplied.')
+        #elif
+        #    raise Exception('Provider Id and Group Id must be supplied.')
 
         # after things are finished
         # end html

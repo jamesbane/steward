@@ -116,11 +116,16 @@ class DeviceTypeForm(BroadworksPlatformForm):
         ('Polycom_VVX400', 'Polycom_VVX400'),
         ('Polycom_VVX500', 'Polycom_VVX500'),
     )
+    TOOL_ACTIONS = (
+        ('auth_change', 'Update Device Credentials'),
+        ('set_default', 'Set Config Default'),
+    )
 
     provider_id = forms.CharField(label='Provider Id', max_length=256, required=True)
     group_id = forms.CharField(label='Group Id', max_length=256, required=True)
     #device_type = forms.CharField(label='Device Type', max_length=256, required=True)
     #device_type = forms.ChoiceField(label='Device Type', choices=DEVICE_TYPE_CHOICES, required=True)
+    tool_action = forms.ChoiceField(label='Tool Action', choices=TOOL_ACTIONS, required=True)
     device_type = forms.ModelChoiceField(label='Device Type', queryset=DeviceType.objects.all())
 
 class DectLineForm(forms.Form):
