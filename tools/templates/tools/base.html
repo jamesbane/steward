@@ -165,16 +165,16 @@
           </li>
         {% endif %}
         {% if perms.tools.process_user_location_lookup_exec %}
-      -	  {% url 'tools:user-location-lookup' as the_url %}
-      -	  <li {% if request.get_full_path == the_url %}class="active"{% endif %}>
-      -	    <a href="{{ the_url }}">
-      -	      Customer/User Location Lookup
-      -	      {% if request.get_full_path == the_url %}
-      -	        <span class="sr-only">(current_</span>
-      -	      {% endif %}
-      -	    </a>
-      -	  </li>
-      -	{% endif %}
+        {% url 'tools:user-location-lookup' as the_url %}
+        <li {% if request.get_full_path == the_url %}class="active"{% endif %}>
+          <a href="{{ the_url }}">
+            Customer/User Location Lookup
+            {% if request.get_full_path == the_url %}
+              <span class="sr-only">(current_</span>
+            {% endif %}
+          </a>
+        </li>
+      {% endif %}
       </ul>
       <!-- Jobs -->
       <ul class="nav nav-sidebar">
