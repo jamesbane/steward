@@ -6,6 +6,17 @@
       <!-- Tools -->
       <ul class="nav nav-sidebar">
         <li class="header">Tools</li>
+        {% if perms.tools.process_busy_lamp_field_fixup_exec %}
+          {% url 'tools:busy-lamp-field-fixup' as the_url %}
+          <li {% if request.get_full_path == the_url %}class="active"{% endif %}>
+            <a href="{{ the_url }}">
+              Busy Lamp Field (BLF) Fixup
+              {% if request.get_full_path == the_url %}
+                <span class="sr-only">(current)</span>
+              {% endif %}
+            </a>
+          </li>
+        {% endif %}
         {% if perms.tools.process_call_park_pickup_configurator_exec %}
           {% url 'tools:call-park-pickup-configurator' as the_url %}
           <li {% if request.get_full_path == the_url %}class="active"{% endif %}>
@@ -105,28 +116,6 @@
             </a>
           </li>
         {% endif %}
-        {% if perms.tools.process_busy_lamp_field_fixup_exec %}
-          {% url 'tools:busy-lamp-field-fixup' as the_url %}
-          <li {% if request.get_full_path == the_url %}class="active"{% endif %}>
-            <a href="{{ the_url }}">
-              Busy Lamp Field (BLF) Fixup
-              {% if request.get_full_path == the_url %}
-                <span class="sr-only">(current)</span>
-              {% endif %}
-            </a>
-          </li>
-        {% endif %}
-	{% if perms.tools.process_user_location_lookup_exec %}
-	  {% url 'tools:user-location-lookup' as the_url %}
-	  <li {% if request.get_full_path == the_url %}class="active"{% endif %}>
-	    <a href="{{ the_url }}">
-	      Customer/User Location Lookup
-	      {% if request.get_full_path == the_url %}
-	        <span class="sr-only">(current_</span>
-	      {% endif %}
-	    </a>
-	  </li>
-	{% endif %}
       </ul>
       <!-- Reports -->
       <ul class="nav nav-sidebar">
@@ -175,6 +164,17 @@
             </a>
           </li>
         {% endif %}
+        {% if perms.tools.process_user_location_lookup_exec %}
+      -	  {% url 'tools:user-location-lookup' as the_url %}
+      -	  <li {% if request.get_full_path == the_url %}class="active"{% endif %}>
+      -	    <a href="{{ the_url }}">
+      -	      Customer/User Location Lookup
+      -	      {% if request.get_full_path == the_url %}
+      -	        <span class="sr-only">(current_</span>
+      -	      {% endif %}
+      -	    </a>
+      -	  </li>
+      -	{% endif %}
       </ul>
       <!-- Jobs -->
       <ul class="nav nav-sidebar">
