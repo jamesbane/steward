@@ -70,6 +70,8 @@ class ToolView(ProcessFormMixin, TemplateView):
         If the form is valid, redirect to the supplied URL.
         """
         parameters = form.cleaned_data
+        device_type = parameters.pop('device_type')
+        parameters['device_type'] = device_type.get_name()
         platform = parameters.pop('platform')
         if formset:
             # Handle all our formset
@@ -131,6 +133,15 @@ class DeviceSpecificMigrationToolView(PermissionRequiredMixin, LoginRequiredMixi
     process_function = 'tools.jobs.device_specific_migration.device_specific_migration'
     template_name = 'tools/device_specific_migration_tool.html'
     form_class = tools.forms.TypedProviderGroupForm
+
+
+class DeviceCredentialsModifyToolView(PermissionRequiredMixin, LoginRequiredMixin, ToolView):
+    permission_required = 'tools.process_device_creds_modify_exec'
+    permission_view = 'tools.process_device_creds_modify_view'
+    process_name = 'Device Credentials Modify'
+    process_function = 'tools.jobs.device_creds_modify.device_creds_modify'
+    template_name = 'tools/device_creds_modify_tool.html'
+    form_class = tools.forms.DeviceTypeForm
 
 
 class FirmwareReportView(PermissionRequiredMixin, LoginRequiredMixin, ToolView):

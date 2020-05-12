@@ -39,6 +39,17 @@
               </a>
           </li>
         {% endif %}
+	{% if perms.tools.process_device_creds_modify_exec %}
+	  {% url 'tools:device-creds-modify-tool' as the_url %}
+	  <li {% if request.get_full_path == the_url %}class="active"{% endif %}>
+	    <a href="{{ the_url }}">
+	      Device Credential Update
+	      {% if request.get_full_path == the_url %}
+	        <span class="sr-only">(current)</span>
+  	      {% endif %}
+	    </a>
+	  </li>
+	{% endif %}
         {% if perms.tools.process_fraud_compliance_reset_exec %}
           {% url 'tools:fraud-compliance-reset-tool' as the_url %}
           <li {% if request.get_full_path == the_url %}class="active"{% endif %}>
