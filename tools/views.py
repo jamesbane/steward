@@ -70,8 +70,9 @@ class ToolView(ProcessFormMixin, TemplateView):
         If the form is valid, redirect to the supplied URL.
         """
         parameters = form.cleaned_data
-        device_type = parameters.pop('device_type')
-        parameters['device_type'] = device_type.get_name()
+        device_type = parameters.pop('device_type', '')
+        if device_type != '':
+            parameters['device_type'] = device_type.get_name()
         platform = parameters.pop('platform')
         if formset:
             # Handle all our formset
