@@ -10,7 +10,7 @@ import traceback
 import string
 from io import BytesIO
 from collections import OrderedDict
-from random import randint, choices, seed
+from random import randint, choice, seed
 
 # Django
 from django.utils import timezone
@@ -133,7 +133,7 @@ class BroadWorksDeviceCreds:
         if action == 'auth_change':
             # New device info if action = auth_change
             size = (16 - (len(device_info['userName']) + 1))
-            device_username = device_info['userName'] + '_' + ''.join(choices(string.ascii_uppercase + string.digits, k=size))
+            device_username = device_info['userName'] + '_' + ''.join(choice(string.ascii_uppercase + string.digits) for _ in range(size))
             # seed with the username so we can generate the same pw later 
             seed(device_username)
             device_password = randint(10000000, 99999999) 
