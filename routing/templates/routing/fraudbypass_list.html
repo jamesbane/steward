@@ -97,7 +97,7 @@
               <label>
                 Phone Number
               </label>
-              <input id="id_delete_number" class="form-control" disabled>
+              <textarea id="id_delete_number" class="form-control" rows="5"></textarea>
             </div>
           </div>
         </div>
@@ -271,8 +271,15 @@
       $('.btn-delete-number').on('click', function() {
         $('.number-form').addClass('hidden');
         $('.number-results').removeClass('hidden');
-        var number = $('#id_delete_number').val();
-        deleteNumber(1, number);
+        var numbers = parseNumbers($('#id_delete_number').val());
+        for(i in numbers['invalid']) {
+            var number = numbers['invalid'][i];
+            insertDeleteResult(1, number, "Invalid Number");
+        }
+        for(i in numbers['valid']) {
+           var number = numbers['valid'][i];
+           deleteNumber(1, number);
+        }
       });
       $('.btn-add-numbers').on('click', function() {
         $('.number-form').addClass('hidden');
