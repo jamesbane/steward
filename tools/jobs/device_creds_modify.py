@@ -105,7 +105,7 @@ class BroadWorksDeviceCreds:
                 log.write(rdata['log'])
                 summary.write(rdata['summary'])
             else:
-                summary.write('"{}","{}","{}","{}","{}"\n'.format(provider_id, group_id, device_type, device_name, 'Pass'))
+                summary.write('"{}","{}","{}","{}","{}"\n'.format(provider_id, group_id, device_type, device_name, 'Not Selected'))
         return {'log': log.getvalue(), 'summary': summary.getvalue()}
 
     def modify_polycom_credentials(self, provider_id, group_id, device_name, device_type, action, **kwargs):
