@@ -172,7 +172,7 @@ class BroadWorksDeviceCreds:
 
             device_username = device_info['description']
             seed(device_username)
-            device_password = randint(10000000, 99999999)
+            device_password = Util.random_password(length=16, specials=False)
 
             # Update device profile description and remove device username
             log.write('{}GroupAccessDeviceModifyRequest14({},{},{}) '.format('   '*(level+1), provider_id, group_id, device_name))
