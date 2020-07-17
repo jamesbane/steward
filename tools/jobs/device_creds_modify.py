@@ -136,7 +136,7 @@ class BroadWorksDeviceCreds:
             device_username = device_info['userName'] + '_' + ''.join(choice(string.ascii_uppercase + string.digits) for _ in range(size))
             # seed with the username so we can generate the same pw later 
             seed(device_username)
-            device_password = randint(10000000, 99999999) 
+            device_password = Util.random_password(length=16, specials=False) 
 
             # Load template config file 
             tmpl = etree.parse(settings.BASE_DIR + '/tools/static/phone.cfg.template')
