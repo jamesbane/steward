@@ -2,7 +2,7 @@
 <!-- PlcmConversionCreatedFile version=1.2 converted=Wed Jul 28 14:33:16 2010 -->
 <!-- Example Per-phone Configuration File -->
 <!-- $RCSfile: phoneBWDEVICEID.cfg,v $  $Revision: 1.93 $ -->
-<polycomConfig>
+<phone1>
 	<PDMS-SP 
 	obitalk.accountCode="%PDMS_SERVICETAG%" 
 	feature.obitalk.enabled="%PDMS_ENABLE%" 
@@ -662,4 +662,4 @@
       <qos.ip.rtp.video.dscp.assuredService qos.ip.rtp.video.dscp.assuredService.1="38" />
     </qos.ip>
   </qos>
-</polycomConfig>
+</phone1>
