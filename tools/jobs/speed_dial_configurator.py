@@ -85,9 +85,13 @@ class SpeedDialConfigurator():
             log.write(self.parse_response(resp2, (level+1)))
             data = resp2['data']
             if 'speedDialEntry' in data:
-                entries = {x['speedCode']: x for x in resp2['data']['speedDialEntry']}
+                entries = []
+                for x in data['speedDialEntry']:
+                    if x == 'speedCode':
+                        # speedCode comes back from BW as single digit, pad it to 2 digits with leading 0
+                        entries.append(data['speedDialEntry'][x].rjust(2, '0'))
             else:
-                entries = {}
+                entries = []
 
             # Build add/modify lists
             speed_dial_add_entries = [OrderedDict([('speedCode', e['code']), ('phoneNumber', e['destination_number']), ('description', e['description'])]) for e in self._speed_dials if e['code'] not in entries]
