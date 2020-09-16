@@ -1,705 +1,665 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<!-- PlcmConversionCreatedFile version=1.2 converted=Wed Jul 28 14:33:16 2010 -->
 <!-- Example Per-phone Configuration File -->
 <!-- $RCSfile: phoneBWDEVICEID.cfg,v $  $Revision: 1.93 $ -->
 <phone1>
-    <device>
-        <device.prov device.prov.serverName="%BWDEVICEACCESSFQDN%:%BWDEVICEACCESSPORT%/%BWDMSCONTEXT%/%BWDEVICEACCESSURI%" />
-        <device device.set="1" device.auth.localAdminPassword="%LOCAL_ADMIN_PASS%" device.auth.localAdminPassword.set="1"
-device.auth.localUserPassword="%LOCAL_USER_PASS%" device.auth.localUserPassword.set="1"/>
-    </device>
-    <change device.prov.upgradeServer.set="%upgradeServerset%" device.prov.upgradeServer="%upgradeServer%" />
-    <prov prov.polling.enabled="1" prov.polling.mode="random" prov.polling.period="86400" prov.polling.time="01:00" prov.polling.timeRandomEnd="05:00"
-/>
-
+	<PDMS-SP 
+	obitalk.accountCode="%PDMS_SERVICETAG%" 
+	feature.obitalk.enabled="%PDMS_ENABLE%" 
+	device.da.enabled="1" 
+	device.set="1" 
+	device.da.enabled.set="1" 
+	da.cloud.connector="OBITALK" 
+	diags.pcap.enabled="%FEATURE_PCAP%">%PDMS_SERVICETAG%</PDMS-SP> 
+ <device>
+    <device.prov 
+	device.prov.serverName="%BWDEVICEACCESSFQDN%:%BWDEVICEACCESSPORT%/%BWDMSCONTEXT%/%BWDEVICEACCESSURI%"
+	device.prov.upgradeServer.set="%upgradeServerset%" 
+	device.prov.upgradeServer="%upgradeServer%" 
+	prov.polling.enabled="1"
+	prov.polling.mode="random" 
+	prov.polling.period="86400" 
+	prov.polling.time="01:00" 
+	prov.polling.timeRandomEnd="05:00"
+	device.set="1"
+	device.sntp.serverName.set="1"
+	device.sntp.gmtOffset.set="1"
+	device.auth.localAdminPassword="%LOCAL_ADMIN_PASS%" 
+	device.auth.localAdminPassword.set="1" />
+    <device />
+  </device>
+  
+  <change device.prov.upgradeServer.set="%upgradeServerset%" device.prov.upgradeServer="%upgradeServer%" />
+  
+  <dialplan>
+    <dialplan 
+	dialplan.digitmap="%DIAL_PLAN%" 
+	dialplan.userDial.timeOut="%DIAL_PLAN_TIMEOUT%" />
+  </dialplan>
+  <sec>
+    <sec 
+	sec.tagSerialNo="%SERIALINUA%" 
+	sec.pwd.length.admin="3" 
+	sec.pwd.length.user="3" />
+  </sec>
   <lcl>
     <lcl.ml lcl.ml.lang="%BWLANGUAGE-1%" />
   </lcl>
-
-   <sec sec.tagSerialNo="%SERIALINUA%"/>
-   
-
-
-  <reg
-      reg.1.address="%BWLINEPORT-1%"
-      reg.1.auth.password="%BWAUTHPASSWORD-1%"
-      reg.1.auth.userId="%BWAUTHUSER-1%"
-      reg.1.callsPerLineKey="%callsPerLineKey%"
-      reg.1.displayName="%BWFIRSTNAME-1% %BWLASTNAME-1%"
-      reg.1.label="%BWEXTENSION-1%"
-      reg.1.lineKeys="%Line1-LnCnt%"
-      reg.1.server.1.address="%BWHOST-1%"
-      reg.1.server.1.port="%PHONE_REG_PORT%"
-      reg.1.server.1.transport="DNSnaptr"
-      reg.1.serverFeatureControl.cf="%FEATURE_SYNC_CF%"
-      reg.1.serverFeatureControl.localProcessing.cf="0"
-      reg.1.serverFeatureControl.dnd="%FEATURE_SYNC_DND_REG_1%"
-      reg.1.acd-login-logout="%FEATURE_SYNC_ACD%"
-      reg.1.type="%BWSHAREDLINE-1%"
-      reg.1.ringType="%REG-1-RINGTYPE%"
-      reg.1.bargeInEnabled="%BWSCA-BRIDGING-BINARY-1%"
-
-      reg.2.address="%BWLINEPORT-2%"
-      reg.2.auth.password="%BWAUTHPASSWORD-2%"
-      reg.2.auth.userId="%BWAUTHUSER-2%"
-      reg.2.callsPerLineKey="%callsPerLineKey%"
-      reg.2.displayName="%BWFIRSTNAME-2% %BWLASTNAME-2%"
-      reg.2.label="%BWEXTENSION-2%"
-      reg.2.lineKeys="%Line2-LnCnt%"
-      reg.2.server.1.address="%BWHOST-2%"
-      reg.2.server.1.port="%PHONE_REG_PORT%"
-      reg.2.server.1.transport="DNSnaptr"
-      reg.2.serverFeatureControl.cf="%FEATURE_SYNC_CF%"
-      reg.2.serverFeatureControl.dnd="%FEATURE_SYNC_DND_REG_2%"
-      reg.2.type="%BWSHAREDLINE-2%"
-      reg.2.ringType="%REG-2-RINGTYPE%"
-      reg.2.bargeInEnabled="%BWSCA-BRIDGING-BINARY-2%"
-
-      reg.3.address="%BWLINEPORT-3%"
-      reg.3.auth.password="%BWAUTHPASSWORD-3%"
-      reg.3.auth.userId="%BWAUTHUSER-3%"
-      reg.3.callsPerLineKey="%callsPerLineKey%"
-      reg.3.displayName="%BWFIRSTNAME-3% %BWLASTNAME-3%"
-      reg.3.label="%BWEXTENSION-3%"
-      reg.3.lineKeys="%Line3-LnCnt%"
-      reg.3.server.1.address="%BWHOST-3%"
-      reg.3.server.1.port="%PHONE_REG_PORT%"
-      reg.3.server.1.transport="DNSnaptr"
-      reg.3.serverFeatureControl.cf="%FEATURE_SYNC_CF%"
-      reg.3.serverFeatureControl.dnd="%FEATURE_SYNC_DND_REG_3%"
-      reg.3.type="%BWSHAREDLINE-3%"
-      reg.3.ringType="%REG-3-RINGTYPE%"
-      reg.3.bargeInEnabled="%BWSCA-BRIDGING-BINARY-3%"
-
-      reg.4.address="%BWLINEPORT-4%"
-      reg.4.auth.password="%BWAUTHPASSWORD-4%"
-      reg.4.auth.userId="%BWAUTHUSER-4%"
-      reg.4.callsPerLineKey="%callsPerLineKey%"
-      reg.4.displayName="%BWFIRSTNAME-4% %BWLASTNAME-4%"
-      reg.4.label="%BWEXTENSION-4%"
-      reg.4.lineKeys="%Line4-LnCnt%"
-      reg.4.server.1.address="%BWHOST-4%"
-      reg.4.server.1.port="%PHONE_REG_PORT%"
-      reg.4.server.1.transport="DNSnaptr"
-      reg.4.serverFeatureControl.cf="%FEATURE_SYNC_CF%"
-      reg.4.serverFeatureControl.dnd="%FEATURE_SYNC_DND_REG_4%"
-      reg.4.type="%BWSHAREDLINE-4%"
-      reg.4.ringType="%REG-4-RINGTYPE%"
-      reg.4.bargeInEnabled="%BWSCA-BRIDGING-BINARY-4%"
-
-      reg.5.address="%BWLINEPORT-5%"
-      reg.5.auth.password="%BWAUTHPASSWORD-5%"
-      reg.5.auth.userId="%BWAUTHUSER-5%"
-      reg.5.callsPerLineKey="%callsPerLineKey%"
-      reg.5.displayName="%BWFIRSTNAME-5% %BWLASTNAME-5%"
-      reg.5.label="%BWEXTENSION-5%"
-      reg.5.lineKeys="%Line5-LnCnt%"
-      reg.5.server.1.address="%BWHOST-5%"
-      reg.5.server.1.port="%PHONE_REG_PORT%"
-      reg.5.server.1.transport="DNSnaptr"
-      reg.5.serverFeatureControl.cf="%FEATURE_SYNC_CF%"
-      reg.5.serverFeatureControl.dnd="%FEATURE_SYNC_DND_REG_5%"
-      reg.5.type="%BWSHAREDLINE-5%"
-      reg.5.ringType="%REG-5-RINGTYPE%"
-      reg.5.bargeInEnabled="%BWSCA-BRIDGING-BINARY-5%"
-
-      reg.6.address="%BWLINEPORT-6%"
-      reg.6.auth.password="%BWAUTHPASSWORD-6%"
-      reg.6.auth.userId="%BWAUTHUSER-6%"
-      reg.6.callsPerLineKey="%callsPerLineKey%"
-      reg.6.displayName="%BWFIRSTNAME-6% %BWLASTNAME-6%"
-      reg.6.label="%BWEXTENSION-6%"
-      reg.6.lineKeys="%Line6-LnCnt%"
-      reg.6.server.1.address="%BWHOST-6%"
-      reg.6.server.1.port="%PHONE_REG_PORT%"
-      reg.6.server.1.transport="DNSnaptr"
-      reg.6.serverFeatureControl.cf="%FEATURE_SYNC_CF%"
-      reg.6.serverFeatureControl.dnd="%FEATURE_SYNC_DND_REG_6%"
-      reg.6.type="%BWSHAREDLINE-6%"
-      reg.6.ringType="%REG-6-RINGTYPE%"
-      reg.6.bargeInEnabled="%BWSCA-BRIDGING-BINARY-6%"
-
-      reg.7.address="%BWLINEPORT-7%"
-      reg.7.auth.password="%BWAUTHPASSWORD-7%"
-      reg.7.auth.userId="%BWAUTHUSER-7%"
-      reg.7.callsPerLineKey="%callsPerLineKey%"
-      reg.7.displayName="%BWFIRSTNAME-7% %BWLASTNAME-7%"
-      reg.7.label="%BWEXTENSION-7%"
-      reg.7.lineKeys="%Line7-LnCnt%"
-      reg.7.server.1.address="%BWHOST-7%"
-      reg.7.server.1.port="%PHONE_REG_PORT%"
-      reg.7.server.1.transport="DNSnaptr"
-      reg.7.serverFeatureControl.cf="%FEATURE_SYNC_CF%"
-      reg.7.serverFeatureControl.dnd="%FEATURE_SYNC_DND%"
-      reg.7.type="%BWSHAREDLINE-7%"
-      reg.7.ringType="%REG-7-RINGTYPE%"
-      reg.7.bargeInEnabled="%BWSCA-BRIDGING-BINARY-7%"
-
-      reg.8.address="%BWLINEPORT-8%"
-      reg.8.auth.password="%BWAUTHPASSWORD-8%"
-      reg.8.auth.userId="%BWAUTHUSER-8%"
-      reg.8.callsPerLineKey="%callsPerLineKey%"
-      reg.8.displayName="%BWFIRSTNAME-8% %BWLASTNAME-8%"
-      reg.8.label="%BWEXTENSION-8%"
-      reg.8.lineKeys="%Line8-LnCnt%"
-      reg.8.server.1.address="%BWHOST-8%"
-      reg.8.server.1.port="%PHONE_REG_PORT%"
-      reg.8.server.1.transport="DNSnaptr"
-      reg.8.serverFeatureControl.cf="%FEATURE_SYNC_CF%"
-      reg.8.serverFeatureControl.dnd="%FEATURE_SYNC_DND%"
-      reg.8.type="%BWSHAREDLINE-8%"
-      reg.8.ringType="%REG-8-RINGTYPE%"
-      reg.8.bargeInEnabled="%BWSCA-BRIDGING-BINARY-8%"
-
-      reg.9.address="%BWLINEPORT-9%"
-      reg.9.auth.password="%BWAUTHPASSWORD-9%"
-      reg.9.auth.userId="%BWAUTHUSER-9%"
-      reg.9.callsPerLineKey="%callsPerLineKey%"
-      reg.9.displayName="%BWFIRSTNAME-9% %BWLASTNAME-9%"
-      reg.9.label="%BWEXTENSION-9%"
-      reg.9.lineKeys="%Line9-LnCnt%"
-      reg.9.server.1.address="%BWHOST-9%"
-      reg.9.server.1.port="%PHONE_REG_PORT%"
-      reg.9.server.1.transport="DNSnaptr"
-      reg.9.serverFeatureControl.cf="%FEATURE_SYNC_CF%"
-      reg.9.serverFeatureControl.dnd="%FEATURE_SYNC_DND%"
-      reg.9.type="%BWSHAREDLINE-9%"
-      reg.9.ringType="%REG-9-RINGTYPE%"
-      reg.9.bargeInEnabled="%BWSCA-BRIDGING-BINARY-9%"
-
-      reg.10.address="%BWLINEPORT-10%"
-      reg.10.auth.password="%BWAUTHPASSWORD-10%"
-      reg.10.auth.userId="%BWAUTHUSER-10%"
-      reg.10.callsPerLineKey="%callsPerLineKey%"
-      reg.10.displayName="%BWFIRSTNAME-10% %BWLASTNAME-10%"
-      reg.10.label="%BWEXTENSION-10%"
-      reg.10.lineKeys="%Line10-LnCnt%"
-      reg.10.server.1.address="%BWHOST-10%"
-      reg.10.server.1.port="%PHONE_REG_PORT%"
-      reg.10.server.1.transport="DNSnaptr"
-      reg.10.serverFeatureControl.cf="%FEATURE_SYNC_CF%"
-      reg.10.serverFeatureControl.dnd="%FEATURE_SYNC_DND%"
-      reg.10.type="%BWSHAREDLINE-10%"
-      reg.10.ringType="%REG-10-RINGTYPE%"
-      reg.10.bargeInEnabled="%BWSCA-BRIDGING-BINARY-10%"
-
-      reg.11.address="%BWLINEPORT-11%"
-      reg.11.auth.password="%BWAUTHPASSWORD-11%"
-      reg.11.auth.userId="%BWAUTHUSER-11%"
-      reg.11.callsPerLineKey="%callsPerLineKey%"
-      reg.11.displayName="%BWFIRSTNAME-11% %BWLASTNAME-11%"
-      reg.11.label="%BWEXTENSION-11%"
-      reg.11.lineKeys="%Line11-LnCnt%"
-      reg.11.server.1.address="%BWHOST-11%"
-      reg.11.server.1.port="%PHONE_REG_PORT%"
-      reg.11.server.1.transport="DNSnaptr"
-      reg.11.serverFeatureControl.cf="%FEATURE_SYNC_CF%"
-      reg.11.serverFeatureControl.dnd="%FEATURE_SYNC_DND%"
-      reg.11.type="%BWSHAREDLINE-11%"
-      reg.11.ringType="%REG-11-RINGTYPE%"
-      reg.11.bargeInEnabled="%BWSCA-BRIDGING-BINARY-11%"
-
-      reg.12.address="%BWLINEPORT-12%"
-      reg.12.auth.password="%BWAUTHPASSWORD-12%"
-      reg.12.auth.userId="%BWAUTHUSER-12%"
-      reg.12.callsPerLineKey="%callsPerLineKey%"
-      reg.12.displayName="%BWFIRSTNAME-12% %BWLASTNAME-12%"
-      reg.12.label="%BWEXTENSION-12%"
-      reg.12.lineKeys="%Line12-LnCnt%"
-      reg.12.server.1.address="%BWHOST-12%"
-      reg.12.server.1.port="%PHONE_REG_PORT%"
-      reg.12.server.1.transport="DNSnaptr"
-      reg.12.serverFeatureControl.cf="%FEATURE_SYNC_CF%"
-      reg.12.serverFeatureControl.dnd="%FEATURE_SYNC_DND%"
-      reg.12.type="%BWSHAREDLINE-12%"
-      reg.12.ringType="%REG-12-RINGTYPE%"
-      reg.12.bargeInEnabled="%BWSCA-BRIDGING-BINARY-12%"
-
-      reg.13.address="%BWLINEPORT-13%"
-      reg.13.auth.password="%BWAUTHPASSWORD-13%"
-      reg.13.auth.userId="%BWAUTHUSER-13%"
-      reg.13.callsPerLineKey="%callsPerLineKey%"
-      reg.13.displayName="%BWFIRSTNAME-13% %BWLASTNAME-13%"
-      reg.13.label="%BWEXTENSION-13%"
-      reg.13.lineKeys="%Line13-LnCnt%"
-      reg.13.server.1.address="%BWHOST-13%"
-      reg.13.server.1.port="%PHONE_REG_PORT%"
-      reg.13.server.1.transport="DNSnaptr"
-      reg.13.serverFeatureControl.cf="%FEATURE_SYNC_CF%"
-      reg.13.serverFeatureControl.dnd="%FEATURE_SYNC_DND%"
-      reg.13.type="%BWSHAREDLINE-13%"
-      reg.13.ringType="%REG-13-RINGTYPE%"
-      reg.13.bargeInEnabled="%BWSCA-BRIDGING-BINARY-13%"
-
-      reg.14.address="%BWLINEPORT-14%"
-      reg.14.auth.password="%BWAUTHPASSWORD-14%"
-      reg.14.auth.userId="%BWAUTHUSER-14%"
-      reg.14.callsPerLineKey="%callsPerLineKey%"
-      reg.14.displayName="%BWFIRSTNAME-14% %BWLASTNAME-14%"
-      reg.14.label="%BWEXTENSION-14%"
-      reg.14.lineKeys="%Line14-LnCnt%"
-      reg.14.server.1.address="%BWHOST-14%"
-      reg.14.server.1.port="%PHONE_REG_PORT%"
-      reg.14.server.1.transport="DNSnaptr"
-      reg.14.serverFeatureControl.cf="%FEATURE_SYNC_CF%"
-      reg.14.serverFeatureControl.dnd="%FEATURE_SYNC_DND%"
-      reg.14.type="%BWSHAREDLINE-14%"
-      reg.14.ringType="%REG-14-RINGTYPE%"
-      reg.14.bargeInEnabled="%BWSCA-BRIDGING-BINARY-14%"
-
-      reg.15.address="%BWLINEPORT-15%"
-      reg.15.auth.password="%BWAUTHPASSWORD-15%"
-      reg.15.auth.userId="%BWAUTHUSER-15%"
-      reg.15.callsPerLineKey="%callsPerLineKey%"
-      reg.15.displayName="%BWFIRSTNAME-15% %BWLASTNAME-15%"
-      reg.15.label="%BWEXTENSION-15%"
-      reg.15.lineKeys="%Line15-LnCnt%"
-      reg.15.server.1.address="%BWHOST-15%"
-      reg.15.server.1.port="%PHONE_REG_PORT%"
-      reg.15.server.1.transport="DNSnaptr"
-      reg.15.serverFeatureControl.cf="%FEATURE_SYNC_CF%"
-      reg.15.serverFeatureControl.dnd="%FEATURE_SYNC_DND%"
-      reg.15.type="%BWSHAREDLINE-15%"
-      reg.15.ringType="%REG-15-RINGTYPE%"
-      reg.15.bargeInEnabled="%BWSCA-BRIDGING-BINARY-15%"
-
-      reg.16.address="%BWLINEPORT-16%"
-      reg.16.auth.password="%BWAUTHPASSWORD-16%"
-      reg.16.auth.userId="%BWAUTHUSER-16%"
-      reg.16.callsPerLineKey="%callsPerLineKey%"
-      reg.16.displayName="%BWFIRSTNAME-16% %BWLASTNAME-16%"
-      reg.16.label="%BWEXTENSION-16%"
-      reg.16.lineKeys="%Line16-LnCnt%"
-      reg.16.server.1.address="%BWHOST-16%"
-      reg.16.server.1.port="%PHONE_REG_PORT%"
-      reg.16.server.1.transport="DNSnaptr"
-      reg.16.serverFeatureControl.cf="%FEATURE_SYNC_CF%"
-      reg.16.serverFeatureControl.dnd="%FEATURE_SYNC_DND%"
-      reg.16.type="%BWSHAREDLINE-16%"
-      reg.16.ringType="%REG-16-RINGTYPE%"
-      reg.16.bargeInEnabled="%BWSCA-BRIDGING-BINARY-16%"
-
-      reg.17.address="%BWLINEPORT-17%"
-      reg.17.auth.password="%BWAUTHPASSWORD-17%"
-      reg.17.auth.userId="%BWAUTHUSER-17%"
-      reg.17.callsPerLineKey="%callsPerLineKey%"
-      reg.17.displayName="%BWFIRSTNAME-17% %BWLASTNAME-17%"
-      reg.17.label="%BWEXTENSION-17%"
-      reg.17.lineKeys="%Line17-LnCnt%"
-      reg.17.server.1.address="%BWHOST-17%"
-      reg.17.server.1.port="%PHONE_REG_PORT%"
-      reg.17.server.1.transport="DNSnaptr"
-      reg.17.serverFeatureControl.cf="%FEATURE_SYNC_CF%"
-      reg.17.serverFeatureControl.dnd="%FEATURE_SYNC_DND%"
-      reg.17.type="%BWSHAREDLINE-17%"
-      reg.17.ringType="%REG-17-RINGTYPE%"
-      reg.17.bargeInEnabled="%BWSCA-BRIDGING-BINARY-17%"
-
-      reg.18.address="%BWLINEPORT-18%"
-      reg.18.auth.password="%BWAUTHPASSWORD-18%"
-      reg.18.auth.userId="%BWAUTHUSER-18%"
-      reg.18.callsPerLineKey="%callsPerLineKey%"
-      reg.18.displayName="%BWFIRSTNAME-18% %BWLASTNAME-18%"
-      reg.18.label="%BWEXTENSION-18%"
-      reg.18.lineKeys="%Line18-LnCnt%"
-      reg.18.server.1.address="%BWHOST-18%"
-      reg.18.server.1.port="%PHONE_REG_PORT%"
-      reg.18.server.1.transport="DNSnaptr"
-      reg.18.serverFeatureControl.cf="%FEATURE_SYNC_CF%"
-      reg.18.serverFeatureControl.dnd="%FEATURE_SYNC_DND%"
-      reg.18.type="%BWSHAREDLINE-18%"
-      reg.18.ringType="%REG-18-RINGTYPE%"
-      reg.18.bargeInEnabled="%BWSCA-BRIDGING-BINARY-18%"
-
-      reg.19.address="%BWLINEPORT-19%"
-      reg.19.auth.password="%BWAUTHPASSWORD-19%"
-      reg.19.auth.userId="%BWAUTHUSER-19%"
-      reg.19.callsPerLineKey="%callsPerLineKey%"
-      reg.19.displayName="%BWFIRSTNAME-19% %BWLASTNAME-19%"
-      reg.19.label="%BWEXTENSION-19%"
-      reg.19.lineKeys="%Line19-LnCnt%"
-      reg.19.server.1.address="%BWHOST-19%"
-      reg.19.server.1.port="%PHONE_REG_PORT%"
-      reg.19.server.1.transport="DNSnaptr"
-      reg.19.serverFeatureControl.cf="%FEATURE_SYNC_CF%"
-      reg.19.serverFeatureControl.dnd="%FEATURE_SYNC_DND%"
-      reg.19.type="%BWSHAREDLINE-19%"
-      reg.19.ringType="%REG-19-RINGTYPE%"
-      reg.19.bargeInEnabled="%BWSCA-BRIDGING-BINARY-19%"
-
-      reg.20.address="%BWLINEPORT-20%"
-      reg.20.auth.password="%BWAUTHPASSWORD-20%"
-      reg.20.auth.userId="%BWAUTHUSER-20%"
-      reg.20.callsPerLineKey="%callsPerLineKey%"
-      reg.20.displayName="%BWFIRSTNAME-20% %BWLASTNAME-20%"
-      reg.20.label="%BWEXTENSION-20%"
-      reg.20.lineKeys="%Line20-LnCnt%"
-      reg.20.server.1.address="%BWHOST-20%"
-      reg.20.server.1.port="%PHONE_REG_PORT%"
-      reg.20.server.1.transport="DNSnaptr"
-      reg.20.serverFeatureControl.cf="%FEATURE_SYNC_CF%"
-      reg.20.serverFeatureControl.dnd="%FEATURE_SYNC_DND%"
-      reg.20.type="%BWSHAREDLINE-20%"
-      reg.20.ringType="%REG-20-RINGTYPE%"
-      reg.20.bargeInEnabled="%BWSCA-BRIDGING-BINARY-1%"
-
-      reg.21.address="%BWLINEPORT-21%"
-      reg.21.auth.password="%BWAUTHPASSWORD-21%"
-      reg.21.auth.userId="%BWAUTHUSER-21%"
-      reg.21.callsPerLineKey="%callsPerLineKey%"
-      reg.21.displayName="%BWFIRSTNAME-21% %BWLASTNAME-21%"
-      reg.21.label="%BWEXTENSION-21%"
-      reg.21.lineKeys="%Line21-LnCnt%"
-      reg.21.server.1.address="%BWHOST-21%"
-      reg.21.server.1.port="%PHONE_REG_PORT%"
-      reg.21.server.1.transport="DNSnaptr"
-      reg.21.serverFeatureControl.cf="%FEATURE_SYNC_CF%"
-      reg.21.serverFeatureControl.dnd="%FEATURE_SYNC_DND%"
-      reg.21.type="%BWSHAREDLINE-21%"
-      reg.21.ringType="%REG-21-RINGTYPE%"
-      reg.21.bargeInEnabled="%BWSCA-BRIDGING-BINARY-21%"
-
-      reg.22.address="%BWLINEPORT-22%"
-      reg.22.auth.password="%BWAUTHPASSWORD-22%"
-      reg.22.auth.userId="%BWAUTHUSER-22%"
-      reg.22.callsPerLineKey="%callsPerLineKey%"
-      reg.22.displayName="%BWFIRSTNAME-22% %BWLASTNAME-22%"
-      reg.22.label="%BWEXTENSION-22%"
-      reg.22.lineKeys="%Line22-LnCnt%"
-      reg.22.server.1.address="%BWHOST-22%"
-      reg.22.server.1.port="%PHONE_REG_PORT%"
-      reg.22.server.1.transport="DNSnaptr"
-      reg.22.serverFeatureControl.cf="%FEATURE_SYNC_CF%"
-      reg.22.serverFeatureControl.dnd="%FEATURE_SYNC_DND%"
-      reg.22.type="%BWSHAREDLINE-22%"
-      reg.22.ringType="%REG-22-RINGTYPE%"
-      reg.22.bargeInEnabled="%BWSCA-BRIDGING-BINARY-22%"
-
-      reg.23.address="%BWLINEPORT-23%"
-      reg.23.auth.password="%BWAUTHPASSWORD-23%"
-      reg.23.auth.userId="%BWAUTHUSER-23%"
-      reg.23.callsPerLineKey="%callsPerLineKey%"
-      reg.23.displayName="%BWFIRSTNAME-23% %BWLASTNAME-23%"
-      reg.23.label="%BWEXTENSION-23%"
-      reg.23.lineKeys="%Line23-LnCnt%"
-      reg.23.server.1.address="%BWHOST-23%"
-      reg.23.server.1.port="%PHONE_REG_PORT%"
-      reg.23.server.1.transport="DNSnaptr"
-      reg.23.serverFeatureControl.cf="%FEATURE_SYNC_CF%"
-      reg.23.serverFeatureControl.dnd="%FEATURE_SYNC_DND%"
-      reg.23.type="%BWSHAREDLINE-23%"
-      reg.23.ringType="%REG-23-RINGTYPE%"
-      reg.23.bargeInEnabled="%BWSCA-BRIDGING-BINARY-23%"
-
-      reg.24.address="%BWLINEPORT-24%"
-      reg.24.auth.password="%BWAUTHPASSWORD-24%"
-      reg.24.auth.userId="%BWAUTHUSER-24%"
-      reg.24.callsPerLineKey="%callsPerLineKey%"
-      reg.24.displayName="%BWFIRSTNAME-24% %BWLASTNAME-24%"
-      reg.24.label="%BWEXTENSION-24%"
-      reg.24.lineKeys="%Line24-LnCnt%"
-      reg.24.server.1.address="%BWHOST-24%"
-      reg.24.server.1.port="%PHONE_REG_PORT%"
-      reg.24.server.1.transport="DNSnaptr"
-      reg.24.serverFeatureControl.cf="%FEATURE_SYNC_CF%"
-      reg.24.serverFeatureControl.dnd="%FEATURE_SYNC_DND%"
-      reg.24.type="%BWSHAREDLINE-24%"
-      reg.24.ringType="%REG-24-RINGTYPE%"
-      reg.24.bargeInEnabled="%BWSCA-BRIDGING-BINARY-24%"
-
-      reg.25.address="%BWLINEPORT-25%"
-      reg.25.auth.password="%BWAUTHPASSWORD-25%"
-      reg.25.auth.userId="%BWAUTHUSER-25%"
-      reg.25.callsPerLineKey="%callsPerLineKey%"
-      reg.25.displayName="%BWFIRSTNAME-25% %BWLASTNAME-25%"
-      reg.25.label="%BWEXTENSION-25%"
-      reg.25.lineKeys="%Line25-LnCnt%"
-      reg.25.server.1.address="%BWHOST-25%"
-      reg.25.server.1.port="%PHONE_REG_PORT%"
-      reg.25.server.1.transport="DNSnaptr"
-      reg.25.serverFeatureControl.cf="%FEATURE_SYNC_CF%"
-      reg.25.serverFeatureControl.dnd="%FEATURE_SYNC_DND%"
-      reg.25.type="%BWSHAREDLINE-25%"
-      reg.25.ringType="%REG-25-RINGTYPE%"
-      reg.25.bargeInEnabled="%BWSCA-BRIDGING-BINARY-25%"
-
-      reg.26.address="%BWLINEPORT-26%"
-      reg.26.auth.password="%BWAUTHPASSWORD-26%"
-      reg.26.auth.userId="%BWAUTHUSER-26%"
-      reg.26.callsPerLineKey="%callsPerLineKey%"
-      reg.26.displayName="%BWFIRSTNAME-26% %BWLASTNAME-26%"
-      reg.26.label="%BWEXTENSION-26%"
-      reg.26.lineKeys="%Line26-LnCnt%"
-      reg.26.server.1.address="%BWHOST-26%"
-      reg.26.server.1.port="%PHONE_REG_PORT%"
-      reg.26.server.1.transport="DNSnaptr"
-      reg.26.serverFeatureControl.cf="%FEATURE_SYNC_CF%"
-      reg.26.serverFeatureControl.dnd="%FEATURE_SYNC_DND%"
-      reg.26.type="%BWSHAREDLINE-26%"
-      reg.26.ringType="%REG-26-RINGTYPE%"
-      reg.26.bargeInEnabled="%BWSCA-BRIDGING-BINARY-26%"
-
-      reg.27.address="%BWLINEPORT-27%"
-      reg.27.auth.password="%BWAUTHPASSWORD-27%"
-      reg.27.auth.userId="%BWAUTHUSER-27%"
-      reg.27.callsPerLineKey="%callsPerLineKey%"
-      reg.27.displayName="%BWFIRSTNAME-27% %BWLASTNAME-27%"
-      reg.27.label="%BWEXTENSION-27%"
-      reg.27.lineKeys="%Line27-LnCnt%"
-      reg.27.server.1.address="%BWHOST-27%"
-      reg.27.server.1.port="%PHONE_REG_PORT%"
-      reg.27.server.1.transport="DNSnaptr"
-      reg.27.serverFeatureControl.cf="%FEATURE_SYNC_CF%"
-      reg.27.serverFeatureControl.dnd="%FEATURE_SYNC_DND%"
-      reg.27.type="%BWSHAREDLINE-27%"
-      reg.27.ringType="%REG-27-RINGTYPE%"
-      reg.27.bargeInEnabled="%BWSCA-BRIDGING-BINARY-27%"
-
-      reg.28.address="%BWLINEPORT-28%"
-      reg.28.auth.password="%BWAUTHPASSWORD-28%"
-      reg.28.auth.userId="%BWAUTHUSER-28%"
-      reg.28.callsPerLineKey="%callsPerLineKey%"
-      reg.28.displayName="%BWFIRSTNAME-28% %BWLASTNAME-28%"
-      reg.28.label="%BWEXTENSION-28%"
-      reg.28.lineKeys="%Line28-LnCnt%"
-      reg.28.server.1.address="%BWHOST-28%"
-      reg.28.server.1.port="%PHONE_REG_PORT%"
-      reg.28.server.1.transport="DNSnaptr"
-      reg.28.serverFeatureControl.cf="%FEATURE_SYNC_CF%"
-      reg.28.serverFeatureControl.dnd="%FEATURE_SYNC_DND%"
-      reg.28.type="%BWSHAREDLINE-28%"
-      reg.28.ringType="%REG-28-RINGTYPE%"
-      reg.28.bargeInEnabled="%BWSCA-BRIDGING-BINARY-28%"
-
-      reg.29.address="%BWLINEPORT-29%"
-      reg.29.auth.password="%BWAUTHPASSWORD-29%"
-      reg.29.auth.userId="%BWAUTHUSER-29%"
-      reg.29.callsPerLineKey="%callsPerLineKey%"
-      reg.29.displayName="%BWFIRSTNAME-29% %BWLASTNAME-29%"
-      reg.29.label="%BWEXTENSION-29%"
-      reg.29.lineKeys="%Line29-LnCnt%"
-      reg.29.server.1.address="%BWHOST-29%"
-      reg.29.server.1.port="%PHONE_REG_PORT%"
-      reg.29.server.1.transport="DNSnaptr"
-      reg.29.serverFeatureControl.cf="%FEATURE_SYNC_CF%"
-      reg.29.serverFeatureControl.dnd="%FEATURE_SYNC_DND%"
-      reg.29.type="%BWSHAREDLINE-29%"
-      reg.29.ringType="%REG-29-RINGTYPE%"
-      reg.29.bargeInEnabled="%BWSCA-BRIDGING-BINARY-29%"
-
-      reg.30.address="%BWLINEPORT-30%"
-      reg.30.auth.password="%BWAUTHPASSWORD-30%"
-      reg.30.auth.userId="%BWAUTHUSER-30%"
-      reg.30.callsPerLineKey="%callsPerLineKey%"
-      reg.30.displayName="%BWFIRSTNAME-30% %BWLASTNAME-30%"
-      reg.30.label="%BWEXTENSION-30%"
-      reg.30.lineKeys="%Line30-LnCnt%"
-      reg.30.server.1.address="%BWHOST-30%"
-      reg.30.server.1.port="%PHONE_REG_PORT%"
-      reg.30.server.1.transport="DNSnaptr"
-      reg.30.serverFeatureControl.cf="%FEATURE_SYNC_CF%"
-      reg.30.serverFeatureControl.dnd="%FEATURE_SYNC_DND%"
-      reg.30.type="%BWSHAREDLINE-30%"
-      reg.30.ringType="%REG-30-RINGTYPE%"
-      reg.30.bargeInEnabled="%BWSCA-BRIDGING-BINARY-30%"
-
-      reg.31.address="%BWLINEPORT-31%"
-      reg.31.auth.password="%BWAUTHPASSWORD-31%"
-      reg.31.auth.userId="%BWAUTHUSER-31%"
-      reg.31.callsPerLineKey="%callsPerLineKey%"
-      reg.31.displayName="%BWFIRSTNAME-31% %BWLASTNAME-31%"
-      reg.31.label="%BWEXTENSION-31%"
-      reg.31.lineKeys="%Line31-LnCnt%"
-      reg.31.server.1.address="%BWHOST-31%"
-      reg.31.server.1.port="%PHONE_REG_PORT%"
-      reg.31.server.1.transport="DNSnaptr"
-      reg.31.serverFeatureControl.cf="%FEATURE_SYNC_CF%"
-      reg.31.serverFeatureControl.dnd="%FEATURE_SYNC_DND%"
-      reg.31.type="%BWSHAREDLINE-31%"
-      reg.31.ringType="%REG-31-RINGTYPE%"
-      reg.31.bargeInEnabled="%BWSCA-BRIDGING-BINARY-31%"
-
-      reg.32.address="%BWLINEPORT-32%"
-      reg.32.auth.password="%BWAUTHPASSWORD-32%"
-      reg.32.auth.userId="%BWAUTHUSER-32%"
-      reg.32.callsPerLineKey="%callsPerLineKey%"
-      reg.32.displayName="%BWFIRSTNAME-32% %BWLASTNAME-32%"
-      reg.32.label="%BWEXTENSION-32%"
-      reg.32.lineKeys="%Line32-LnCnt%"
-      reg.32.server.1.address="%BWHOST-32%"
-      reg.32.server.1.port="%PHONE_REG_PORT%"
-      reg.32.server.1.transport="DNSnaptr"
-      reg.32.serverFeatureControl.cf="%FEATURE_SYNC_CF%"
-      reg.32.serverFeatureControl.dnd="%FEATURE_SYNC_DND%"
-      reg.32.type="%BWSHAREDLINE-32%"
-      reg.32.ringType="%REG-32-RINGTYPE%"
-      reg.32.bargeInEnabled="%BWSCA-BRIDGING-BINARY-32%"
-
-      reg.33.address="%BWLINEPORT-33%"
-      reg.33.auth.password="%BWAUTHPASSWORD-33%"
-      reg.33.auth.userId="%BWAUTHUSER-33%"
-      reg.33.callsPerLineKey="%callsPerLineKey%"
-      reg.33.displayName="%BWFIRSTNAME-33% %BWLASTNAME-33%"
-      reg.33.label="%BWEXTENSION-33%"
-      reg.33.lineKeys="%Line33-LnCnt%"
-      reg.33.server.1.address="%BWHOST-33%"
-      reg.33.server.1.port="%PHONE_REG_PORT%"
-      reg.33.server.1.transport="DNSnaptr"
-      reg.33.serverFeatureControl.cf="%FEATURE_SYNC_CF%"
-      reg.33.serverFeatureControl.dnd="%FEATURE_SYNC_DND%"
-      reg.33.type="%BWSHAREDLINE-33%"
-      reg.33.ringType="%REG-33-RINGTYPE%"
-      reg.33.bargeInEnabled="%BWSCA-BRIDGING-BINARY-33%"
-
-      reg.34.address="%BWLINEPORT-34%"
-      reg.34.auth.password="%BWAUTHPASSWORD-34%"
-      reg.34.auth.userId="%BWAUTHUSER-34%"
-      reg.34.callsPerLineKey="%callsPerLineKey%"
-      reg.34.displayName="%BWFIRSTNAME-34% %BWLASTNAME-34%"
-      reg.34.label="%BWEXTENSION-34%"
-      reg.34.lineKeys="%Line34-LnCnt%"
-      reg.34.server.1.address="%BWHOST-34%"
-      reg.34.server.1.port="%PHONE_REG_PORT%"
-      reg.34.server.1.transport="DNSnaptr"
-      reg.34.serverFeatureControl.cf="%FEATURE_SYNC_CF%"
-      reg.34.serverFeatureControl.dnd="%FEATURE_SYNC_DND%"
-      reg.34.type="%BWSHAREDLINE-34%"
-      reg.34.ringType="%REG-34-RINGTYPE%"
-      reg.34.bargeInEnabled="%BWSCA-BRIDGING-BINARY-34%"
-  />
-<divert>
-  <divert divert.1.sharedDisabled="0"/>
-</divert>
-<!-- msg.mwi.X.subscribe field added to support per line MWI and SCA -->
-  <msg msg.bypassInstantMessage="1">
-    <mwi msg.mwi.1.callBack="%BWVOICE-PORTAL-NUMBER-1%"
-         msg.mwi.1.callBackMode="%MWI_Line_1%"
-         msg.mwi.1.subscribe=""
-
-         msg.mwi.10.callBack="%BWVOICE-PORTAL-NUMBER-10%"
-         msg.mwi.10.callBackMode="%MWI_Line_PLUS%"
-         msg.mwi.10.subscribe=""
-
-         msg.mwi.11.callBack="%BWVOICE-PORTAL-NUMBER-11%"
-        msg.mwi.11.callBackMode="%MWI_Line_PLUS%"
-        msg.mwi.11.subscribe=""
-
-        msg.mwi.12.callBack="%BWVOICE-PORTAL-NUMBER-12%"
-        msg.mwi.12.callBackMode="%MWI_Line_PLUS%"
-        msg.mwi.12.subscribe=""
-
-        msg.mwi.2.callBack="%BWVOICE-PORTAL-NUMBER-2%"
-        msg.mwi.2.callBackMode="%MWI_Line_2%"
-        msg.mwi.2.subscribe=""
-
-        msg.mwi.3.callBack="%BWVOICE-PORTAL-NUMBER-3%"
-        msg.mwi.3.callBackMode="%MWI_Line_3%"
-        msg.mwi.3.subscribe=""
-
-        msg.mwi.4.callBack="%BWVOICE-PORTAL-NUMBER-4%"
-        msg.mwi.4.callBackMode="%MWI_Line_4%"
-        msg.mwi.4.subscribe=""
-
-        msg.mwi.5.callBack="%BWVOICE-PORTAL-NUMBER-5%"
-        msg.mwi.5.callBackMode="%MWI_Line_5%"
-        msg.mwi.5.subscribe=""
-
-        msg.mwi.6.callBack="%BWVOICE-PORTAL-NUMBER-6%"
-        msg.mwi.6.callBackMode="%MWI_Line_6%"
-        msg.mwi.6.subscribe=""
-
-        msg.mwi.7.callBack="%BWVOICE-PORTAL-NUMBER-7%"
-        msg.mwi.7.callBackMode="%MWI_Line_PLUS%"
-        msg.mwi.7.subscribe=""
-
-        msg.mwi.8.callBack="%BWVOICE-PORTAL-NUMBER-8%"
-        msg.mwi.8.callBackMode="%MWI_Line_PLUS%"
-        msg.mwi.8.subscribe=""
-
-        msg.mwi.9.callBack="%BWVOICE-PORTAL-NUMBER-9%"
-        msg.mwi.9.callBackMode="%MWI_Line_PLUS%"
-        msg.mwi.9.subscribe="" />
+  <msg>
+    <msg msg.bypassInstantMessage="1" />
+    <msg.mwi 
+	msg.mwi.1.callBack="%BWVOICE-PORTAL-NUMBER-1%" 
+	msg.mwi.1.callBackMode="%MWI_Line_1%"
+	msg.mwi.2.callBack="%BWVOICE-PORTAL-NUMBER-2%" 
+	msg.mwi.2.callBackMode="%MWI_Line_1%"
+	msg.mwi.3.callBack="%BWVOICE-PORTAL-NUMBER-3%" 
+	msg.mwi.3.callBackMode="%MWI_Line_1%"
+	msg.mwi.4.callBack="%BWVOICE-PORTAL-NUMBER-4%" 
+	msg.mwi.4.callBackMode="%MWI_Line_1%"
+	msg.mwi.5.callBack="%BWVOICE-PORTAL-NUMBER-5%" 
+	msg.mwi.5.callBackMode="%MWI_Line_1%"
+	msg.mwi.6.callBack="%BWVOICE-PORTAL-NUMBER-6%" 
+	msg.mwi.6.callBackMode="%MWI_Line_1%"
+	msg.mwi.7.callBack="%BWVOICE-PORTAL-NUMBER-7%" 
+	msg.mwi.7.callBackMode="%MWI_Line_1%"
+	msg.mwi.8.callBack="%BWVOICE-PORTAL-NUMBER-8%" 
+	msg.mwi.8.callBackMode="%MWI_Line_1%"
+	msg.mwi.9.callBack="%BWVOICE-PORTAL-NUMBER-9%" 
+	msg.mwi.9.callBackMode="%MWI_Line_1%"
+	msg.mwi.10.callBack="%BWVOICE-PORTAL-NUMBER-10%" 
+	msg.mwi.10.callBackMode="%MWI_Line_1%"
+	msg.mwi.11.callBack="%BWVOICE-PORTAL-NUMBER-11%" 
+	msg.mwi.11.callBackMode="%MWI_Line_1%"
+	msg.mwi.12.callBack="%BWVOICE-PORTAL-NUMBER-12%" 
+	msg.mwi.12.callBackMode="%MWI_Line_1%" />
   </msg>
-
-  <attendant attendant.reg="1" attendant.uri="%BWBLF-URI-1%"  attendant.behaviors.display.spontaneousCallAppearances.normal="%BLF-VISUAL-ALERT%" />
-
+  <reg>
+    <reg 
+	reg.1.address="%BWLINEPORT-1%" 
+	reg.1.bargeInEnabled="%BWSCA-BRIDGING-BINARY-1%"
+	reg.1.displayName="%BWFIRSTNAME-1% %BWLASTNAME-1%" 
+	reg.1.label="%BWEXTENSION-1%" 
+	reg.1.type="%BWSHAREDLINE-1%"
+	reg.1.broadsoft.userId="%BWLOGIN-ID-1%" 
+	reg.1.lineAddress="%BWEXTENSION-1%" 
+	reg.1.lineKeys="%Line1-LnCnt%"
+	reg.1.enablePvtHoldSoftKey="%FEATURE_PVT_HOLD%" 
+	reg.1.auth.password="%BWAUTHPASSWORD-1%" 
+	reg.1.auth.userId="%BWAUTHUSER-1%"
+	reg.1.auth.loginCredentialType="usernameAndPassword" 
+	reg.1.server.1.address="%BWHOST-1%" 
+	reg.1.server.1.port="%PHONE_REG_PORT%"
+	reg.1.server.1.transport="%PHONE_REG_TRANSPORT%" 
+	reg.1.server.2.address="%BWHOST-1%" 
+	reg.1.server.2.port=""
+	reg.1.server.2.transport="" 
+	reg.1.serverFeatureControl.cf="%FEATURE_SYNC_CF%"
+	reg.1.serverFeatureControl.dnd="%FEATURE_SYNC_DND%" 
+	reg.1.serverFeatureControl.securityClassification="%BWSECCLASS-BINARY-1%"
+	reg.1.serverFeatureControl.callRecording="%BWCALLRECORDING-BINARY-1%" 
+	reg.1.enhancedCallPark.enabled="%FEATURE_ENHANCED_CP%"
+	reg.1.ringType="%REG-1-RINGTYPE%" 
+	reg.1.acd-login-logout="%FEATURE_SYNC_ACD%" 
+	reg.1.acd-agent-available="%FEATURE_SYNC_ACD%"
+	reg.1.showRejectSoftKey="1" 
+	
+	reg.2.address="%BWLINEPORT-2%" 
+	reg.2.bargeInEnabled="%BWSCA-BRIDGING-BINARY-2%" 
+	reg.2.label="%BWEXTENSION-2%"
+	reg.2.type="%BWSHAREDLINE-2%" 
+	reg.2.broadsoft.userId="%BWLOGIN-ID-2%" 
+	reg.2.lineAddress="%BWEXTENSION-2%"
+	reg.2.lineKeys="%Line2-LnCnt%" 
+	reg.2.enablePvtHoldSoftKey="%FEATURE_PVT_HOLD%" 
+	reg.2.auth.password="%BWAUTHPASSWORD-2%"
+	reg.2.auth.userId="%BWAUTHUSER-2%" 
+	reg.2.auth.loginCredentialType="usernameAndPassword" 
+	reg.2.server.1.address="%BWHOST-2%"
+	reg.2.server.1.port="%PHONE_REG_PORT%" 
+	reg.2.server.1.transport="%PHONE_REG_TRANSPORT%" 
+	reg.2.server.2.address="%BWHOST-2%"
+	reg.2.server.2.port="" 
+	reg.2.server.2.transport="" 
+	reg.2.serverFeatureControl.cf="%FEATURE_SYNC_CF%"
+	reg.2.serverFeatureControl.dnd="%FEATURE_SYNC_DND%" 
+	reg.2.serverFeatureControl.securityClassification="%BWSECCLASS-BINARY-2%"
+	reg.2.serverFeatureControl.callRecording="%BWCALLRECORDING-BINARY-2%" 
+	reg.2.enhancedCallPark.enabled="%FEATURE_ENHANCED_CP%"
+	reg.2.ringType="%REG-2-RINGTYPE%" 
+	
+	reg.3.address="%BWLINEPORT-3%" 
+	reg.3.bargeInEnabled="%BWSCA-BRIDGING-BINARY-3%"
+	reg.3.displayName="%BWFIRSTNAME-3% %BWLASTNAME-3%" 
+	reg.3.label="%BWEXTENSION-3%" 
+	reg.3.type="%BWSHAREDLINE-3%"
+	reg.3.broadsoft.userId="%BWLOGIN-ID-3%" 
+	reg.3.lineAddress="%BWEXTENSION-3%" 
+	reg.3.lineKeys="%Line3-LnCnt%"
+	reg.3.enablePvtHoldSoftKey="%FEATURE_PVT_HOLD%" 
+	reg.3.auth.password="%BWAUTHPASSWORD-3%" 
+	reg.3.auth.userId="%BWAUTHUSER-3%"
+	reg.3.auth.loginCredentialType="usernameAndPassword" 
+	reg.3.server.1.address="%BWHOST-3%" 
+	reg.3.server.1.port="%PHONE_REG_PORT%"
+	reg.3.server.1.transport="%PHONE_REG_TRANSPORT%" 
+	reg.3.server.2.address="%BWHOST-3%" 
+	reg.3.server.2.port=""
+	reg.3.server.2.transport="" 
+	reg.3.serverFeatureControl.cf="%FEATURE_SYNC_CF%"
+	reg.3.serverFeatureControl.dnd="%FEATURE_SYNC_DND%" 
+	reg.3.serverFeatureControl.securityClassification="%BWSECCLASS-BINARY-3%"
+	reg.3.serverFeatureControl.callRecording="%BWCALLRECORDING-BINARY-3%" 
+	reg.3.enhancedCallPark.enabled="%FEATURE_ENHANCED_CP%"
+	reg.3.ringType="%REG-3-RINGTYPE%" 
+	
+	reg.4.address="%BWLINEPORT-4%" 
+	reg.4.bargeInEnabled="%BWSCA-BRIDGING-BINARY-4%"
+	reg.4.displayName="%BWFIRSTNAME-4% %BWLASTNAME-4%" 
+	reg.4.label="%BWEXTENSION-4%" 
+	reg.4.type="%BWSHAREDLINE-4%"
+	reg.4.broadsoft.userId="%BWLOGIN-ID-4%" 
+	reg.4.lineAddress="%BWEXTENSION-4%" 
+	reg.4.lineKeys="%Line4-LnCnt%"
+	reg.4.enablePvtHoldSoftKey="%FEATURE_PVT_HOLD%" 
+	reg.4.auth.password="%BWAUTHPASSWORD-4%" 
+	reg.4.auth.userId="%BWAUTHUSER-4%"
+	reg.4.auth.loginCredentialType="usernameAndPassword" 
+	reg.4.server.1.address="%BWHOST-4%" 
+	reg.4.server.1.port="%PHONE_REG_PORT%"
+	reg.4.server.1.transport="%PHONE_REG_TRANSPORT%" 
+	reg.4.server.2.port="" 
+	reg.4.server.2.transport=""
+	reg.4.serverFeatureControl.cf="%FEATURE_SYNC_CF%" 
+	reg.4.serverFeatureControl.dnd="%FEATURE_SYNC_DND%"
+	reg.4.serverFeatureControl.securityClassification="%BWSECCLASS-BINARY-4%"
+	reg.4.serverFeatureControl.callRecording="%BWCALLRECORDING-BINARY-4%" 
+	reg.4.enhancedCallPark.enabled="%FEATURE_ENHANCED_CP%"
+	reg.4.ringType="%REG-4-RINGTYPE%" 
+	
+	reg.5.address="%BWLINEPORT-5%" 
+	reg.5.bargeInEnabled="%BWSCA-BRIDGING-BINARY-5%"
+	reg.5.displayName="%BWFIRSTNAME-5% %BWLASTNAME-5%" 
+	reg.5.label="%BWEXTENSION-5%" 
+	reg.5.type="%BWSHAREDLINE-5%"
+	reg.5.broadsoft.userId="%BWLOGIN-ID-5%" 
+	reg.5.lineAddress="%BWEXTENSION-5%" 
+	reg.5.enablePvtHoldSoftKey="%FEATURE_PVT_HOLD%"
+	reg.5.auth.password="%BWAUTHPASSWORD-5%" 
+	reg.5.auth.userId="%BWAUTHUSER-5%"
+	reg.5.auth.loginCredentialType="usernameAndPassword" 
+	reg.5.server.1.address="%BWHOST-5%" 
+	reg.5.server.1.port="%PHONE_REG_PORT%"
+	reg.5.server.1.transport="%PHONE_REG_TRANSPORT%" 
+	reg.5.server.2.address="%BWHOST-5%" 
+	reg.5.server.2.port=""
+	reg.5.server.2.transport="" 
+	reg.5.serverFeatureControl.cf="%FEATURE_SYNC_CF%"
+	reg.5.serverFeatureControl.dnd="%FEATURE_SYNC_DND%" 
+	reg.5.serverFeatureControl.securityClassification="%BWSECCLASS-BINARY-5%"
+	reg.5.serverFeatureControl.callRecording="%BWCALLRECORDING-BINARY-5%" 
+	reg.5.enhancedCallPark.enabled="%FEATURE_ENHANCED_CP%"
+	reg.5.ringType="%REG-5-RINGTYPE%" 
+	
+	reg.6.address="%BWLINEPORT-6%" 
+	reg.6.bargeInEnabled="%BWSCA-BRIDGING-BINARY-6%"
+	reg.6.displayName="%BWFIRSTNAME-6% %BWLASTNAME-6%" 
+	reg.6.label="%BWEXTENSION-6%" 
+	reg.6.type="%BWSHAREDLINE-6%"
+	reg.6.broadsoft.userId="%BWLOGIN-ID-6%" 
+	reg.6.lineAddress="%BWEXTENSION-6%" 
+	reg.6.auth.password="%BWAUTHPASSWORD-6%"
+	reg.6.auth.userId="%BWAUTHUSER-6%" 
+	reg.6.auth.loginCredentialType="usernameAndPassword" 
+	reg.6.server.1.address="%BWHOST-6%"
+	reg.6.server.1.port="%PHONE_REG_PORT%" 
+	reg.6.server.1.transport="%PHONE_REG_TRANSPORT%" 
+	reg.6.server.2.address="%BWHOST-6%"
+	reg.6.server.2.port="" 
+	reg.6.server.2.transport="" 
+	reg.6.serverFeatureControl.cf="%FEATURE_SYNC_CF%"
+	reg.6.serverFeatureControl.dnd="%FEATURE_SYNC_DND%" 
+	reg.6.serverFeatureControl.securityClassification="%BWSECCLASS-BINARY-6%"
+	reg.6.serverFeatureControl.callRecording="%BWCALLRECORDING-BINARY-6%" 
+	reg.6.enhancedCallPark.enabled="%FEATURE_ENHANCED_CP%"
+	reg.6.ringType="%REG-6-RINGTYPE%" 
+	reg.6.enablePvtHoldSoftKey="%FEATURE_PVT_HOLD%" 
+	
+	reg.7.address="%BWLINEPORT-7%"
+	reg.7.bargeInEnabled="%BWSCA-BRIDGING-BINARY-7%" 
+	reg.7.label="%BWEXTENSION-7%" 
+	reg.7.type="%BWSHAREDLINE-7%"
+	reg.7.broadsoft.userId="%BWLOGIN-ID-7%" 
+	reg.7.lineAddress="%BWEXTENSION-7%" 
+	reg.7.enablePvtHoldSoftKey="%FEATURE_PVT_HOLD%"
+	reg.7.auth.password="%BWAUTHPASSWORD-7%" 
+	reg.7.auth.userId="%BWAUTHUSER-7%"
+	reg.7.auth.loginCredentialType="usernameAndPassword" 
+	reg.7.server.1.address="%BWHOST-7%" 
+	reg.7.server.1.port="%PHONE_REG_PORT%"
+	reg.7.server.1.transport="%PHONE_REG_TRANSPORT%" 
+	reg.7.server.2.address="%BWHOST-7%" 
+	reg.7.server.2.port=""
+	reg.7.server.2.transport="" 
+	reg.7.serverFeatureControl.cf="%FEATURE_SYNC_CF%"
+	reg.7.serverFeatureControl.dnd="%FEATURE_SYNC_DND%" 
+	reg.7.serverFeatureControl.securityClassification="%BWSECCLASS-BINARY-7%"
+	reg.7.serverFeatureControl.callRecording="%BWCALLRECORDING-BINARY-7%" 
+	reg.7.enhancedCallPark.enabled="%FEATURE_ENHANCED_CP%"
+	reg.7.ringType="%REG-7-RINGTYPE%" 
+	
+	reg.8.address="%BWLINEPORT-8%" 
+	reg.8.bargeInEnabled="%BWSCA-BRIDGING-BINARY-8%"
+	reg.8.label="%BWEXTENSION-8%" 
+	reg.8.type="%BWSHAREDLINE-8%" 
+	reg.8.broadsoft.userId="%BWLOGIN-ID-8%"
+	reg.8.lineAddress="%BWEXTENSION-8%" 
+	reg.8.enablePvtHoldSoftKey="%FEATURE_PVT_HOLD%" 
+	reg.8.auth.password="%BWAUTHPASSWORD-8%"
+	reg.8.auth.userId="%BWAUTHUSER-8%" 
+	reg.8.auth.loginCredentialType="usernameAndPassword" 
+	reg.8.server.1.address="%BWHOST-8%"
+	reg.8.server.1.port="%PHONE_REG_PORT%" 
+	reg.8.server.1.transport="%PHONE_REG_TRANSPORT%" 
+	reg.8.server.2.address="%BWHOST-8%"
+	reg.8.server.2.port="" 
+	reg.8.server.2.transport="" 
+	reg.8.serverFeatureControl.cf="%FEATURE_SYNC_CF%"
+	reg.8.serverFeatureControl.dnd="%FEATURE_SYNC_DND%" 
+	reg.8.serverFeatureControl.securityClassification="%BWSECCLASS-BINARY-8%"
+	reg.8.serverFeatureControl.callRecording="%BWCALLRECORDING-BINARY-8%" 
+	reg.8.enhancedCallPark.enabled="%FEATURE_ENHANCED_CP%"
+	reg.8.ringType="%REG-8-RINGTYPE%" 
+	
+	reg.9.address="%BWLINEPORT-9%" 
+	reg.9.bargeInEnabled="%BWSCA-BRIDGING-BINARY-9%"
+	reg.9.label="%BWEXTENSION-9%" 
+	reg.9.type="%BWSHAREDLINE-9%" 
+	reg.9.broadsoft.userId="%BWLOGIN-ID-9%"
+	reg.9.lineAddress="%BWEXTENSION-9%" 
+	reg.9.enablePvtHoldSoftKey="%FEATURE_PVT_HOLD%" 
+	reg.9.auth.password="%BWAUTHPASSWORD-9%"
+	reg.9.auth.userId="%BWAUTHUSER-9%" 
+	reg.9.auth.loginCredentialType="usernameAndPassword" 
+	reg.9.server.1.address="%BWHOST-9%"
+	reg.9.server.1.port="%PHONE_REG_PORT%" 
+	reg.9.server.1.transport="%PHONE_REG_TRANSPORT%" 
+	reg.9.server.2.address="%BWHOST-9%"
+	reg.9.server.2.port="" 
+	reg.9.server.2.transport="" 
+	reg.9.serverFeatureControl.cf="%FEATURE_SYNC_CF%"
+	reg.9.serverFeatureControl.dnd="%FEATURE_SYNC_DND%" 
+	reg.9.serverFeatureControl.securityClassification="%BWSECCLASS-BINARY-9%"
+	reg.9.serverFeatureControl.callRecording="%BWCALLRECORDING-BINARY-9%" 
+	reg.9.enhancedCallPark.enabled="%FEATURE_ENHANCED_CP%"
+	reg.9.ringType="%REG-9-RINGTYPE%" 
+	
+	reg.10.address="%BWLINEPORT-10%" 
+	reg.10.bargeInEnabled="%BWSCA-BRIDGING-BINARY-10%"
+	reg.10.label="%BWEXTENSION-10%" 
+	reg.10.type="%BWSHAREDLINE-10%" 
+	reg.10.broadsoft.userId="%BWLOGIN-ID-10%"
+	reg.10.lineAddress="%BWEXTENSION-10%" 
+	reg.10.enablePvtHoldSoftKey="%FEATURE_PVT_HOLD%"
+	reg.10.auth.password="%BWAUTHPASSWORD-10%" 
+	reg.10.auth.userId="%BWAUTHUSER-10%"
+	reg.10.auth.loginCredentialType="usernameAndPassword" 
+	reg.10.server.1.address="%BWHOST-10%"
+	reg.10.server.1.port="%PHONE_REG_PORT%" 
+	reg.10.server.1.transport="%PHONE_REG_TRANSPORT%" 
+	reg.10.server.2.address="%BWHOST-10%"
+	reg.10.server.2.port="" 
+	reg.10.server.2.transport="" 
+	reg.10.serverFeatureControl.cf="%FEATURE_SYNC_CF%"
+	reg.10.serverFeatureControl.dnd="%FEATURE_SYNC_DND%"
+	reg.10.serverFeatureControl.securityClassification="%BWSECCLASS-BINARY-10%"
+	reg.10.serverFeatureControl.callRecording="%BWCALLRECORDING-BINARY-10%" 
+	reg.10.enhancedCallPark.enabled="%FEATURE_ENHANCED_CP%"
+	reg.10.ringType="%REG-10-RINGTYPE%" 
+	
+	reg.11.address="%BWLINEPORT-11%" 
+	reg.11.bargeInEnabled="%BWSCA-BRIDGING-BINARY-11%"
+	reg.11.label="%BWEXTENSION-11%" 
+	reg.11.type="%BWSHAREDLINE-11%" 
+	reg.11.broadsoft.userId="%BWLOGIN-ID-11%"
+	reg.11.lineAddress="%BWEXTENSION-11%" 
+	reg.11.enablePvtHoldSoftKey="%FEATURE_PVT_HOLD%"
+	reg.11.auth.password="%BWAUTHPASSWORD-11%" 
+	reg.11.auth.userId="%BWAUTHUSER-11%"
+	reg.11.auth.loginCredentialType="usernameAndPassword" 
+	reg.11.server.1.address="%BWHOST-11%"
+	reg.11.server.1.port="%PHONE_REG_PORT%" 
+	reg.11.server.1.transport="%PHONE_REG_TRANSPORT%" 
+	reg.11.server.2.address="%BWHOST-11%"
+	reg.11.server.2.port="" 
+	reg.11.server.2.transport="" 
+	reg.11.serverFeatureControl.cf="%FEATURE_SYNC_CF%"
+	reg.11.serverFeatureControl.dnd="%FEATURE_SYNC_DND%"
+	reg.11.serverFeatureControl.securityClassification="%BWSECCLASS-BINARY-11%"
+	reg.11.serverFeatureControl.callRecording="%BWCALLRECORDING-BINARY-11%" 
+	reg.11.enhancedCallPark.enabled="%FEATURE_ENHANCED_CP%"
+	reg.11.ringType="%REG-11-RINGTYPE%" 
+	
+	reg.12.address="%BWLINEPORT-12%" 
+	reg.12.bargeInEnabled="%BWSCA-BRIDGING-BINARY-12%"
+	reg.12.label="%BWEXTENSION-12%" 
+	reg.12.type="%BWSHAREDLINE-12%" 
+	reg.12.broadsoft.userId="%BWLOGIN-ID-12%"
+	reg.12.lineAddress="%BWEXTENSION-12%" 
+	reg.12.enablePvtHoldSoftKey="%FEATURE_PVT_HOLD%"
+	reg.12.auth.password="%BWAUTHPASSWORD-12%" 
+	reg.12.auth.userId="%BWAUTHUSER-12%"
+	reg.12.auth.loginCredentialType="usernameAndPassword" 
+	reg.12.server.1.address="%BWHOST-12%"
+	reg.12.server.1.port="%PHONE_REG_PORT%" 
+	reg.12.server.1.transport="%PHONE_REG_TRANSPORT%" 
+	reg.12.server.2.address="%BWHOST-12%"
+	reg.12.server.2.port="" 
+	reg.12.server.2.transport="" 
+	reg.12.serverFeatureControl.cf="%FEATURE_SYNC_CF%"
+	reg.12.serverFeatureControl.dnd="%FEATURE_SYNC_DND%"
+	reg.12.serverFeatureControl.securityClassification="%BWSECCLASS-BINARY-12%"
+	reg.12.serverFeatureControl.callRecording="%BWCALLRECORDING-BINARY-12%" 
+	reg.12.enhancedCallPark.enabled="%FEATURE_ENHANCED_CP%"
+	reg.12.ringType="%REG-12-RINGTYPE%" />
+  </reg>
+  
   <tcpIpApp>
-    <sntp tcpIpApp.sntp.address="%SNTP_SERVER%" tcpIpApp.sntp.gmtOffset="%BWTIMEZONE-1%" tcpIpApp.sntp.resyncPeriod="96400"
-tcpIpApp.sntp.address.overrideDHCP="%SNTP-OVERRIDE-DHCP%"/>
+	<tcpIpApp.sntp tcpIpApp.sntp.gmtOffset="%BWTIMEZONE-1%" />
+	<tcpIpApp.sntp tcpIpApp.sntp.address="%SNTP_SERVER%" />
+	<tcpIpApp.sntp device.sntp.serverName="%SNTP_SERVER_2%" />
+	<tcpIpApp.sntp device.sntp.gmtOffset="%BWTIMEZONE-1%" />
+	<tcpIpApp.sntp tcpIpApp.sntp.resyncPeriod="%SNTP_RESYNC%" />
+	<tcpIpApp.sntp tcpIpApp.sntp.address.overrideDHCP="%SNTP_OVERRIDE_DHCP%" />
+	<tcpIpApp.sntp tcpIpApp.sntp.gmtOffset.overrideDHCP="%SNTP_OVERRIDE_DHCP%" />
+	<tcpIpApp.sntp tcpIpApp.sntp.daylightSavings.enable="%DST_ENABLE%" />
+	<tcpIpApp.sntp tcpIpApp.sntp.daylightSavings.fixedDayEnable="0" />
+	<tcpIpApp.sntp tcpIpApp.sntp.daylightSavings.start.date="%DST_START_DAY_OCCURENCE%" />
+	<!-- 8= 2nd Occurrence, 15= Third, 22= Fourth, -->
+	<tcpIpApp.sntp tcpIpApp.sntp.daylightSavings.start.dayOfWeek="%DST_START_DOW%" />
+	<!-- 1 = Sunday, 2 = Monday, and so on to 7 = Saturday. -->
+	<tcpIpApp.sntp tcpIpApp.sntp.daylightSavings.start.dayOfWeek.lastInMonth="0" />
+	<tcpIpApp.sntp tcpIpApp.sntp.daylightSavings.start.month="%DST_START_MONTH%" />
+	<!--1-12 where the integer entered corresponds to a month of the year.-->
+	<tcpIpApp.sntp tcpIpApp.sntp.daylightSavings.start.time="%DST_START_TIME%" />
+	<tcpIpApp.sntp tcpIpApp.sntp.daylightSavings.stop.date="%DST_STOP_DAY_OCCURENCE%" />
+	<tcpIpApp.sntp tcpIpApp.sntp.daylightSavings.stop.dayOfWeek="%DST_STOP_DOW%" />
+	<tcpIpApp.sntp tcpIpApp.sntp.daylightSavings.stop.dayOfWeek.lastInMonth="0" />
+	<tcpIpApp.sntp tcpIpApp.sntp.daylightSavings.stop.month="%DST_STOP_MONTH%" />
+	<tcpIpApp.sntp tcpIpApp.sntp.daylightSavings.stop.time="%DST_STOP_TIME%" />
+	<tcpIpApp.sntp tcpIpApp.dns.server="%DNS_SERVER_1%" />
+	<tcpIpApp.sntp tcpIpApp.dns.altServer="%DNS_SERVER_2%" />
+	<tcpIpApp.sntp tcpIpApp.dns.domain="%DOMAIN%" />
   </tcpIpApp>
-
   <feature>
-    <feature.acdAgentAvailability feature.acdAgentAvailability.enabled="%FEATURE_SYNC_ACD%" />
-    <feature.acdLoginLogout feature.acdLoginLogout.enabled="%FEATURE_SYNC_ACD%" />
-    <feature.callRecording feature.callRecording.enabled="1" />
-    <feature.nWayConference feature.nWayConference.enabled="%FEATURE_SYNC_NWAY%" />
-    <feature.urlDialing feature.urlDialing.enabled="0" />
-    <feature.acdPremiumUnavailability feature.acdPremiumUnavailability.enabled="%FEATURE_SYNC_ACD_PREM%" />
-    <feature.acdServiceControlUri feature.acdServiceControlUri.enabled="%FEATURE_SYNC_SERVICECONTROLURI%" />
-    <feature.qualitymonitoringcollector voice.qualityMonitoring.collector.enable.periodic="1" />
-    <feature.qualitymonitoringcollector voice.qualityMonitoring.collector.enable.session="1" />
-    <feature.qualitymonitoringcollector voice.qualityMonitoring.collector.enable.period="5" />
+	<feature.autoLocalHold feature.autoLocalHold="0" />
+	<feature.acdAgentAvailability feature.acdAgentAvailability.enabled="%FEATURE_SYNC_ACD%" />
+	<feature.acdLoginLogout feature.acdLoginLogout.enabled="%FEATURE_SYNC_ACD%" />
+	<feature.acdServiceControlUri feature.acdServiceControlUri.enabled="%FEATURE_SYNC_SERVICECONTROLURI%" />
+	<feature.acdPremiumUnavailability feature.acdPremiumUnavailability.enabled="%FEATURE_SYNC_ACD_PREM%" />
+	<feature.bluetooth feature.bluetooth.enabled="1" />
+	<feature.broadsoftUcOne feature.broadsoftUcOne.enabled="%FEATURE_BW_UC_ONE%" />
+	<feature.callCenterStatus feature.callCenterStatus.enabled="%FEATURE_SYNC_ACD_PREM%" />
+	<feature.callList feature.callList.enabled="1" />
+	<feature.callListMissed feature.callListMissed.enabled="1" />
+	<feature.callListPlaced feature.callListPlaced.enabled="1" />
+	<feature.callListReceived feature.callListReceived.enabled="1" />
+	<feature.callPark 
+	feature.callPark.enabled="0" 
+	call.activeCallParkString="*68" 
+	call.parkedCallRetrieveMethod="native"
+	call.parkedCallString="*68" 
+	call.parkedCallRetrieveString="%BWFAC-CALL-PARK-RETRIEVE-1%" />
+	<feature.callRecording feature.callRecording.enabled="%USB_CALL_RECORDING%" />
+	<feature.directory feature.directory.enabled="%LOCAL_DIRECTORY%" />
+	<feature.hoteling feature.hoteling.enabled="%BWHOTELINGMODE-1%" />
+	<feature.messaging feature.messaging.enabled="0" />
+	<feature.moh feature.moh.enabled="0" feature.moh.filename="" />
+	<feature.presence feature.presence.enabled="%FEATURE_PRESENCE%" />
+	<feature.qml feature.qml.enabled="%XSI_FEATURES%" />
+	<feature.callCenterCallInformation feature.callCenterCallInformation.enable="%ACD_INFO_DISPLAY%" />
+	<feature.executiveadmin 
+	feature.BSExecutiveAssistant.enabled="%FEATURE_EXEC_ADMIN%" 
+	feature.BSExecutiveAssistant.regIndex="1"
+	feature.BSExecutiveAssistant.userRole="%EXEC_ASSIST_ROLE%" />
+	<feature.broadsoftCallLogs feature.broadsoft.callLogs="%XSI_CALL_LOGS%" />
+	<feature.broadsoftCallLogs feature.broadsoft.basicCallLogs.redial.enabled="%XSI_REDIAL%" />
+	<feature.usbLogging feature.usbLogging.enabled="0" />
+	<feature.callReject call.shared.reject="%CALL_DECLINE%" />
+	<feature.broadsoft.xsi.AnonymousCallReject feature.broadsoft.xsi.AnonymousCallReject.enabled="1" />
+	<feature.broadsoftGroupDir.enabled feature.broadsoftGroupDir.enabled="%XSI_GROUP_DIR%" />
+	<feature.broadsoftdir.enabled feature.broadsoftdir.enabled="%XSI_DIR%" />
+	<feature.broadsoftPersonalDir feature.broadsoftPersonalDir.enabled="%XSI_PERSONAL_DIR%" />
+	<feature.broadsoftdir.showDefaultSearch feature.broadsoftdir.showDefaultSearch="%XSI_DIR_SEARCH%" />
+	<feature.broadsoft.xsi.SimultaneousRing feature.broadsoft.xsi.SimultaneousRing.enabled="%FEATURE_SIM_RING%" />
+	<feature.broadsoft.xsi.BroadWorksAnywhere feature.broadsoft.xsi.BroadWorksAnywhere.enabled="%FEATURE_BW_ANYWHERE%" />
+	<feature.broadsoft.xsi.RemoteOffice feature.broadsoft.xsi.RemoteOffice.enabled="%FEATURE_REMOTE_OFFICE%" />
+	<feature.broadsoft.xsi.LineIdblock feature.broadsoft.xsi.LineIdblock.enabled="%FEATURE_CLID_BLOCK%" />
+	<feature.broadsoft.xsi.AnonymousCalReject feature.broadsoft.xsi.AnonymousCalReject.enabled="%FEATURE_ANONYMOUS_REJ%" />
+	<feature.broadsoft.xsi.callWaiting feature.broadsoft.xsi.callWaiting.enabled="%FEATURE_SERVER_CWAIT%" />
+	<feature.showRejectSoftKey.enable feature.showRejectSoftKey.enable="1" />
+	<feature.urlDialing feature.urlDialing.enabled="0" />
+	<feature.nWayConference feature.nWayConference.enabled="%FEATURE_SYNC_NWAY%" />
   </feature>
-
-  <acd acd.reg="%ACD_LINE%"
-  acd.stateAtSignIn="%ACD_SIGNIN_STATE%"
-  acd.1.unavailreason.active="1"
-  acd.1.unavailreason.codeValue="10001"
-  acd.1.unavailreason.codeName="Out to lunch"
-  acd.2.unavailreason.active="1"
-  acd.2.unavailreason.codeValue="10002"
-  acd.2.unavailreason.codeName="On the phone"
-  acd.3.unavailreason.active="1"
-  acd.3.unavailreason.codeValue="10003"
-  acd.3.unavailreason.codeName="Out for coffee"
-  acd.4.unavailreason.active="1"
-  acd.4.unavailreason.codeValue="10004"
-  acd.4.unavailreason.codeName="In a meeting"
-  acd.5.unavailreason.active="1"
-  acd.5.unavailreason.codeValue="10005"
-  acd.5.unavailreason.codeName="On vacation"
-  acd.6.unavailreason.active="1"
-  acd.6.unavailreason.codeValue="10006"
-  acd.6.unavailreason.codeName="In training" />
-
-
-
-<dir>
- <dir.corp
-    dir.corp.address="%LDAPserver%"
-    dir.corp.backGroundSync.period="%LDAPbgsync%"
-    dir.corp.baseDN="%LDAPbaseDN%"
-    dir.corp.filterPrefix="%LDAPfilterPrefix%"
-    dir.corp.port="%LDAPport%"
-    dir.corp.user="%LDAPuser%"
-    dir.corp.password="%LDAPpass%"
-    dir.corp.sortControl="%LDAPlocalsort%"
-    dir.corp.vlv.allow="%LDAPvlv%"
-    dir.corp.vlv.sortOrder="%LDAPvlvsortorder%"
-    dir.corp.attribute.1.label="%LDAPattr1label%"
-    dir.corp.attribute.1.name="%LDAPattr1name%"
-    dir.corp.attribute.1.type="%LDAPattr1type%"
-    dir.corp.attribute.1.searchable="%LDAPattr1search%"
-    dir.corp.attribute.2.label="%LDAPattr2label%"
-    dir.corp.attribute.2.name="%LDAPattr2name%"
-    dir.corp.attribute.2.type="%LDAPattr2type%"
-    dir.corp.attribute.2.searchable="%LDAPattr2search%"
-    dir.corp.attribute.3.label="%LDAPattr3label%"
-    dir.corp.attribute.3.name="%LDAPattr3name%"
-    dir.corp.attribute.3.type="%LDAPattr3type%"
-    dir.corp.attribute.3.searchable="%LDAPattr3search%"
-    dir.corp.attribute.4.label="%LDAPattr4label%"
-    dir.corp.attribute.4.name="%LDAPattr4name%"
-    dir.corp.attribute.4.type="%LDAPattr4type%"
-    dir.corp.attribute.4.searchable="%LDAPattr4search%"
-  />
-</dir>
- <feature feature.corporateDirectory.enabled="%LDAPcorpenabled%"/>
- <softkey
-   softkey.feature.directories="1"
- />
-
-
-<!-- CALL INFORMATION / CALL MIME TYPE: FEATURE_ACD_CALL_INFORMATION -->
+  <call>
+	<missedCallTracking call.missedCallTracking.1.enabled="%MISSED_CALL_TRACKING-1%" />
+	<missedCallTracking call.missedCallTracking.2.enabled="%MISSED_CALL_TRACKING-2%" />
+	<missedCallTracking call.missedCallTracking.3.enabled="%MISSED_CALL_TRACKING-3%" />
+	<missedCallTracking call.missedCallTracking.4.enabled="%MISSED_CALL_TRACKING-4%" />
+	<missedCallTracking call.missedCallTracking.5.enabled="%MISSED_CALL_TRACKING-5%" />
+	<missedCallTracking call.missedCallTracking.6.enabled="%MISSED_CALL_TRACKING-6%" />
+	<missedCallTracking call.missedCallTracking.7.enabled="%MISSED_CALL_TRACKING-7%" />
+	<missedCallTracking call.missedCallTracking.8.enabled="%MISSED_CALL_TRACKING-8%" />
+	<missedCallTracking call.missedCallTracking.9.enabled="%MISSED_CALL_TRACKING-9%" />
+	<missedCallTracking call.missedCallTracking.10.enabled="%MISSED_CALL_TRACKING-10%" />
+	<missedCallTracking call.missedCallTracking.11.enabled="%MISSED_CALL_TRACKING-11%" />
+	<missedCallTracking call.missedCallTracking.12.enabled="%MISSED_CALL_TRACKING-12%" />
+	<call.callWaiting.ring call.callWaiting.ring="%CALL_WAITING_ALERT%" />
+	<!--- call.callWaiting.ring = beep (default), ring, silent -->
+  </call>
+  <up>
+	<up.Pagination up.Pagination.enabled="%PAGINATION%" />
+	<up.echoPasswordDigits up.echoPasswordDigits="0" />
+	<up.showDID up.showDID="AllScreens" />
+	<up.DIDFormat up.DIDFormat="NumberAndExtension" />
+	<up.localClockEnabled up.localClockEnabled= "%LOCAL_CLOCK%" />
+	<up.OffHookLineView.enabled up.OffHookLineView.enabled="%OFF_HOOK_VIEW%" />
+	<up.LineViewCallStatus.enabled up.LineViewCallStatus.enabled= "%LINE_VIEW%" />
+	<up.LineViewCallStatus.timeout up.LineViewCallStatus.timeout="%LINE_VIEW_TIMEOUT%" />
+	<up.numOfDisplayColumns up.numOfDisplayColumns="%DISPLAY_COLUMNS%" />
+	<up.offHookAction.none up.offHookAction.none="%RINGING_PREF%" />
+	<up.ringer.minimumVolume up.ringer.minimumVolume="%RINGER_VOLUME%" />
+	<up.basicSettings.factoryResetEnabled up.basicSettings.factoryResetEnabled="%FACTORY_RESET_BASIC%" />
+	<up.screenCapture.enabled up.screenCapture.enabled="%SCREEN_CAPTURE%" />
+	<up.welcomeSoundEnabled up.welcomeSoundEnabled="%WELCOME_SOUND%" />
+	<up.holdTimerDisplay.enable up.holdTimerDisplay.enable="%HOLD_TIMER_DISPLAY%" />
+	<up.oneTouchVoiceMail up.oneTouchVoiceMail="%OneTouchVM%" />
+	
+	
+  </up>
+  <volume>
+	<voice.volume.persist voice.volume.persist.handset="%VOLUME-HANDSET-SAVE%" />
+	<voice.volume.persist voice.volume.persist.bluetooth.headset="%VOLUME-BTHEADSET-SAVE%" />
+	<voice.volume.persist voice.volume.persist.handsfree="%VOLUME-SPEAKER-SAVE%" />
+	<voice.volume.persist voice.volume.persist.usb.handsfree="%VOLUME-USBSPEAKER-SAVE%" />
+	<voice.volume.persist voice.volume.persist.usbHeadset="%VOLUME-USBHEADSET-SAVE%" />
+  </volume>
+  <attendant>
+	<attendant.reg attendant.reg="1" />
+	<attendant.uri attendant.uri="%BWBLF-URI-1%;transport=tcp" />
+	<attendant.callWaiting.enable attendant.callWaiting.enable="0" />
+	<attendant.resource attendant.resourceList.1.type="automata" />
+	<attendant.callWaiting.ring attendant.callWaiting.ring="Silent" />
+	<attendant.ringType attendant.ringType="%BLF_RINGER%" />
+	<attendant.restrictPickup attendant.restrictPickup="0" />
+	<attendant.behaviors.automata.pickupOnBusy attendant.behaviors.automata.pickupOnBusy="0" />
+	<attendant.behaviors.display.remoteCallerID attendant.behaviors.display.remoteCallerID.automata="0" />
+	<attendant.behaviors.display.remoteCallerID attendant.behaviors.display.remoteCallerID.normal="1" />
+	<attendant.behaviors.display.spontaneousCallAppearances attendant.behaviors.display.spontaneousCallAppearances.normal="0" />
+	<attendant.behaviours.display.spontaneousCallAppearances.automata attendant.behaviours.display.spontaneousCallAppearances.automata="0" />
+	<attendant.x.display.spontaneousCallAppearances attendant.x.display.spontaneousCallAppearances="Auto" />
+	<attendant.behaviours.display.spontaneousCallAppearances.automata attendant.behaviours.display.spontaneousCallAppearances.automata="0" />
+	<attendant.behaviours.display.spontaneousCallAppearances.normal attendant.behaviours.display.spontaneousCallAppearances.normal="%BLF-VISUAL-ALERT%" />
+  </attendant>
+  <!-- XSI_SIP_AUTH 0=SIP 1=XSP Creds -->
+  <dir>
+    <dir.broadsoft 
+	dir.broadsoft.xsp.address="%XSI_ADDRESS%" 
+	dir.broadsoft.useXspCredentials="%XSI_SIP_AUTH%"
+	dir.broadsoft.regMap="%DIR_LINE%"
+	directory.local.Uienabled="%LOCAL_DIRECTORY%"	/>
+  </dir>
+  <xmpp>
+    <xmpp 
+	xmpp.1.auth.domain="%BW_IMP_SERVICE_NET_ADDRESS-1%" 
+	xmpp.1.auth.password="%BW_USER_IMP_PWD-1%"
+	xmpp.1.auth.useLoginCredentials="0" 
+	xmpp.1.dialMethod="sip" 
+	xmpp.1.enable="%FEATURE_BW_UC_ONE%" 
+	xmpp.1.jid="%BW_USER_IMP_ID-1%"
+	xmpp.1.privacy="0" 
+	xmpp.1.regMap="1" 
+	xmpp.1.roster.invite.accept="prompt" 
+	xmpp.1.roster.invite.addMethod="h350Person"
+	xmpp.1.server="%BW_IMP_SERVICE_NET_ADDRESS-1%" 
+	xmpp.1.verifyCert="0" />
+  </xmpp>
+  <acd>
+    <acd 
+	acd.reg="%ACD_LINE%" 
+	acd.stateAtSignIn="%ACD_SIGNIN_STATE%" 
+	acd.1.unavailreason.active="1"
+	acd.1.unavailreason.codeValue="10001" 
+	acd.1.unavailreason.codeName="Out to lunch" 
+	acd.2.unavailreason.active="1"
+	acd.2.unavailreason.codeValue="10002" 
+	acd.2.unavailreason.codeName="On the phone" 
+	acd.3.unavailreason.active="1"
+	acd.3.unavailreason.codeValue="10003" 
+	acd.3.unavailreason.codeName="Out for coffee" 
+	acd.4.unavailreason.active="1"
+	acd.4.unavailreason.codeValue="10004" 
+	acd.4.unavailreason.codeName="In a meeting" 
+	acd.5.unavailreason.active="1"
+	acd.5.unavailreason.codeValue="10005" 
+	acd.5.unavailreason.codeName="On vacation" 
+	acd.6.unavailreason.active="1"
+	acd.6.unavailreason.codeValue="10006" 
+	acd.6.unavailreason.codeName="In training" />
+  </acd>
+  <!-- CALL INFORMATION / CALL MIME TYPE: FEATURE_ACD_CALL_INFORMATION -->
   <push apps.push.messageType="3" apps.push.serverRootURL="" apps.push.username="" apps.push.password="" />
+  <voIpProt>
+    <voIpProt.SIP.outboundProxy 
+	voIpProt.SIP.outboundProxy.address="%SBC_ADDRESS%" 
+	voIpProt.SIP.outboundProxy.port="%SBC_PORT%"
+	voIpProt.SIP.outboundProxy.transport="%SBC_TRANSPORT%" 
+	voIpProt.SIP.outboundProxy.failOver.failback.mode="%FAILBACK-MODE%"
+	voIpProt.SIP.outboundProxy.failOver.failback.timeout="%FAILBACK-TIMEOUT%"
+	voIpProt.SIP.outboundProxy.failOver.onlySignalWithRegistered="%SIGNAL-ONLY-REG%"
+	voIpProt.SIP.outboundProxy.failOver.failRegistrationOn="%FAIL-REG-ON%"
+	voIpProt.SIP.outboundProxy.failOver.reRegisterOn="%RE-REGISTER-ON%" />
+    <voIpProt.SIP.serverFeatureControl.localProcessing 
+	voIpProt.SIP.serverFeatureControl.localProcessing.cf="0"
+	voIpProt.SIP.serverFeatureControl.localProcessing.dnd="0" 
+	voIpProt.SIP.serverFeatureControl.cf="1"
+	voIpProt.SIP.serverFeatureControl.dnd="1" />
+    <voIpProt.SIP.conference voIpProt.SIP.conference.address="%CONFERENCE%" />
+    <voIpProt.SIP.acd voIpProt.SIP.acd.signalingMethod="%FEATURE_SYNC_ACD%" />
+    <voIpProt.server 
+	voIpProt.server.1.address="%APPLICATION_DOMAIN%" 
+	voIpProt.server.1.transport="UDPOnly" />
+	<voIpProt.SIP.specialEvent.checkSync.alwaysReboot voIpProt.SIP.specialEvent.checkSync.alwaysReboot="%CHECKSYNC_REBOOT%" />
+  </voIpProt>
+  <divert>
+   <divert 
+	divert.1.sharedDisabled="0" 
+	divert.2.sharedDisabled="0" 
+	divert.3.sharedDisabled="0" 
+	divert.4.sharedDisabled="0"
+	divert.5.sharedDisabled="0" 
+	divert.6.sharedDisabled="0" 
+	divert.7.sharedDisabled="0" 
+	divert.8.sharedDisabled="0"
+	divert.9.sharedDisabled="0" 
+	divert.10.sharedDisabled="0" 
+	divert.11.sharedDisabled="0" 
+	divert.12.sharedDisabled="0" />
+  </divert>
+  <flexibleSeating 
+	hoteling.reg="%BWHOTELINGLINE-1%" 
+	fs.unLockPhone.pin="%BWFLEXIBLESEATINGUNLOCKPIN-1%"
+	hotelingMode.type="%BWHOTELINGMODE-1%" />
+  <wifi device.wifi.enabled="%WIFI%" />
+  <dir>
+    <dir.corp 
+	dir.corp.address="%LDAPserver%" 
+	dir.corp.backGroundSync.period="%LDAPbgsync%" 
+	dir.corp.baseDN="%LDAPbaseDN%"
+	dir.corp.filterPrefix="%LDAPfilterPrefix%" 
+	dir.corp.port="%LDAPport%" 
+	dir.corp.user="%LDAPuser%" 
+	dir.corp.password="%LDAPpass%"
+	dir.corp.sortControl="%LDAPlocalsort%" 
+	dir.corp.vlv.allow="%LDAPvlv%" 
+	dir.corp.vlv.sortOrder="%LDAPvlvsortorder%"
+	dir.corp.attribute.1.label="%LDAPattr1label%" 
+	dir.corp.attribute.1.name="%LDAPattr1name%"
+	dir.corp.attribute.1.type="%LDAPattr1type%" 
+	dir.corp.attribute.1.searchable="%LDAPattr1search%"
+	dir.corp.attribute.2.label="%LDAPattr2label%" 
+	dir.corp.attribute.2.name="%LDAPattr2name%"
+	dir.corp.attribute.2.type="%LDAPattr2type%" 
+	dir.corp.attribute.2.searchable="%LDAPattr2search%"
+	dir.corp.attribute.3.label="%LDAPattr3label%" 
+	dir.corp.attribute.3.name="%LDAPattr3name%"
+	dir.corp.attribute.3.type="%LDAPattr3type%" 
+	dir.corp.attribute.3.searchable="%LDAPattr3search%"
+	dir.corp.attribute.4.label="%LDAPattr4label%" 
+	dir.corp.attribute.4.name="%LDAPattr4name%"
+	dir.corp.attribute.4.type="%LDAPattr4type%" 
+	dir.corp.attribute.4.searchable="%LDAPattr4search%" />
+  </dir>
+  <PHONE_CONFIG>
+    <DualMicNoiseSuppression 
+	voice.ns.hd.enhanced="1" 
+	voice.ns.hd.enable="1" 
+	voice.ns.hs.enhanced="1" 
+	voice.ns.hs.enable="1" />
+  </PHONE_CONFIG>
+  <tone>
+    <tone.dtmf tone.dtmf.rfc2833Payload="101" />
+  </tone>
+  <transfer>
+    <transfer 
+	voIpProt.SIP.allowTransferOnProceeding="%TRANSFER_ON_PROCEEDING%" 
+	call.defaultTransferType="%TRANSFER_TYPE%" />
+  </transfer>
+  <qos>
+    <qos.ip>
+      <qos.ip.callControl 
+	  qos.ip.callControl.dscp="%QOS-CP-DSCP%" 
+	  qos.ip.callControl.max_reliability="0"
+	  qos.ip.callControl.max_throughput="0" 
+	  qos.ip.callControl.min_cost="0" 
+	  qos.ip.callControl.min_delay="1"
+	  qos.ip.callControl.precedence="5" />
+      <qos.ip.callControl.dscp.assuredService qos.ip.callControl.dscp.assuredService.1="48" />
+      <qos.ip.rtp 
+	  qos.ip.rtp.dscp="%QOS-RTP-DSCP%" 
+	  qos.ip.rtp.max_reliability="0" 
+	  qos.ip.rtp.max_throughput="1"
+	  qos.ip.rtp.min_cost="0" 
+	  qos.ip.rtp.min_delay="1" 
+	  qos.ip.rtp.precedence="5" />
+      <qos.ip.rtp.dscp.assuredService qos.ip.rtp.dscp.assuredService.1="46" />
+      <qos.ip.rtp.video 
+	  qos.ip.rtp.video.dscp="%QOS-RTP-DSCP-VIDEO%" 
+	  qos.ip.rtp.video.max_reliability="0"
+	  qos.ip.rtp.video.max_throughput="1" 
+	  qos.ip.rtp.video.min_cost="0" 
+	  qos.ip.rtp.video.min_delay="1"
+	  qos.ip.rtp.video.precedence="5" />
+      <qos.ip.rtp.video.dscp.assuredService qos.ip.rtp.video.dscp.assuredService.1="38" />
+    </qos.ip>
+  </qos>
 </phone1>
-
