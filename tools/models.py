@@ -95,7 +95,7 @@ class ProcessContent(models.Model):
 
 class DeviceType(models.Model):
     manufacturer = models.CharField(max_length=256)
-    model = models.CharField(max_length=256, blank=true)
+    model = models.CharField(max_length=256)
 
     def get_name(self):
         return '{}_{}'.format(self.manufacturer, self.model)
