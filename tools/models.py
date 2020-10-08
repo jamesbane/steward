@@ -102,4 +102,4 @@ class DeviceType(models.Model):
         return '{}_{}'.format(self.manufacturer, self.model)
 
     def __str__(self):
-        return '{}_{}'.format(self.identity_device_profile_type)
+        return '{}_{}'.format(self.manufacturer, self.model)
