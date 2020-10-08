@@ -96,10 +96,10 @@ class ProcessContent(models.Model):
 class DeviceType(models.Model):
     manufacturer = models.CharField(max_length=256)
     model = models.CharField(max_length=256)
-    #identity_device_profile_type = models.CharField(max_length=256, default='')
+    identity_device_profile_type = models.CharField(max_length=256, default='')
 
     def get_name(self):
         return '{}_{}'.format(self.manufacturer, self.model)
 
     def __str__(self):
-        return '{}_{}'.format(self.manufacturer, self.model)
+        return '{}_{}'.format(self.identity_device_profile_type)
