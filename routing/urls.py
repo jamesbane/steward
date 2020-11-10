@@ -33,4 +33,7 @@ urlpatterns = [
 
     url(r'^transmissions$', routing.views.TransmissionListView.as_view(), name='transmission-list'),
     url(r'^transmissions/(?P<pk>\d+)/$', routing.views.TransmissionDetailView.as_view(), name='transmission-detail'),
+
+    url(r'^wireless-port/search$', routing.views.WirelessSearchView.as_view(), name='wireless-search'),
+    url(r'^wireless-port-history/$', routing.views.WirelessPortHistoryListView.as_view(), name='wireless-port-history'),
 ]

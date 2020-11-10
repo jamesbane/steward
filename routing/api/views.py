@@ -428,3 +428,136 @@ class RemoteCallForwardDetailView(RetrieveUpdateDestroyAPIView):
         instance.delete()
         models.RemoteCallForwardHistory.objects.create(called_number=instance.called_number, user=request.user, action='Deleted')
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class WirelessPortFilter(FilterSet):
+    modified_gt = django_filters.IsoDateTimeFilter(name='modified', lookup_type='gt')
+    modified_lte = django_filters.IsoDateTimeFilter(name='modified', lookup_type='lte')
+
+    class Meta:
+        model = models.WirelessPort
+        fields = ['cc', 'number', 'route', 'active', 'modified_gt', 'modified_lte']
+
+
+class WirelessPortListView(UpdateModelMixin, ListModelMixin, CreateModelMixin, GenericAPIView):
+    queryset = models.WirelessPort.objects.filter(active=True)
+    permission_classes = (DjangoModelPermissionsOrAnonReadOnly, IsAuthenticated,)
+    serializer_class = serializers.WirelessPortSerializer
+    filter_class = WirelessPortFilter
+    _instance = None
+
+    def get_queryset(self):
+        queryset = super(WirelessPortListView, self).get_queryset()
+        q = self.request.query_params.get('q', None)
+        if q is not None:
+            if q.startswith('^'):
+                queryset = queryset.filter(number__startswith=q[1:])
+            elif q.endswith('$'):
+                queryset = queryset.filter(number__endswith=q[:-1])
+            else:
+                queryset = queryset.filter(number__contains=q)
+        return queryset
+
+    def get(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            data = serializer.data
+            for item in data:
+                item['url'] = '{}://{}{}'.format(request.scheme, request.META.get('HTTP_HOST'), reverse('api:routing-wireless-port-detail', args=(item.get('cc'), item.get('number'))))
+            return self.get_paginated_response(data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        data = serializer.data
+        for item in data:
+            item['url'] = '{}://{}{}'.format(request.scheme, request.META.get('HTTP_HOST'), reverse('api:routing-wireless-port-detail', args=(item.get('cc'), item.get('number'))))
+        return Response(data)
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        route = models.Route.objects.get(pk=serializer.data['route'])
+        models.WirelessPortHistory.objects.create(cc=serializer.data['cc'], number=serializer.data['number'], user=request.user, action='Routes to {}'.format(route.name))
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+    def get_object(self):
+        if self._instance:
+            return self._instance
+        else:
+            cc = self.request.data.get('cc', None)
+            number = self.request.data.get('number', None)
+            self._instance = models.WirelessPort.objects.get(cc=cc, number=number)
+            return self._instance
+
+    def put(self, request, *args, **kwargs):
+        try:
+            instance = self.get_object()
+            instance.active = True
+            partial = kwargs.pop('partial', False)
+            serializer = self.get_serializer(instance, data=request.data, partial=partial)
+            serializer.is_valid(raise_exception=True)
+            self.perform_update(serializer)
+            data = serializer.data
+            data['url'] = '{}://{}{}'.format(request.scheme, request.META.get('HTTP_HOST'),
+                                             reverse('api:routing-wireless-port-detail', args=(instance.cc, instance.number)))
+            models.WirelessPortHistory.objects.create(cc=instance.cc, number=instance.number, user=request.user, action='Routes to {}'.format(instance.route.name))
+            return Response(data)
+        except models.WirelessPort.DoesNotExist:
+            resp = self.create(request, *args, **kwargs)
+            route = models.Route.objects.get(id=resp.data.get('route'))
+            models.WirelessPortHistory.objects.create(cc=resp.data.get('cc'), number=resp.data.get('number'), user=request.user, action='Routes to {}'.format(route.name))
+            return resp
+
+
+class WirelessPortDetailView(RetrieveUpdateDestroyAPIView):
+    queryset = models.WirelessPort.objects.filter(active=True)
+    permission_classes = (DjangoModelPermissionsOrAnonReadOnly, IsAuthenticated,)
+    serializer_class = serializers.WirelessPortSerializer
+
+    def get_object(self):
+        queryset = self.get_queryset()
+        return queryset.get(cc=self.kwargs['cc'], number=self.kwargs['number'])
+
+    def get(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        data = serializer.data
+        return Response(data)
+
+    def put(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        models.WirelessPortHistory.objects.create(cc=instance.cc, number=instance.number, user=request.user, action='Routes to {}'.format(instance.route.name))
+        return Response(serializer.data)
+
+    def delete(self, request, *args, **kwargs):
+        instance = self.get_object()
+        instance.active = False
+        instance.save()
+        models.WirelessPortHistory.objects.create(cc=instance.cc, number=instance.number, user=request.user, action='Deleted')
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class WirelessPortHistoryView(GenericAPIView):
+    queryset = models.WirelessPortHistory.objects.all()
+    permission_classes = (DjangoModelPermissionsOrAnonReadOnly, IsAuthenticated,)
+    serializer_class = serializers.WirelessPortHistorySerializer
+
+    def get_object(self):
+        queryset = self.get_queryset()
+        return queryset.all()
+
+    def get(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, many=True)
+        data = serializer.data
+        return Response(data)

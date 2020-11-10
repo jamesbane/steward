@@ -13,7 +13,7 @@ from django.views.generic import (
 from routing.models import (
     FraudBypass, FraudBypassHistory, Number, NumberHistory, OutboundRoute, OutboundRouteHistory, Record,
     RemoteCallForward, RemoteCallForwardHistory, Route, Transmission,
-)
+    WirelessPort, WirelessPortHistory)
 
 
 class TransmissionListView(LoginRequiredMixin, ListView):
@@ -219,3 +219,17 @@ class RemoteCallForwardHistoryDetailView(LoginRequiredMixin, TemplateView):
         context['called_number'] = self.kwargs.get('called_number')
         context['history_list'] = RemoteCallForwardHistory.objects.filter(called_number=self.kwargs.get('called_number'))
         return context
+
+
+class WirelessSearchView(LoginRequiredMixin, TemplateView):
+    template_name = 'routing/wireless_search.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(WirelessSearchView, self).get_context_data(**kwargs)
+        context['number_count'] = WirelessPort.objects.filter(active=True).count()
+        return context
+
+
+class WirelessPortHistoryListView(LoginRequiredMixin, ListView):
+    model = WirelessPortHistory
+    paginate_by = 100

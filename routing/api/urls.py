@@ -23,5 +23,8 @@ urlpatterns = [
     url(r'^remote-call-forward/(?P<called_number>\d+)/$', views.RemoteCallForwardDetailView.as_view(), name='routing-remote-call-forward-detail'),
     url(r'^outbound-route/$', views.OutboundRouteListView.as_view(), name='routing-outbound-route-list'),
     url(r'^outbound-route/(?P<number>\d+)/$', views.OutboundRouteDetailView.as_view(), name='routing-outbound-route-detail'),
+    url(r'^wireless-port/$', views.WirelessPortListView.as_view(), name='routing-wireless-port-list'),
+    url(r'^wireless-port/(?P<cc>\d+)/(?P<number>\d+)/$', views.WirelessPortDetailView.as_view(), name='routing-wireless-port-detail'),
+    url(r'^wireless-port/history/', views.WirelessPortHistoryView.as_view(), name='routing-wireless-history'),
     url(r'^', include(router.urls)),
 ]

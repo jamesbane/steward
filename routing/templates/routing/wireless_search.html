@@ -1,0 +1,166 @@
+{% extends 'routing/base.html' %}
+{% load humanize %}
+
+{% block tool_content %}
+  <h1 class="page-header">
+    <div class="pull-right">
+      <div class="btn-group" role="group">
+        <a href="{% url 'routing:wireless-port-history' %}" class="number-add btn btn-default"><i class="fa fa-fw fa-book"></i> History</a>
+      </div>
+    </div>
+    Wireless Port <span class="badge"><span id="number_count">0</span> / {{ number_count|intcomma }}</span>
+  </h1>
+
+  <div class="container-fluid">
+
+    <form id="form_query">
+      <div class="input-group">
+          <input type="text" class="form-control" placeholder="Number search" id="id_query">
+          <span class="input-group-btn">
+            <button class="btn btn-default" type="submit" id="btn_query"><i class="fa fa-fw fa-search"></i></button>
+          </span>
+      </div>
+    </form>
+
+    <br/>
+
+    <table id="results" class="table table-bordered table-striped table-hover">
+      <thead>
+        <tr>
+          <th class="col-lg-6">Number</th>
+          <th class="col-lg-6">Route</th>
+          <th/>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <nav>
+      <ul class="pager">
+        <li class="previous disabled"><a href="#"><span aria-hidden="true">&larr;</span> Previous</a></li>
+        <li id="page_count"></li>
+        <li class="next disabled"><a href="#">Next <span aria-hidden="true">&rarr;</span></a></li>
+      </ul>
+    </nav>
+  </div>
+
+{% endblock tool_content %}
+
+{% block javascript %}
+  {{ block.super }}
+  <script>
+    var permission_number_edit = {% if perms.routing.change_number %}true{% else %}false{% endif %};
+    var permission_number_delete = {% if perms.routing.delete_number %}true{% else %}false{% endif %};
+    var routes = {};
+    var page = 1;
+    var result_count = 0;
+    var limit = 50;
+    function buildResultHtml(cc, number, route) {
+      var routeName = routes[route];
+      var html = '<td class="col-number">'+number+'</td><td class="col-route-name">'+routeName+'</td><td style="min-width: 100px" nowrap><div class="btn-group" role="group">';
+      html += '<a href="/routing/numbers/'+cc+'/'+number+'/" class="btn btn-xs btn-default"><i class="fa fa-fw fa-book"></i><span class="sr-only">History</span></a>';
+      html += '</div></td>';
+      return html;
+    }
+    function insertResult(cc, number, route) {
+      var html = '<tr id="id_'+cc+'_'+number+'">';
+      html += buildResultHtml(cc, number, route);
+      html += '</tr>';
+      $('#results > tbody').append(html);
+    }
+    function updatePagination() {
+      number_pages = Math.ceil(result_count/limit);
+      $('#page_count').html('Page '+page+' / '+number_pages);
+      if (page > 1) {
+        $('.pager .previous').removeClass('disabled');
+      } else {
+        $('.pager .previous').addClass('disabled');
+      }
+      if (page*limit < result_count) {
+        $('.pager .next').removeClass('disabled');
+      } else {
+        $('.pager .next').addClass('disabled');
+      }
+    }
+    function search(query) {
+      var offset = (page-1) * limit;
+      $.ajax({
+        url: "{% url 'api:routing-wireless-port-list' %}?ordering=number&cc=1&limit=50&q="+query+"&offset="+offset,
+        success: function(data) {
+          $('#results > tbody').html('');
+          result_count = data.count;
+          $('#number_count').html(result_count).digits();
+          $(data.results).each(function(idx, item) {
+            var cc = item.cc;
+            var number = item.number;
+            var route = item.route;
+            insertResult(cc, number, route);
+          });
+          updatePagination();
+          history.pushState({q: query, p: page}, "Steward Wireless Port Search", "/routing/wireless-port/search?q="+query+"&p="+page);
+        }
+      });
+    }
+    function parseNumbers(data) {
+      var nanpa_pattern = /^[2-9]\d{2}[2-9]\d{2}\d{4}$/;
+      var nanpa_multi_pattern = /^[2-9]\d{2}[2-9]\d{2}\d{4}-[2-9]\d{2}[2-9]\d{2}\d{4}$/;
+      var numbers = {'valid': [], 'invalid': []};
+
+      var lines = data.split('\n');
+      for(i in lines) {
+        var line = lines[i];
+        var items = line.split(',');
+        for(j in items) {
+          var item = items[j];
+          if(nanpa_pattern.test(item)) {
+            numbers['valid'].push(item);
+          } else if(nanpa_multi_pattern.test(item)) {
+            x = item.split('-');
+            a = parseInt(x[0]);
+            b = parseInt(x[1]);
+            if (a < b) {
+              for(i=a; i<=b; i++) {
+                numbers['valid'].push(i.toString());
+              }
+            }
+          } else if(item != "") {
+            numbers['invalid'].push(item);
+          }
+        }
+      }
+      return numbers;
+    }
+    function doTheThings() {
+      query = qs['q'] || "";
+      page = parseInt(qs['p']) || 1;
+      $('#id_query').val(query);
+      search(query, page);
+      $('#form_query').on("submit", function() {
+        query = $('#id_query').val();
+        page = 1;
+        search(query, page);
+        return false;
+      });
+      $('.pager .next').on('click', function() {
+        page = page+1;
+        search(query);
+      });
+      $('.pager .previous').on('click', function() {
+        page = page-1;
+        search(query);
+      });
+    }
+
+    $.ajax({
+      url: "{% url 'api:routing-route-list' %}?type=0",
+      success: function(data) {
+        console.log("cacheRoutes success");
+        $(data.results).each(function(idx, item) {
+          routes[item.id] = item.name;
+          $('.route_choices').append('<option value="'+item.id+'">'+item.name+'</option>');
+        });
+        doTheThings();
+      }
+    });
+  </script>
+{% endblock javascript %}

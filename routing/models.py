@@ -128,6 +128,59 @@ class NumberHistory(models.Model):
         ordering = ('-modified',)
 
 
+class WirelessPort(models.Model):
+    route = models.ForeignKey('Route', related_name='wirelessport')
+    cc = models.SmallIntegerField(default=1)
+    number = models.CharField(max_length=64)
+    modified = models.DateTimeField(auto_now=True)
+    active = models.BooleanField(default=True)
+
+    class Meta:
+        unique_together = ('cc', 'number')
+        ordering = ('modified',)
+
+    def get_absolute_api_url(self):
+        return reverse('api:routing-number-detail', args=(self.cc, self.number))
+
+    def get_desination(self):
+        if self.destination:
+            return self.destination
+        else:
+            return self.number
+
+    @property
+    def e164(self):
+        return "+{}-{}".format(self.cc, self.number)
+
+    @property
+    def name(self):
+        return '.'.join((str(self.cc) + str(self.number))[::-1]) + '.e164.arpa.'
+
+    @property
+    def records(self):
+        django_engine = engines['django']
+        context = {
+            'cc': self.cc,
+            'number': self.number,
+            'destination': self.get_desination(),
+        }
+        rval = list()
+        for record in self.route.records.all():
+            rval.append(django_engine.from_string(record).render(context))
+        return rval
+
+
+class WirelessPortHistory(models.Model):
+    cc = models.SmallIntegerField(default=1)
+    number = models.CharField(max_length=64)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='+')
+    modified = models.DateTimeField(auto_now=True)
+    action = models.CharField(max_length=256)
+
+    class Meta:
+        ordering = ('-modified',)
+
+
 class FraudBypass(models.Model):
     cc = models.SmallIntegerField(default=1)
     number = models.CharField(max_length=64, validators=[NANPA_VALIDATOR])
@@ -151,8 +204,10 @@ class FraudBypassHistory(models.Model):
 
 class OutboundRoute(models.Model):
     number = models.CharField(max_length=128, unique=True)
-    end_office_route = models.ForeignKey('Route', related_name='+',  limit_choices_to={'type': Route.TYPE_CHOICE_OUTBOUND})
-    long_distance_route = models.ForeignKey('Route', related_name='+', limit_choices_to={'type': Route.TYPE_CHOICE_OUTBOUND})
+    end_office_route = models.ForeignKey('Route', related_name='+',
+                                         limit_choices_to={'type': Route.TYPE_CHOICE_OUTBOUND})
+    long_distance_route = models.ForeignKey('Route', related_name='+',
+                                            limit_choices_to={'type': Route.TYPE_CHOICE_OUTBOUND})
     comment = models.CharField(max_length=128, blank=True)
     modified = models.DateTimeField(auto_now=True)
 
