@@ -552,12 +552,20 @@ class WirelessPortHistoryView(GenericAPIView):
     permission_classes = (DjangoModelPermissionsOrAnonReadOnly, IsAuthenticated,)
     serializer_class = serializers.WirelessPortHistorySerializer
 
-    def get_object(self):
-        queryset = self.get_queryset()
-        return queryset.all()
+    def get_queryset(self):
+        queryset = super(WirelessPortHistoryView, self).get_queryset()
+        number = self.request.query_params.get('number', None)
+        if number is not None:
+            queryset = queryset.filter(number=number)
+        return queryset
 
     def get(self, request, *args, **kwargs):
-        instance = self.get_object()
-        serializer = self.get_serializer(instance, many=True)
+        queryset = self.get_queryset()
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            data = serializer.data
+            return self.get_paginated_response(data)
+        serializer = self.get_serializer(queryset, many=True)
         data = serializer.data
         return Response(data)
