@@ -12,7 +12,8 @@ from django.template import loader
 from django.utils import timezone
 
 # Application
-from routing.models import FraudBypass, FraudBypassHistory, Number, OutboundRoute, OutboundRouteHistory, RemoteCallForward, RemoteCallForwardHistory, Route, Transmission
+from routing.models import FraudBypass, FraudBypassHistory, Number, OutboundRoute, OutboundRouteHistory, \
+    RemoteCallForward, RemoteCallForwardHistory, Route, Transmission, WirelessPort
 
 # Third Party
 import paramiko
@@ -29,6 +30,7 @@ class Command(BaseCommand):
             'outbound-route': self.transfer_outbound_route,
             'remote-call-forward': self.transfer_remote_call_forward,
             'route': self.transfer_route,
+            'wireless-port': self.transfer_wireless_port
         }
 
     def add_arguments(self, parser):
@@ -143,6 +145,43 @@ class Command(BaseCommand):
             self.stdout.write(self.style.SUCCESS('Successfully transfered Route file'))
         else:
             self.stdout.write(self.style.ERROR('Failed to transfer Route file'))
+
+        # Cleanup
+        os.remove(f.name)
+
+    @transaction.non_atomic_requests
+    def transfer_wireless_port(self):
+        self.stdout.write(self.style.SUCCESS('Transfering Wireless Port File'))
+        try:
+            last_transmission = Transmission.objects.filter(result_state=Transmission.RESULT_CHOICE_SUCCESS, type=Transmission.TYPE_CHOICE_ROUTE).latest('last_modified')
+        except Transmission.DoesNotExist:
+            last_transmission = None
+        try:
+            last_modified = WirelessPort.objects.latest('modified').modified
+        except WirelessPort.DoesNotExist:
+            last_modified = None
+        if last_transmission and last_transmission.last_modified and last_modified and last_transmission.last_modified >= last_modified:
+            self.stdout.write(self.style.SUCCESS('No modifications since last transmission'))
+            return
+        transmission = Transmission.objects.create(result_state=Transmission.RESULT_CHOICE_PENDING, type=Transmission.TYPE_CHOICE_ROUTE, last_modified=last_modified)
+        meta_settings = settings.PLATFORMS['metaswitch']
+        dest_filename = meta_settings['filenames']['wireless-port']
+        self.stdout.write(dest_filename)
+
+        # generate file
+        context = dict()
+        context['routes'] = Route.objects.filter(type=Route.TYPE_CHOICE_INTERNAL)
+        context['numbers'] = WirelessPort.objects.filter(active=True)
+        f = tempfile.NamedTemporaryFile(delete=False)
+        f.write(loader.render_to_string('routing/INTQ_Port.txt', context).encode())
+        f.close()
+
+        # transfer file
+        if self._transfer_file(transmission, f, dest_filename):
+            self._copy_to_meta_backup_path(f, dest_filename)
+            self.stdout.write(self.style.SUCCESS('Successfully transfered Wireless Port file'))
+        else:
+            self.stdout.write(self.style.ERROR('Failed to transfer Wireless Port file'))
 
         # Cleanup
         os.remove(f.name)

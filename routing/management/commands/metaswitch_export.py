@@ -12,7 +12,7 @@ from django.template import loader
 from django.utils import timezone
 
 # Application
-from routing.models import FraudBypass, Number, OutboundRoute, RemoteCallForward, Route, Transmission
+from routing.models import FraudBypass, Number, OutboundRoute, RemoteCallForward, Route, Transmission, WirelessPort
 
 # Third Party
 import paramiko
@@ -29,6 +29,7 @@ class Command(BaseCommand):
             'outbound-route': self.export_outbound_route,
             'remote-call-forward': self.export_remote_call_forward,
             'route': self.export_route,
+            'wireless-port': self.export_wireless_port
         }
 
     def add_arguments(self, parser):
@@ -71,6 +72,17 @@ class Command(BaseCommand):
         f.write(str(loader.render_to_string('routing/NVFILE_route.txt', context)))
         f.close()
         self.stdout.write(self.style.SUCCESS('Successfully exported Route file to {}'.format(f.name)))
+
+    @transaction.non_atomic_requests
+    def export_wireless_port(self, output_file):
+        f = output_file
+        # generate file
+        context = dict()
+        context['routes'] = Route.objects.filter(type=Route.TYPE_CHOICE_INTERNAL)
+        context['numbers'] = WirelessPort.objects.filter(active=True)
+        f.write(str(loader.render_to_string('routing/INTQ_Port.txt', context)))
+        f.close()
+        self.stdout.write(self.style.SUCCESS('Successfully exported Wireless Port file to {}'.format(f.name)))
 
     @transaction.non_atomic_requests
     def export_outbound_route(self, output_file):
